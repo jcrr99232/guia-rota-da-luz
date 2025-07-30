@@ -289,8 +289,7 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline }) => {
         >
           <ArrowLeft className="h-5 w-5 mr-2" />
           Voltar
-        </button>
-            //<RotaDaLuzLogo />
+        </button>          
       </div>
 
       <div className="text-center mb-8">
@@ -495,7 +494,6 @@ export default function App() {
     <div className="min-h-screen bg-gray-100 font-sans">
       <header className="bg-white shadow-md relative">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          //<AARLLogo />
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl font-extrabold text-blue-800">
               Guia da Rota da Luz
