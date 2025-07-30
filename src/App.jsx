@@ -459,9 +459,6 @@ export default function App() {
     <div className="min-h-screen bg-gray-100 font-sans">
       <header className="bg-white shadow-md sticky top-0 z-10">
          <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-            <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL">
-                <img src="/favicon-aarl.jpeg" alt="Logotipo AARL" className="h-12 sm:h-14" />
-            </a>
             <div className="text-center">
                 <h1 className="text-2xl sm:text-4xl font-extrabold text-blue-800">
                 Guia da Rota da Luz
@@ -469,26 +466,36 @@ export default function App() {
                 <p className="text-gray-600 mt-1 text-xs sm:text-base">
                 Seu guia para a peregrinação à Aparecida.
                 </p>
-            </div>
-            {/* Spacer para manter o título centralizado */}
-            <div className="h-12 w-12 sm:h-14 sm:w-14"></div> 
+            </div>            
         </div>
       </header>
       
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
-            <label htmlFor="start-date" className="block text-lg font-bold text-gray-800 mb-2">
-                <Calendar className="inline-block h-6 w-6 mr-2 text-blue-600" />
-                Selecione a data de início da sua caminhada:
-            </label>
-            <input
-                type="date"
-                id="start-date"
-                value={startDate.toISOString().split('T')[0]}
-                onChange={handleDateChange}
-                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-        </div>
+          {/* NOVO GRID DE 3 COLUNAS */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-center">
+
+            {/* COLUNA 1: LOGO (ocupa 1 de 3 colunas) */}
+            <div className="flex justify-center items-center">
+              <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL">
+                <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-28 sm:h-32 lg:h-40" />
+              </a>
+            </div>
+
+            {/* COLUNAS 2 e 3: CALENDÁRIO (ocupa 2 de 3 colunas) */}
+            <div className="bg-white p-6 rounded-xl shadow-lg lg:col-span-2">
+                <label htmlFor="start-date" className="block text-lg font-bold text-gray-800 mb-2">
+                    <Calendar className="inline-block h-6 w-6 mr-2 text-blue-600" />
+                    Selecione a data de início da sua caminhada:
+                </label>
+                <input
+                    type="date"
+                    id="start-date"
+                    value={startDate.toISOString().split('T')[0]}
+                    onChange={handleDateChange}
+                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+            </div>
+          </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allEtapas.map(etapa => {
