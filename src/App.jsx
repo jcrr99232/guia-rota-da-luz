@@ -136,20 +136,6 @@ const etapasData = [
   }
 ];
 
-
-// --- Helper Functions ---
-const formatDate = (date) => {
-  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-};
-
-const parseTime = (timeStr) => {
-    const hoursMatch = timeStr.match(/(\d+)h/);
-    const minMatch = timeStr.match(/(\d+)min/);
-    const hours = hoursMatch ? parseInt(hoursMatch[1], 10) : 0;
-    const minutes = minMatch ? parseInt(minMatch[1], 10) : 0;
-    return hours * 60 + minutes;
-};
-
 // --- Components ---
 
 const Card = ({ icon: Icon, title, children, colorClass }) => (
