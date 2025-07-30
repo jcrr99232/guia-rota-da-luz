@@ -283,15 +283,15 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline }) => {
         <div className="bg-white p-4 rounded-lg shadow">
           <Thermometer className="mx-auto h-8 w-8 text-orange-500 mb-2" />
           <p className="font-bold text-gray-800">Previsão do Tempo</p>
-          <p className="text-lg text-gray-600">{etapa.previsaoTempo.min} / {etapa.previsaoTempo.max}</p>
+          <p className="text-lg text-gray-600">{etapa.previsaoTempo?.min} / {etapa.previsaoTempo?.max}</p>
           <div className="grid grid-cols-3 gap-1 text-xs text-gray-500 mt-2 border-t pt-2">
-            <span title="Manhã"><Sunrise className="w-4 h-4 inline"/> {etapa.previsaoTempo.horarios[0].temp}</span>
-            <span title="Meio-dia"><Sun className="w-4 h-4 inline"/> {etapa.previsaoTempo.horarios[1].temp}</span>
-            <span title="Tarde"><Sunset className="w-4 h-4 inline"/> {etapa.previsaoTempo.horarios[2].temp}</span>
+            <span title="Manhã"><Sunrise className="w-4 h-4 inline"/> {etapa.previsaoTempo?.horarios[0].temp}</span>
+            <span title="Meio-dia"><Sun className="w-4 h-4 inline"/> {etapa.previsaoTempo?.horarios[1].temp}</span>
+            <span title="Tarde"><Sunset className="w-4 h-4 inline"/> {etapa.previsaoTempo?.horarios[2].temp}</span>
           </div>
           <div className="flex justify-around text-xs text-gray-500 mt-2 border-t pt-2">
-            <span title="Umidade do Ar"><Droplets className="w-4 h-4 inline mr-1"/>{etapa.previsaoTempo.umidade}</span>
-            <span title="Chance de Chuva"><CloudRain className="w-4 h-4 inline mr-1"/>{etapa.previsaoTempo.chanceChuva}</span>
+            <span title="Umidade do Ar"><Droplets className="w-4 h-4 inline mr-1"/>{etapa.previsaoTempo?.umidade}</span>
+            <span title="Chance de Chuva"><CloudRain className="w-4 h-4 inline mr-1"/>{etapa.previsaoTempo?.chanceChuva}</span>
           </div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow">
