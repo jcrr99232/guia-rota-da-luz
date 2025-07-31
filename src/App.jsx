@@ -458,7 +458,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
       <header className="bg-white shadow-md sticky top-0 z-10">
-         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div className="container mx-auto px-4 py-3"> {/* Removido flex, justify-center, items-center */}
             <div className="text-center">
                 <h1 className="text-2xl sm:text-4xl font-extrabold text-blue-800">
                 Guia da Rota da Luz
@@ -477,7 +477,7 @@ export default function App() {
             {/* COLUNA 1: LOGO (ocupa 1 de 3 colunas) */}
             <div className="flex justify-center items-center">
               <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL">
-                <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-28 sm:h-32 lg:h-40" />
+                <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-32 sm:h-40 lg:h-48" />
               </a>
             </div>
 
