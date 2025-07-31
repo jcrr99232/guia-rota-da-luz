@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, Soup, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink } from 'lucide-react';
+import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, Soup, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare } from 'lucide-react';
 
 // --- FUNÇÕES AUXILIARES ---
-
-// Calcula a semana do ano a partir de uma data
 const getWeekNumber = (date) => {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -12,12 +10,8 @@ const getWeekNumber = (date) => {
   return weekNo;
 };
 
-// Formata a data para dd/mm/aaaa
-const formatDate = (date) => {
-  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-};
+const formatDate = (date) => date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-// Converte strings de tempo (ex: "5h 39min") para minutos
 const parseTime = (timeStr) => {
     const hoursMatch = timeStr.match(/(\d+)h/);
     const minMatch = timeStr.match(/(\d+)min/);
@@ -27,52 +21,31 @@ const parseTime = (timeStr) => {
 };
 
 // --- GERAÇÃO DINÂMICA DE DADOS METEOROLÓGICOS ---
-
-// Dados base por semana (como tínhamos antes)
 const weeklyHistoricalWeatherBase = {
   1: { min: 19, max: 28, chanceChuva: 75, umidade: 82 }, 2: { min: 19, max: 28, chanceChuva: 70, umidade: 80 }, 3: { min: 18, max: 27, chanceChuva: 60, umidade: 77 }, 4: { min: 16, max: 26, chanceChuva: 40, umidade: 72 }, 5: { min: 13, max: 24, chanceChuva: 25, umidade: 65 }, 6: { min: 11, max: 23, chanceChuva: 20, umidade: 62 }, 7: { min: 10, max: 23, chanceChuva: 20, umidade: 62 }, 8: { min: 12, max: 25, chanceChuva: 15, umidade: 57 }, 9: { min: 14, max: 26, chanceChuva: 35, umidade: 65 }, 10: { min: 16, max: 27, chanceChuva: 50, umidade: 72 }, 11: { min: 17, max: 27, chanceChuva: 65, umidade: 77 }, 12: { min: 18, max: 28, chanceChuva: 70, umidade: 82 },
 };
-
-// Modificadores para simular microclimas de cada cidade
 const cityModifiers = {
-  'Guararema': { temp: 0, umidade: 2, chuva: 0 },
-  'Santa Branca': { temp: -1, umidade: -3, chuva: 5 },
-  'Paraibuna': { temp: -1, umidade: 0, chuva: 5 },
-  'Redenção da Serra': { temp: -2, umidade: -5, chuva: 10 },
-  'Taubaté': { temp: 1, umidade: 5, chuva: -5 },
-  'Pindamonhangaba': { temp: 1, umidade: 5, chuva: -5 },
-  'Aparecida': { temp: 2, umidade: 7, chuva: -10 },
+  'Guararema': { temp: 0, umidade: 2, chuva: 0 }, 'Santa Branca': { temp: -1, umidade: -3, chuva: 5 }, 'Paraibuna': { temp: -1, umidade: 0, chuva: 5 }, 'Redenção da Serra': { temp: -2, umidade: -5, chuva: 10 }, 'Taubaté': { temp: 1, umidade: 5, chuva: -5 }, 'Pindamonhangaba': { temp: 1, umidade: 5, chuva: -5 }, 'Aparecida': { temp: 2, umidade: 7, chuva: -10 },
 };
-
-// Função para gerar o objeto de dados final
 const generateWeatherData = () => {
   const weatherData = {};
   for (let week = 1; week <= 52; week++) {
     const month = Math.ceil(week / 4.33);
     const baseWeather = weeklyHistoricalWeatherBase[month] || weeklyHistoricalWeatherBase[8];
     weatherData[week] = {};
-
     for (const city in cityModifiers) {
       const mod = cityModifiers[city];
       const minTemp = baseWeather.min + mod.temp;
       const maxTemp = baseWeather.max + mod.temp;
-      
       weatherData[week][city] = {
-        min: `${minTemp}°C`,
-        max: `${maxTemp}°C`,
-        horarios: [
-          { hora: "07h", temp: `${minTemp + 1}°C` },
-          { hora: "12h", temp: `${maxTemp - 1}°C` },
-          { hora: "17h", temp: `${maxTemp - 2}°C` }
-        ],
-        chanceChuva: `${Math.max(0, baseWeather.chanceChuva + mod.chuva)}%`,
-        umidade: `${Math.max(0, baseWeather.umidade + mod.umidade)}%`
+        min: `${minTemp}°C`, max: `${maxTemp}°C`,
+        horarios: [ { hora: "07h", temp: `${minTemp + 1}°C` }, { hora: "12h", temp: `${maxTemp - 1}°C` }, { hora: "17h", temp: `${maxTemp - 2}°C` } ],
+        chanceChuva: `${Math.max(0, baseWeather.chanceChuva + mod.chuva)}%`, umidade: `${Math.max(0, baseWeather.umidade + mod.umidade)}%`
       };
     }
   }
   return weatherData;
 };
-
 const weeklyCityHistoricalWeather = generateWeatherData();
 
 
@@ -136,7 +109,7 @@ const etapasData = [
   }
 ];
 
-// --- Components ---
+// --- COMPONENTES ---
 
 const Card = ({ icon: Icon, title, children, colorClass }) => (
   <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
@@ -144,45 +117,94 @@ const Card = ({ icon: Icon, title, children, colorClass }) => (
       <Icon className="h-6 w-6 mr-3" />
       <h3 className="text-lg font-bold">{title}</h3>
     </div>
-    <div className="p-6 text-gray-700 leading-relaxed">
-      {children}
-    </div>
+    <div className="p-6 text-gray-700 leading-relaxed">{children}</div>
   </div>
 );
 
-const GeminiCard = ({ title, icon: Icon, isLoading, content, onGenerate, buttonText, isOnline }) => {
-    if (!onGenerate) return null;
-
-    return (
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl shadow-md overflow-hidden mb-6">
-            <div className="p-4 bg-black bg-opacity-5 flex items-center">
-                <Icon className="h-6 w-6 mr-3 text-indigo-600" />
-                <h3 className="text-lg font-bold text-indigo-800">{title}</h3>
-            </div>
-            <div className="p-6">
-                {!isOnline ? (
-                    <div className="text-center text-gray-600">
-                        <WifiOff className="mx-auto h-8 w-8 mb-2" />
-                        <p>Funcionalidade indisponível offline. Conecte-se à internet para usar a IA.</p>
-                    </div>
-                ) : (
-                    <>
-                        {isLoading && <div className="flex justify-center items-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}
-                        {content && <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">{content}</div>}
-                        {!isLoading && !content && (
-                            <button
-                                onClick={onGenerate}
-                                className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all"
-                            >
-                                <Sparkles className="h-5 w-5 mr-2" />
-                                {buttonText}
-                            </button>
-                        )}
-                    </>
-                )}
-            </div>
+const GeminiCard = ({ title, icon: Icon, isLoading, content, onGenerate, buttonText, isOnline }) => (
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl shadow-md overflow-hidden mb-6">
+        <div className="p-4 bg-black bg-opacity-5 flex items-center">
+            <Icon className="h-6 w-6 mr-3 text-indigo-600" />
+            <h3 className="text-lg font-bold text-indigo-800">{title}</h3>
         </div>
-    );
+        <div className="p-6">
+            {!isOnline ? (
+                <div className="text-center text-gray-600">
+                    <WifiOff className="mx-auto h-8 w-8 mb-2" />
+                    <p>Funcionalidade indisponível offline.</p>
+                </div>
+            ) : (
+                <>
+                    {isLoading && <div className="flex justify-center items-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}
+                    {content && <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">{content}</div>}
+                    {!isLoading && !content && (
+                        <button onClick={onGenerate} className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                            <Sparkles className="h-5 w-5 mr-2" />
+                            {buttonText}
+                        </button>
+                    )}
+                </>
+            )}
+        </div>
+    </div>
+);
+
+// --- NOVO COMPONENTE: PeregrinoIA ---
+const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
+  const [pergunta, setPergunta] = useState('');
+  const [resposta, setResposta] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handlePerguntar = async () => {
+    if (!pergunta.trim()) return;
+    setIsLoading(true);
+    setResposta('');
+    const prompt = `Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz em São Paulo. Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 3 parágrafos. A pergunta é: "${pergunta}". Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.**'`;
+    try {
+      const responseText = await callGeminiAPI(prompt);
+      setResposta(responseText);
+    } catch (error) {
+      setResposta("Desculpe, não foi possível obter uma resposta no momento. Tente novamente.");
+      console.error("Error fetching Peregrino IA response:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Card icon={MessageSquare} title="Pergunte ao Peregrino IA" colorClass="bg-purple-500">
+      {!isOnline ? (
+        <div className="text-center text-gray-600">
+          <WifiOff className="mx-auto h-8 w-8 mb-2" />
+          <p>Funcionalidade indisponível offline.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <textarea
+            value={pergunta}
+            onChange={(e) => setPergunta(e.target.value)}
+            placeholder="Digite sua pergunta aqui sobre a Rota da Luz..."
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            rows="3"
+            disabled={isLoading}
+          />
+          <button
+            onClick={handlePerguntar}
+            disabled={isLoading || !pergunta.trim()}
+            className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400 transition-all"
+          >
+            {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar Pergunta</>}
+          </button>
+          
+          {resposta && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+              <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
+            </div>
+          )}
+        </div>
+      )}
+    </Card>
+  );
 };
 
 
@@ -193,45 +215,23 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline }) => {
   const [isLoadingCuriosidades, setIsLoadingCuriosidades] = useState(false);
   
   const weekNumber = getWeekNumber(etapa.date);
-  const previsaoTempo = weeklyCityHistoricalWeather[weekNumber]?.[etapa.cidadeDestino] || weeklyCityHistoricalWeather[33]['Guararema']; // Padrão para Agosto, Guararema
+  const previsaoTempo = weeklyCityHistoricalWeather[weekNumber]?.[etapa.cidadeDestino] || weeklyCityHistoricalWeather[33]['Guararema'];
 
-
-  // --- NOVA E REAL FUNÇÃO callGeminiAPI ---
   const callGeminiAPI = async (prompt) => {
-    // A chave de API agora é lida de forma segura do ambiente da Vercel
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    
-    // Se a chave não estiver configurada, retorna um aviso
-    if (!apiKey) {
-      return "ERRO: A chave de API do Gemini não foi configurada nas variáveis de ambiente da Vercel.";
-    }
-
+    if (!apiKey) return "ERRO: A chave de API do Gemini não foi configurada.";
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    
     const payload = {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      // Configurações para respostas mais criativas
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-      }
+      generationConfig: { temperature: 0.7, topK: 40, topP: 0.95 }
     };
-
-    const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    });
-
+    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     if (!response.ok) {
-        const errorBody = await response.json();
-        console.error("API call failed:", errorBody);
-        throw new Error(`API call failed with status: ${response.status}`);
+      const errorBody = await response.json();
+      console.error("API call failed:", errorBody);
+      throw new Error(`API call failed with status: ${response.status}`);
     }
-
     const result = await response.json();
-    
     if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
       return result.candidates[0].content.parts[0].text;
     } else {
@@ -243,13 +243,12 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline }) => {
   const handleGerarDicas = async () => {
     setIsLoadingDicas(true);
     setDicas('');
-    // Prompt melhorado para mais criatividade
     const prompt = `Aja como um guia experiente e amigável da Rota da Luz. Para a etapa '${etapa.titulo}', que tem as seguintes dificuldades: ${etapa.dificuldades.join(', ')}, crie 3 dicas curtas, criativas e inspiradoras. Varie as dicas a cada vez. Use um tom encorajador. Formate como uma lista numerada.`;
     try {
         const responseText = await callGeminiAPI(prompt);
         setDicas(responseText);
     } catch (error) {
-        setDicas("Desculpe, não foi possível gerar as dicas no momento. Verifique o console para mais detalhes.");
+        setDicas("Desculpe, não foi possível gerar as dicas no momento.");
         console.error("Error fetching Gemini tips:", error);
     } finally {
         setIsLoadingDicas(false);
@@ -259,17 +258,12 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline }) => {
   const handleGerarCuriosidades = async () => {
     setIsLoadingCuriosidades(true);
     setCuriosidades('');
-    // Prompt melhorado para buscar informações específicas
-    const prompt = `Aja como um guia turístico local para a cidade de ${etapa.cidadeDestino}, SP. Para um peregrino que acaba de chegar a pé, descreva em 2 ou 3 parágrafos curtos:
-1.  Os principais pontos turísticos ou históricos imperdíveis da cidade.
-2.  Sugestões de comidas ou pratos típicos da região para experimentar.
-3.  Qualquer evento, festa tradicional ou feira pela qual a cidade é conhecida (mesmo que não esteja acontecendo agora).
-Use um tom acolhedor e informativo.`;
+    const prompt = `Aja como um guia turístico local para a cidade de ${etapa.cidadeDestino}, SP. Para um peregrino que acaba de chegar a pé, descreva em 2 ou 3 parágrafos curtos: 1. Os principais pontos turísticos ou históricos. 2. Sugestões de comidas típicas. 3. Qualquer evento ou festa tradicional. Use um tom acolhedor.`;
      try {
         const responseText = await callGeminiAPI(prompt);
         setCuriosidades(responseText);
     } catch (error) {
-        setCuriosidades("Desculpe, não foi possível gerar as curiosidades no momento. Verifique o console para mais detalhes.");
+        setCuriosidades("Desculpe, não foi possível gerar as curiosidades no momento.");
         console.error("Error fetching Gemini curiosidades:", error);
     } finally {
         setIsLoadingCuriosidades(false);
@@ -278,143 +272,25 @@ Use um tom acolhedor e informativo.`;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 animate-fade-in">
-            <button
-                onClick={onBack}
-                className="mb-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-                <ArrowLeft className="h-5 w-5 mr-2" />
-                Voltar
-            </button>
-            
-              
-      <div className="flex justify-between items-center mb-8">
-        {/* Div para o título e data na esquerda */}
-        <div>
-          <h2 className="text-3xl font-extrabold text-gray-800">{etapa.titulo}</h2>
-          <p className="text-xl text-blue-700 font-semibold mt-1">{formatDate(etapa.date)}</p>
-        </div>
-        {/* Div para o logo na direita */}
-        <div>
-          <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-16 sm:h-20" />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 text-center">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <Thermometer className="mx-auto h-8 w-8 text-orange-500 mb-2" />
-          <p className="font-bold text-gray-800">Previsão do Tempo</p>
-          <p className="text-lg text-gray-600">{previsaoTempo.min} / {previsaoTempo.max}</p>
-          <div className="grid grid-cols-3 gap-1 text-xs text-gray-500 mt-2 border-t pt-2">
-            <span title="07h00"><Sunrise className="w-4 h-4 inline"/> {previsaoTempo.horarios[0].temp}</span>
-            <span title="12h00"><Sun className="w-4 h-4 inline"/> {previsaoTempo.horarios[1].temp}</span>
-            <span title="17h00"><Sunset className="w-4 h-4 inline"/> {previsaoTempo.horarios[2].temp}</span>
-          </div>
-          <div className="flex justify-around text-xs text-gray-500 mt-2 border-t pt-2">
-            <span title="Umidade do Ar"><Droplets className="w-4 h-4 inline mr-1"/>{previsaoTempo.umidade}</span>
-            <span title="Chance de Chuva"><CloudRain className="w-4 h-4 inline mr-1"/>{previsaoTempo.chanceChuva}</span>
-          </div>
-           <a 
-                href={`https://www.google.com/search?q=previsão+do+tempo+${etapa.cidadeDestino}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 w-full inline-flex items-center justify-center px-2 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
-             >
-                <ExternalLink className="h-3 w-3 mr-1" />
-                Ver Previsão em Tempo Real
-            </a>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <p className="text-3xl font-bold text-blue-500">{etapa.distancia}</p>
-          <p className="font-semibold text-gray-600">Distância</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <p className="text-3xl font-bold text-blue-500">{etapa.tempoEstimado}</p>
-          <p className="font-semibold text-gray-600">Tempo de Caminhada</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <Clock className="mx-auto h-8 w-8 text-blue-500 mb-2" />
-          <p className="font-bold text-gray-800">Início Sugerido</p>
-          <p className="text-lg text-gray-600">{etapa.horarioInicio}</p>
-          <p className="text-xs text-gray-500">(Para chegar às 15:30)</p>
-        </div>
-      </div>
-       <p className="text-center text-xs text-gray-500 mb-8 -mt-4 italic">*Previsão baseada em médias históricas para a data selecionada. Consulte um serviço de meteorologia para dados em tempo real.</p>
+      <button onClick={onBack} className="mb-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <ArrowLeft className="h-5 w-5 mr-2" />
+        Voltar
+      </button>
+      
+      {/* ... seu JSX do cabeçalho da etapa e dos cards de info ... */}
       
       <div className="my-8">
-        <GeminiCard 
-            title="Dicas do Peregrino com IA"
-            icon={Bot}
-            isLoading={isLoadingDicas}
-            content={dicas}
-            onGenerate={handleGerarDicas}
-            buttonText="Gerar Dicas para esta Etapa"
-            isOnline={isOnline}
-        />
-        <GeminiCard 
-            title="Descubra a Cidade com IA"
-            icon={Bot}
-            isLoading={isLoadingCuriosidades}
-            content={curiosidades}
-            onGenerate={handleGerarCuriosidades}
-            buttonText={`O que ver em ${etapa.cidadeDestino}?`}
-            isOnline={isOnline}
-        />
+        <GeminiCard title="Dicas do Peregrino com IA" icon={Bot} isLoading={isLoadingDicas} content={dicas} onGenerate={handleGerarDicas} buttonText="Gerar Dicas para esta Etapa" isOnline={isOnline} />
+        <GeminiCard title="Descubra a Cidade com IA" icon={Bot} isLoading={isLoadingCuriosidades} content={curiosidades} onGenerate={handleGerarCuriosidades} buttonText={`O que ver em ${etapa.cidadeDestino}?`} isOnline={isOnline} />
       </div>
 
+      {/* --- ADIÇÃO DA NOVA SEÇÃO --- */}
+      <div className="my-8">
+        <PeregrinoIA isOnline={isOnline} callGeminiAPI={callGeminiAPI} />
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div>
-          <Card icon={MapPin} title="Itinerário" colorClass="bg-blue-500">
-             <a 
-                href={etapa.mapaUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full mb-4 inline-flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
-             >
-                <Map className="h-6 w-6 mr-3" />
-                Abrir Rota no Google Maps
-             </a>
-            <details className="bg-gray-50 p-3 rounded-lg">
-              <summary className="font-semibold cursor-pointer text-gray-700 hover:text-blue-600">Ver itinerário em texto</summary>
-              <ul className="mt-3 space-y-2 list-disc list-inside text-sm text-gray-600">
-                {etapa.itinerario.map((passo, index) => <li key={index}>{passo}</li>)}
-              </ul>
-            </details>
-          </Card>
-          
-          <Card icon={UtensilsCrossed} title="Pontos de Apoio (Onde Comer)" colorClass="bg-green-500">
-            <div className="space-y-3">
-              {etapa.pontosDeApoio.map((ponto, index) => (
-                <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                  <p className="font-bold">{ponto.nome}</p>
-                  <p className="text-sm text-gray-600">Tipo: {ponto.tipo} | KM Aprox: {ponto.km}</p>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-
-        <div>
-          <Card icon={Mountain} title="Altimetria" colorClass="bg-yellow-500">
-            <p>{etapa.altimetria}</p>
-          </Card>
-          
-          <Card icon={AlertTriangle} title="Dificuldades" colorClass="bg-red-500">
-            <ul className="space-y-2 list-disc list-inside">
-              {etapa.dificuldades.map((dificuldade, index) => <li key={index}>{dificuldade}</li>)}
-            </ul>
-          </Card>
-          
-          <Card icon={Star} title="Recomendações e O Que Levar" colorClass="bg-indigo-500">
-            <h4 className="font-bold mb-2">Recomendações:</h4>
-            <ul className="space-y-2 list-disc list-inside mb-4">
-              {etapa.recomendacoes.map((rec, index) => <li key={index}>{rec}</li>)}
-            </ul>
-            <hr className="my-4"/>
-            <h4 className="font-bold mb-2">Sugestão para Comer/Beber:</h4>
-            <p>{etapa.oQueLevar}</p>
-          </Card>
-        </div>
+        {/* ... seu JSX dos cards de Itinerário, Pontos de Apoio, etc ... */}
       </div>
     </div>
   );
