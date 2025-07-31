@@ -147,6 +147,44 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [pergunta, setPergunta] = useState('');
   const [resposta, setResposta] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false); // Novo estado para controlar o microfone
+
+  // --- NOVA FUNÇÃO PARA ENTRADA DE VOZ ---
+  const handleVoiceInput = () => {
+    // Verifica se o navegador suporta a API
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Desculpe, seu navegador não suporta a entrada por voz.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    setIsListening(true);
+    setPergunta('Ouvindo...');
+
+    recognition.onresult = (event) => {
+      const speechToText = event.results[0][0].transcript;
+      setPergunta(speechToText);
+    };
+
+    recognition.onspeechend = () => {
+      recognition.stop();
+      setIsListening(false);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Erro no reconhecimento de voz:", event.error);
+      setPergunta('');
+      setIsListening(false);
+    };
+    
+    recognition.start();
+  };
+
 
   const handlePerguntar = async () => {
     if (!pergunta.trim()) return;
@@ -179,7 +217,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-lg h-full">
+    <div className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col">
       <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center">
         <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
         Pergunte ao Peregrino IA
@@ -187,22 +225,35 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       {!isOnline ? (
         <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
       ) : (
-        <div className="space-y-4">
-          <textarea
-            value={pergunta}
-            onChange={(e) => setPergunta(e.target.value)}
-            placeholder="Sua pergunta sobre a Rota..."
-            className="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
-            rows="3"
-            disabled={isLoading}
-          />
-          <button
-            onClick={handlePerguntar}
-            disabled={isLoading || !pergunta.trim()}
-            className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400 transition-all"
-          >
-            {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar</>}
-          </button>
+        <div className="space-y-4 flex-grow flex flex-col">
+          <div className="relative flex-grow">
+            <textarea
+              value={pergunta}
+              onChange={(e) => setPergunta(e.target.value)}
+              placeholder="Digite sua pergunta ou use o microfone..."
+              className="w-full h-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+              rows="3"
+              disabled={isLoading}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+             {/* --- NOVO BOTÃO DE MICROFONE --- */}
+            <button 
+              onClick={handleVoiceInput} 
+              disabled={isLoading}
+              className={`p-2 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-200 hover:bg-gray-300'}`}
+              title="Perguntar por voz"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+            </button>
+            <button
+              onClick={handlePerguntar}
+              disabled={isLoading || !pergunta.trim() || isListening}
+              className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400 transition-all"
+            >
+              {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar</>}
+            </button>
+          </div>
           
           {resposta && (
             <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
