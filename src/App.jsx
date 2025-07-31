@@ -249,12 +249,16 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline }) => {
             </button>
             
               
-      <div className="text-center mb-8">
-        <div className="flex justify-center items-center gap-4">
+      <div className="flex justify-between items-center mb-8">
+        {/* Div para o título e data na esquerda */}
+        <div>
           <h2 className="text-3xl font-extrabold text-gray-800">{etapa.titulo}</h2>
-          <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-10" />
+          <p className="text-xl text-blue-700 font-semibold mt-1">{formatDate(etapa.date)}</p>
         </div>
-        <p className="text-xl text-blue-700 font-semibold mt-2">{formatDate(etapa.date)}</p>
+        {/* Div para o logo na direita */}
+        <div>
+          <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-12 sm:h-16" />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 text-center">
@@ -542,7 +546,7 @@ export default function App() {
       )}
 
        <footer className="text-center py-6 text-gray-500 text-sm">
-        <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-12 mx-auto mb-4" />
+        <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-20 mx-auto mb-4" />
         <p>Desenvolvido para auxiliar os peregrinos da Rota da Luz.</p>
         <p>Boa caminhada!</p>
       </footer>
