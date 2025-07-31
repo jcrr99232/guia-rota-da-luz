@@ -147,49 +147,65 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [pergunta, setPergunta] = useState('');
   const [resposta, setResposta] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isListening, setIsListening] = useState(false); // Novo estado para controlar o microfone
+  const [isListening, setIsListening] = useState(false);
 
-  // --- NOVA FUNÇÃO PARA ENTRADA DE VOZ ---
   const handleVoiceInput = () => {
-    // Verifica se o navegador suporta a API
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("Desculpe, seu navegador não suporta a entrada por voz.");
       return;
     }
-
     const recognition = new SpeechRecognition();
     recognition.lang = 'pt-BR';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
-
     setIsListening(true);
     setPergunta('Ouvindo...');
-
-    recognition.onresult = (event) => {
-      const speechToText = event.results[0][0].transcript;
-      setPergunta(speechToText);
-    };
-
+    recognition.onresult = (event) => setPergunta(event.results[0][0].transcript);
     recognition.onspeechend = () => {
       recognition.stop();
       setIsListening(false);
     };
-
     recognition.onerror = (event) => {
       console.error("Erro no reconhecimento de voz:", event.error);
       setPergunta('');
       setIsListening(false);
     };
-    
     recognition.start();
   };
 
+  // --- NOVA FUNÇÃO PARA RESPOSTA COM VOZ ---
+  const handleSpeakResponse = (textToSpeak) => {
+    if (!('speechSynthesis' in window)) {
+      alert("Desculpe, seu navegador não suporta a resposta por voz.");
+      return;
+    }
+    // Cancela qualquer fala anterior para evitar sobreposição
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.lang = 'pt-BR';
+    
+    // Tenta encontrar uma voz em português do Brasil para mais naturalidade
+    const voices = window.speechSynthesis.getVoices();
+    const brVoice = voices.find(voice => voice.lang === 'pt-BR');
+    if (brVoice) {
+      utterance.voice = brVoice;
+    }
+
+    utterance.rate = 1.0; // Velocidade da fala
+    utterance.pitch = 1.0; // Tom da voz
+
+    window.speechSynthesis.speak(utterance);
+  };
 
   const handlePerguntar = async () => {
     if (!pergunta.trim()) return;
     setIsLoading(true);
     setResposta('');
+    // Garante que qualquer fala anterior seja interrompida
+    window.speechSynthesis.cancel();
+    
     const prompt = `
       Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz em São Paulo.
       Use o seguinte CONTEXTO para basear suas respostas:
@@ -237,7 +253,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             />
           </div>
           <div className="flex items-center gap-2">
-             {/* --- NOVO BOTÃO DE MICROFONE --- */}
             <button 
               onClick={handleVoiceInput} 
               disabled={isLoading}
@@ -257,6 +272,14 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
           
           {resposta && (
             <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
+               {/* --- NOVO BOTÃO DE OUVIR --- */}
+              <button 
+                onClick={() => handleSpeakResponse(resposta)}
+                className="float-right p-1 text-gray-500 hover:text-purple-600"
+                title="Ouvir resposta"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              </button>
               <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
             </div>
           )}
