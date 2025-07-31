@@ -9,9 +9,7 @@ const getWeekNumber = (date) => {
   const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
   return weekNo;
 };
-
 const formatDate = (date) => date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
 const parseTime = (timeStr) => {
     const hoursMatch = timeStr.match(/(\d+)h/);
     const minMatch = timeStr.match(/(\d+)min/);
@@ -129,18 +127,14 @@ const GeminiCard = ({ title, icon: Icon, isLoading, content, onGenerate, buttonT
         </div>
         <div className="p-6">
             {!isOnline ? (
-                <div className="text-center text-gray-600">
-                    <WifiOff className="mx-auto h-8 w-8 mb-2" />
-                    <p>Funcionalidade indisponível offline.</p>
-                </div>
+                <div className="text-center text-gray-600"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
             ) : (
                 <>
                     {isLoading && <div className="flex justify-center items-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}
                     {content && <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">{content}</div>}
                     {!isLoading && !content && (
                         <button onClick={onGenerate} className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
-                            <Sparkles className="h-5 w-5 mr-2" />
-                            {buttonText}
+                            <Sparkles className="h-5 w-5 mr-2" />{buttonText}
                         </button>
                     )}
                 </>
@@ -149,7 +143,6 @@ const GeminiCard = ({ title, icon: Icon, isLoading, content, onGenerate, buttonT
     </div>
 );
 
-// --- NOVO COMPONENTE: PeregrinoIA ---
 const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [pergunta, setPergunta] = useState('');
   const [resposta, setResposta] = useState('');
@@ -159,7 +152,24 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     if (!pergunta.trim()) return;
     setIsLoading(true);
     setResposta('');
-    const prompt = `Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz em São Paulo. Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 3 parágrafos. A pergunta é: "${pergunta}". Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.**'`;
+
+    // --- PROMPT CALIBRADO (NOVO) ---
+    const prompt = `
+      Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz em São Paulo.
+      Use o seguinte CONTEXTO para basear suas respostas:
+      - A Rota da Luz é uma rota de peregrinação sinalizada no estado de São Paulo, Brasil.
+      - Ela começa em Mogi das Cruzes e termina no Santuário Nacional de Aparecida.
+      - A distância total é de aproximadamente 201 km, divididos em 7 etapas.
+      - O objetivo é oferecer uma alternativa segura para peregrinos que iam pela Rodovia Presidente Dutra.
+      - A rota passa por 9 municípios: Mogi das Cruzes, Guararema, Santa Branca, Paraibuna, Redenção da Serra, Taubaté, Pindamonhangaba, Roseira e Aparecida.
+      - A rota NÃO PASSA pela cidade de São Paulo. Ela percorre áreas rurais, cidades do interior e trechos da Serra do Mar.
+
+      Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 3 parágrafos, usando o contexto acima.
+      PERGUNTA: "${pergunta}"
+      
+      Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.**'
+    `;
+
     try {
       const responseText = await callGeminiAPI(prompt);
       setResposta(responseText);
@@ -174,10 +184,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   return (
     <Card icon={MessageSquare} title="Pergunte ao Peregrino IA" colorClass="bg-purple-500">
       {!isOnline ? (
-        <div className="text-center text-gray-600">
-          <WifiOff className="mx-auto h-8 w-8 mb-2" />
-          <p>Funcionalidade indisponível offline.</p>
-        </div>
+        <div className="text-center text-gray-600"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
       ) : (
         <div className="space-y-4">
           <textarea
@@ -206,7 +213,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     </Card>
   );
 };
-
 
 const EtapaDetalhes = ({ etapa, onBack, isOnline }) => {
   const [dicas, setDicas] = useState('');
@@ -272,26 +278,115 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline }) => {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 animate-fade-in">
-      <button onClick={onBack} className="mb-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-        <ArrowLeft className="h-5 w-5 mr-2" />
-        Voltar
-      </button>
-      
-      {/* ... seu JSX do cabeçalho da etapa e dos cards de info ... */}
-      
-      <div className="my-8">
-        <GeminiCard title="Dicas do Peregrino com IA" icon={Bot} isLoading={isLoadingDicas} content={dicas} onGenerate={handleGerarDicas} buttonText="Gerar Dicas para esta Etapa" isOnline={isOnline} />
-        <GeminiCard title="Descubra a Cidade com IA" icon={Bot} isLoading={isLoadingCuriosidades} content={curiosidades} onGenerate={handleGerarCuriosidades} buttonText={`O que ver em ${etapa.cidadeDestino}?`} isOnline={isOnline} />
-      </div>
+        <button onClick={onBack} className="mb-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Voltar
+        </button>
+        
+        <div className="flex justify-between items-center mb-8">
+            <div>
+                <h2 className="text-3xl font-extrabold text-gray-800">{etapa.titulo}</h2>
+                <p className="text-xl text-blue-700 font-semibold mt-1">{formatDate(etapa.date)}</p>
+            </div>
+            <div>
+                <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-12 sm:h-16" />
+            </div>
+        </div>
 
-      {/* --- ADIÇÃO DA NOVA SEÇÃO --- */}
-      <div className="my-8">
-        <PeregrinoIA isOnline={isOnline} callGeminiAPI={callGeminiAPI} />
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 text-center">
+            <div className="bg-white p-4 rounded-lg shadow">
+                <Thermometer className="mx-auto h-8 w-8 text-orange-500 mb-2" />
+                <p className="font-bold text-gray-800">Previsão do Tempo</p>
+                <p className="text-lg text-gray-600">{previsaoTempo.min} / {previsaoTempo.max}</p>
+                <div className="grid grid-cols-3 gap-1 text-xs text-gray-500 mt-2 border-t pt-2">
+                    <span title="07h00"><Sunrise className="w-4 h-4 inline"/> {previsaoTempo.horarios[0].temp}</span>
+                    <span title="12h00"><Sun className="w-4 h-4 inline"/> {previsaoTempo.horarios[1].temp}</span>
+                    <span title="17h00"><Sunset className="w-4 h-4 inline"/> {previsaoTempo.horarios[2].temp}</span>
+                </div>
+                <div className="flex justify-around text-xs text-gray-500 mt-2 border-t pt-2">
+                    <span title="Umidade do Ar"><Droplets className="w-4 h-4 inline mr-1"/>{previsaoTempo.umidade}</span>
+                    <span title="Chance de Chuva"><CloudRain className="w-4 h-4 inline mr-1"/>{previsaoTempo.chanceChuva}</span>
+                </div>
+                <a href={`https://www.google.com/search?q=previsão+do+tempo+${etapa.cidadeDestino}`} target="_blank" rel="noopener noreferrer" className="mt-3 w-full inline-flex items-center justify-center px-2 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
+                    <ExternalLink className="h-3 w-3 mr-1" />
+                    Ver Previsão em Tempo Real
+                </a>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+                <p className="text-3xl font-bold text-blue-500">{etapa.distancia}</p>
+                <p className="font-semibold text-gray-600">Distância</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+                <p className="text-3xl font-bold text-blue-500">{etapa.tempoEstimado}</p>
+                <p className="font-semibold text-gray-600">Tempo de Caminhada</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+                <Clock className="mx-auto h-8 w-8 text-blue-500 mb-2" />
+                <p className="font-bold text-gray-800">Início Sugerido</p>
+                <p className="text-lg text-gray-600">{etapa.horarioInicio}</p>
+                <p className="text-xs text-gray-500">(Para chegar às 15:30)</p>
+                <p className="text-xs text-gray-500 mt-1">(Incluído {etapa.paradaRefeicao} para alimentação)</p>
+            </div>
+        </div>
+        <p className="text-center text-xs text-gray-500 mb-8 -mt-4 italic">*Previsão baseada em médias históricas para a data selecionada. Consulte um serviço de meteorologia para dados em tempo real.</p>
+        
+        <div className="my-8">
+            <GeminiCard title="Dicas do Peregrino com IA" icon={Bot} isLoading={isLoadingDicas} content={dicas} onGenerate={handleGerarDicas} buttonText="Gerar Dicas para esta Etapa" isOnline={isOnline} />
+            <GeminiCard title="Descubra a Cidade com IA" icon={Bot} isLoading={isLoadingCuriosidades} content={curiosidades} onGenerate={handleGerarCuriosidades} buttonText={`O que ver em ${etapa.cidadeDestino}?`} isOnline={isOnline} />
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* ... seu JSX dos cards de Itinerário, Pontos de Apoio, etc ... */}
-      </div>
+        <div className="my-8">
+            <PeregrinoIA isOnline={isOnline} callGeminiAPI={callGeminiAPI} />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+                <Card icon={MapPin} title="Itinerário" colorClass="bg-blue-500">
+                    <a href={etapa.mapaUrl} target="_blank" rel="noopener noreferrer" className="w-full mb-4 inline-flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                        <Map className="h-6 w-6 mr-3" />
+                        Abrir Rota no Google Maps
+                    </a>
+                    <details className="bg-gray-50 p-3 rounded-lg">
+                    <summary className="font-semibold cursor-pointer text-gray-700 hover:text-blue-600">Ver itinerário em texto</summary>
+                    <ul className="mt-3 space-y-2 list-disc list-inside text-sm text-gray-600">
+                        {etapa.itinerario.map((passo, index) => <li key={index}>{passo}</li>)}
+                    </ul>
+                    </details>
+                </Card>
+                
+                <Card icon={UtensilsCrossed} title="Pontos de Apoio (Onde Comer)" colorClass="bg-green-500">
+                    <div className="space-y-3">
+                    {etapa.pontosDeApoio.map((ponto, index) => (
+                        <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                        <p className="font-bold">{ponto.nome}</p>
+                        <p className="text-sm text-gray-600">Tipo: {ponto.tipo} | KM Aprox: {ponto.km}</p>
+                        </div>
+                    ))}
+                    </div>
+                </Card>
+            </div>
+            <div>
+                <Card icon={Mountain} title="Altimetria" colorClass="bg-yellow-500">
+                    <p>{etapa.altimetria}</p>
+                </Card>
+                
+                <Card icon={AlertTriangle} title="Dificuldades" colorClass="bg-red-500">
+                    <ul className="space-y-2 list-disc list-inside">
+                    {etapa.dificuldades.map((dificuldade, index) => <li key={index}>{dificuldade}</li>)}
+                    </ul>
+                </Card>
+                
+                <Card icon={Star} title="Recomendações e O Que Levar" colorClass="bg-indigo-500">
+                    <h4 className="font-bold mb-2">Recomendações:</h4>
+                    <ul className="space-y-2 list-disc list-inside mb-4">
+                    {etapa.recomendacoes.map((rec, index) => <li key={index}>{rec}</li>)}
+                    </ul>
+                    <hr className="my-4"/>
+                    <h4 className="font-bold mb-2">Sugestão para Comer/Beber:</h4>
+                    <p>{etapa.oQueLevar}</p>
+                </Card>
+            </div>
+        </div>
     </div>
   );
 };
@@ -300,7 +395,7 @@ export default function App() {
   const [selectedEtapa, setSelectedEtapa] = useState(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showOfflineToast, setShowOfflineToast] = useState(false);
-  const [startDate, setStartDate] = useState(new Date(2025, 7, 22)); // Padrão: 22 de Agosto de 2025
+  const [startDate, setStartDate] = useState(new Date(2025, 7, 22));
 
   const handleDateChange = (e) => {
     const [year, month, day] = e.target.value.split('-').map(Number);
@@ -311,21 +406,14 @@ export default function App() {
     return etapasData.map((etapa, index) => {
         const etapaDate = new Date(startDate);
         etapaDate.setDate(startDate.getDate() + index);
-
-        const arrivalTime = 15.5; // 15:30
+        const arrivalTime = 15.5;
         const walkTime = parseTime(etapa.tempoEstimado) / 60;
         const breakTime = parseTime(etapa.paradaRefeicao) / 60;
         const startTimeDecimal = arrivalTime - walkTime - breakTime;
-        
         const startHour = Math.floor(startTimeDecimal);
         const startMinute = Math.round((startTimeDecimal - startHour) * 60);
         const formattedStartTime = `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}`;
-
-        return {
-            ...etapa,
-            date: etapaDate,
-            horarioInicio: formattedStartTime,
-        };
+        return { ...etapa, date: etapaDate, horarioInicio: formattedStartTime };
     });
   };
   
@@ -339,11 +427,9 @@ export default function App() {
       self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request.mode === 'navigate' ? '/' : e.request))));
       self.addEventListener('activate', e => e.waitUntil(caches.keys().then(keys => Promise.all(keys.map(key => key !== CACHE_NAME ? caches.delete(key) : undefined)))));
     `;
-
     if ('serviceWorker' in navigator) {
       const swBlob = new Blob([serviceWorkerString], { type: 'application/javascript' });
       const swUrl = URL.createObjectURL(swBlob);
-
       navigator.serviceWorker.register(swUrl)
         .then(registration => {
           console.log('ServiceWorker registration successful');
@@ -352,17 +438,12 @@ export default function App() {
             localStorage.setItem('offlineToastShownV10', 'true');
             setTimeout(() => setShowOfflineToast(false), 5000);
           }
-        }).catch(error => {
-          console.log('ServiceWorker registration failed: ', error);
-        });
+        }).catch(error => { console.log('ServiceWorker registration failed: ', error); });
     }
-
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
@@ -376,56 +457,44 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
       <header className="bg-white shadow-md sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-3"> {/* Removido flex, justify-center, items-center */}
+         <div className="container mx-auto px-4 py-3 flex justify-center items-center">
             <div className="text-center">
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-blue-800">
-                Guia da Rota da Luz
-                </h1>
-                <p className="text-gray-600 mt-1 text-xs sm:text-base">
-                Seu guia para a peregrinação à Aparecida.
-                </p>
-            </div>            
+                <h1 className="text-2xl sm:text-4xl font-extrabold text-blue-800">Guia da Rota da Luz</h1>
+                <p className="text-gray-600 mt-1 text-xs sm:text-base">Seu guia para a peregrinação à Aparecida.</p>
+            </div>
         </div>
       </header>
       
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-          {/* NOVO GRID DE 3 COLUNAS */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-center">
-
-            {/* COLUNA 1: LOGO (ocupa 1 de 3 colunas) */}
-            <div className="flex justify-center items-center">
-              <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL">
-                <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-36 sm:h-48 lg:h-56" />
-              </a>
-            </div>
-
-            {/* COLUNAS 2 e 3: CALENDÁRIO (ocupa 2 de 3 colunas) */}
-            <div className="bg-white p-6 rounded-xl shadow-lg lg:col-span-2">
-                <label htmlFor="start-date" className="block text-lg font-bold text-gray-800 mb-2">
-                    <Calendar className="inline-block h-6 w-6 mr-2 text-blue-600" />
-                    Selecione a data de início da sua caminhada:
-                </label>
-                <input
-                    type="date"
-                    id="start-date"
-                    value={startDate.toISOString().split('T')[0]}
-                    onChange={handleDateChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-center">
+          <div className="flex justify-center items-center">
+            <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL">
+              <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-32 sm:h-40 lg:h-48" />
+            </a>
           </div>
-
+          <div className="bg-white p-6 rounded-xl shadow-lg lg:col-span-2">
+              <label htmlFor="start-date" className="block text-lg font-bold text-gray-800 mb-2">
+                  <Calendar className="inline-block h-6 w-6 mr-2 text-blue-600" />
+                  Selecione a data de início da sua caminhada:
+              </label>
+              <input
+                  type="date"
+                  id="start-date"
+                  value={startDate.toISOString().split('T')[0]}
+                  onChange={handleDateChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allEtapas.map(etapa => {
             const weekNumber = getWeekNumber(etapa.date);
-            const previsao = weeklyCityHistoricalWeather[weekNumber]?.[etapa.cidadeDestino] || weeklyCityHistoricalWeather[33]['Guararema']; // Padrão
-            
+            const previsao = weeklyCityHistoricalWeather[weekNumber]?.[etapa.cidadeDestino] || weeklyCityHistoricalWeather[33]['Guararema'];
             return (
               <button
                 key={etapa.id}
                 onClick={() => setSelectedEtapa(etapa)}
-                className="bg-white rounded-xl shadow-lg p-6 text-left hover:shadow-2xl hover:-translate-y-1 transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
+                className="bg-white rounded-xl shadow-lg p-6 text-left hover:shadow-2xl hover:-translate-y-1 transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 <p className="text-sm font-bold text-blue-600">ETAPA {etapa.id}</p>
                 <h3 className="text-xl font-bold text-gray-800 mt-1">{etapa.titulo}</h3>
                 <div className="mt-4 pt-4 border-t border-gray-200">
@@ -435,9 +504,7 @@ export default function App() {
                   </div>
                   <div className="flex items-center justify-center mt-3 text-orange-600">
                       <Thermometer className="h-5 w-5 mr-1" />
-                      <span className="text-sm font-semibold">
-                          {previsao.min} / {previsao.max}
-                      </span>
+                      <span className="text-sm font-semibold">{previsao.min} / {previsao.max}</span>
                   </div>
                 </div>
               </button>
@@ -445,22 +512,19 @@ export default function App() {
           })}
         </div>
       </main>
-
       {showOfflineToast && (
         <div className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-green-600 text-white py-2 px-4 rounded-lg shadow-lg animate-fade-in-out">
           <p>Aplicativo pronto para uso offline!</p>
         </div>
       )}
-
       {!isOnline && (
         <div className="fixed bottom-5 right-5 bg-gray-800 text-white py-2 px-4 rounded-lg shadow-lg flex items-center">
           <WifiOff className="h-5 w-5 mr-2" />
           <p>Você está offline.</p>
         </div>
       )}
-
        <footer className="text-center py-6 text-gray-500 text-sm">
-        <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-28 mx-auto mb-4" />
+        <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-16 mx-auto mb-4" />
         <p>Desenvolvido para auxiliar os peregrinos da Rota da Luz.</p>
         <p>Boa caminhada!</p>
       </footer>
