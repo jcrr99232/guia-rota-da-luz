@@ -152,8 +152,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     if (!pergunta.trim()) return;
     setIsLoading(true);
     setResposta('');
-
-    // --- PROMPT CALIBRADO (NOVO) ---
     const prompt = `
       Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz em São Paulo.
       Use o seguinte CONTEXTO para basear suas respostas:
@@ -169,7 +167,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       
       Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.**'
     `;
-
     try {
       const responseText = await callGeminiAPI(prompt);
       setResposta(responseText);
@@ -182,16 +179,20 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   };
 
   return (
-    <Card icon={MessageSquare} title="Pergunte ao Peregrino IA" colorClass="bg-purple-500">
+    <div className="bg-white p-6 rounded-xl shadow-lg h-full">
+      <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center">
+        <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
+        Pergunte ao Peregrino IA
+      </h3>
       {!isOnline ? (
-        <div className="text-center text-gray-600"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
+        <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
       ) : (
         <div className="space-y-4">
           <textarea
             value={pergunta}
             onChange={(e) => setPergunta(e.target.value)}
-            placeholder="Digite sua pergunta aqui sobre a Rota da Luz..."
-            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            placeholder="Sua pergunta sobre a Rota..."
+            className="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
             rows="3"
             disabled={isLoading}
           />
@@ -200,21 +201,21 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             disabled={isLoading || !pergunta.trim()}
             className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400 transition-all"
           >
-            {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar Pergunta</>}
+            {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar</>}
           </button>
           
           {resposta && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
               <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
             </div>
           )}
         </div>
       )}
-    </Card>
+    </div>
   );
 };
 
-const EtapaDetalhes = ({ etapa, onBack, isOnline }) => {
+const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
   const [dicas, setDicas] = useState('');
   const [curiosidades, setCuriosidades] = useState('');
   const [isLoadingDicas, setIsLoadingDicas] = useState(false);
@@ -222,29 +223,6 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline }) => {
   
   const weekNumber = getWeekNumber(etapa.date);
   const previsaoTempo = weeklyCityHistoricalWeather[weekNumber]?.[etapa.cidadeDestino] || weeklyCityHistoricalWeather[33]['Guararema'];
-
-  const callGeminiAPI = async (prompt) => {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) return "ERRO: A chave de API do Gemini não foi configurada.";
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    const payload = {
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, topK: 40, topP: 0.95 }
-    };
-    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    if (!response.ok) {
-      const errorBody = await response.json();
-      console.error("API call failed:", errorBody);
-      throw new Error(`API call failed with status: ${response.status}`);
-    }
-    const result = await response.json();
-    if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
-      return result.candidates[0].content.parts[0].text;
-    } else {
-      console.error("Invalid response structure from API:", result);
-      throw new Error("Estrutura de resposta inválida da API.");
-    }
-  };
 
   const handleGerarDicas = async () => {
     setIsLoadingDicas(true);
@@ -278,115 +256,73 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline }) => {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 animate-fade-in">
-        <button onClick={onBack} className="mb-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            Voltar
-        </button>
-        
-        <div className="flex justify-between items-center mb-8">
-            <div>
-                <h2 className="text-3xl font-extrabold text-gray-800">{etapa.titulo}</h2>
-                <p className="text-xl text-blue-700 font-semibold mt-1">{formatDate(etapa.date)}</p>
-            </div>
-            <div>
-                <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-12 sm:h-16" />
-            </div>
-        </div>
+      <button onClick={onBack} className="mb-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          Voltar
+      </button>
+      
+      <div className="flex justify-between items-center mb-8">
+          <div>
+              <h2 className="text-3xl font-extrabold text-gray-800">{etapa.titulo}</h2>
+              <p className="text-xl text-blue-700 font-semibold mt-1">{formatDate(etapa.date)}</p>
+          </div>
+          <div>
+              <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-12 sm:h-16" />
+          </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 text-center">
-            <div className="bg-white p-4 rounded-lg shadow">
-                <Thermometer className="mx-auto h-8 w-8 text-orange-500 mb-2" />
-                <p className="font-bold text-gray-800">Previsão do Tempo</p>
-                <p className="text-lg text-gray-600">{previsaoTempo.min} / {previsaoTempo.max}</p>
-                <div className="grid grid-cols-3 gap-1 text-xs text-gray-500 mt-2 border-t pt-2">
-                    <span title="07h00"><Sunrise className="w-4 h-4 inline"/> {previsaoTempo.horarios[0].temp}</span>
-                    <span title="12h00"><Sun className="w-4 h-4 inline"/> {previsaoTempo.horarios[1].temp}</span>
-                    <span title="17h00"><Sunset className="w-4 h-4 inline"/> {previsaoTempo.horarios[2].temp}</span>
-                </div>
-                <div className="flex justify-around text-xs text-gray-500 mt-2 border-t pt-2">
-                    <span title="Umidade do Ar"><Droplets className="w-4 h-4 inline mr-1"/>{previsaoTempo.umidade}</span>
-                    <span title="Chance de Chuva"><CloudRain className="w-4 h-4 inline mr-1"/>{previsaoTempo.chanceChuva}</span>
-                </div>
-                <a href={`https://www.google.com/search?q=previsão+do+tempo+${etapa.cidadeDestino}`} target="_blank" rel="noopener noreferrer" className="mt-3 w-full inline-flex items-center justify-center px-2 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
-                    <ExternalLink className="h-3 w-3 mr-1" />
-                    Ver Previsão em Tempo Real
-                </a>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 text-center">
+        <div className="bg-white p-4 rounded-lg shadow">
+            <Thermometer className="mx-auto h-8 w-8 text-orange-500 mb-2" />
+            <p className="font-bold text-gray-800">Previsão do Tempo</p>
+            <p className="text-lg text-gray-600">{previsaoTempo.min} / {previsaoTempo.max}</p>
+            <div className="grid grid-cols-3 gap-1 text-xs text-gray-500 mt-2 border-t pt-2">
+                <span title="07h00"><Sunrise className="w-4 h-4 inline"/> {previsaoTempo.horarios[0].temp}</span>
+                <span title="12h00"><Sun className="w-4 h-4 inline"/> {previsaoTempo.horarios[1].temp}</span>
+                <span title="17h00"><Sunset className="w-4 h-4 inline"/> {previsaoTempo.horarios[2].temp}</span>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow">
-                <p className="text-3xl font-bold text-blue-500">{etapa.distancia}</p>
-                <p className="font-semibold text-gray-600">Distância</p>
+            <div className="flex justify-around text-xs text-gray-500 mt-2 border-t pt-2">
+                <span title="Umidade do Ar"><Droplets className="w-4 h-4 inline mr-1"/>{previsaoTempo.umidade}</span>
+                <span title="Chance de Chuva"><CloudRain className="w-4 h-4 inline mr-1"/>{previsaoTempo.chanceChuva}</span>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow">
-                <p className="text-3xl font-bold text-blue-500">{etapa.tempoEstimado}</p>
-                <p className="font-semibold text-gray-600">Tempo de Caminhada</p>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow">
-                <Clock className="mx-auto h-8 w-8 text-blue-500 mb-2" />
-                <p className="font-bold text-gray-800">Início Sugerido</p>
-                <p className="text-lg text-gray-600">{etapa.horarioInicio}</p>
-                <p className="text-xs text-gray-500">(Para chegar às 15:30)</p>
-                <p className="text-xs text-gray-500 mt-1">(Incluído {etapa.paradaRefeicao} para alimentação)</p>
-            </div>
+            <a href={`https://www.google.com/search?q=previsão+do+tempo+${etapa.cidadeDestino}`} target="_blank" rel="noopener noreferrer" className="mt-3 w-full inline-flex items-center justify-center px-2 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
+                <ExternalLink className="h-3 w-3 mr-1" />
+                Ver Previsão em Tempo Real
+            </a>
         </div>
-        <p className="text-center text-xs text-gray-500 mb-8 -mt-4 italic">*Previsão baseada em médias históricas para a data selecionada. Consulte um serviço de meteorologia para dados em tempo real.</p>
-        
-        <div className="my-8">
-            <GeminiCard title="Dicas do Peregrino com IA" icon={Bot} isLoading={isLoadingDicas} content={dicas} onGenerate={handleGerarDicas} buttonText="Gerar Dicas para esta Etapa" isOnline={isOnline} />
-            <GeminiCard title="Descubra a Cidade com IA" icon={Bot} isLoading={isLoadingCuriosidades} content={curiosidades} onGenerate={handleGerarCuriosidades} buttonText={`O que ver em ${etapa.cidadeDestino}?`} isOnline={isOnline} />
-        </div>
+        <div className="bg-white p-4 rounded-lg shadow"><p className="text-3xl font-bold text-blue-500">{etapa.distancia}</p><p className="font-semibold text-gray-600">Distância</p></div>
+        <div className="bg-white p-4 rounded-lg shadow"><p className="text-3xl font-bold text-blue-500">{etapa.tempoEstimado}</p><p className="font-semibold text-gray-600">Tempo de Caminhada</p></div>
+        <div className="bg-white p-4 rounded-lg shadow"><Clock className="mx-auto h-8 w-8 text-blue-500 mb-2" /><p className="font-bold text-gray-800">Início Sugerido</p><p className="text-lg text-gray-600">{etapa.horarioInicio}</p><p className="text-xs text-gray-500">(Para chegar às 15:30)</p><p className="text-xs text-gray-500 mt-1">(Incluído {etapa.paradaRefeicao} para alimentação)</p></div>
+      </div>
+       <p className="text-center text-xs text-gray-500 mb-8 -mt-4 italic">*Previsão baseada em médias históricas. Consulte um serviço de meteorologia para dados em tempo real.</p>
+      
+      <div className="my-8">
+        <GeminiCard title="Dicas do Peregrino com IA" icon={Bot} isLoading={isLoadingDicas} content={dicas} onGenerate={handleGerarDicas} buttonText="Gerar Dicas para esta Etapa" isOnline={isOnline} />
+        <GeminiCard title="Descubra a Cidade com IA" icon={Bot} isLoading={isLoadingCuriosidades} content={curiosidades} onGenerate={handleGerarCuriosidades} buttonText={`O que ver em ${etapa.cidadeDestino}?`} isOnline={isOnline} />
+      </div>
 
-        <div className="my-8">
-            <PeregrinoIA isOnline={isOnline} callGeminiAPI={callGeminiAPI} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div>
+          <Card icon={MapPin} title="Itinerário" colorClass="bg-blue-500">
+              <a href={etapa.mapaUrl} target="_blank" rel="noopener noreferrer" className="w-full mb-4 inline-flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-blue-700 bg-blue-100 hover:bg-blue-200 transition-all">
+                  <Map className="h-6 w-6 mr-3" />
+                  Abrir Rota no Google Maps
+              </a>
+              <details className="bg-gray-50 p-3 rounded-lg"><summary className="font-semibold cursor-pointer text-gray-700 hover:text-blue-600">Ver itinerário em texto</summary><ul className="mt-3 space-y-2 list-disc list-inside text-sm text-gray-600">{etapa.itinerario.map((passo, index) => <li key={index}>{passo}</li>)}</ul></details>
+          </Card>
+          <Card icon={UtensilsCrossed} title="Pontos de Apoio (Onde Comer)" colorClass="bg-green-500">
+              <div className="space-y-3">{etapa.pontosDeApoio.map((ponto, index) => (<div key={index} className="p-3 bg-gray-50 rounded-lg"><p className="font-bold">{ponto.nome}</p><p className="text-sm text-gray-600">Tipo: {ponto.tipo} | KM Aprox: {ponto.km}</p></div>))}</div>
+          </Card>
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div>
-                <Card icon={MapPin} title="Itinerário" colorClass="bg-blue-500">
-                    <a href={etapa.mapaUrl} target="_blank" rel="noopener noreferrer" className="w-full mb-4 inline-flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
-                        <Map className="h-6 w-6 mr-3" />
-                        Abrir Rota no Google Maps
-                    </a>
-                    <details className="bg-gray-50 p-3 rounded-lg">
-                    <summary className="font-semibold cursor-pointer text-gray-700 hover:text-blue-600">Ver itinerário em texto</summary>
-                    <ul className="mt-3 space-y-2 list-disc list-inside text-sm text-gray-600">
-                        {etapa.itinerario.map((passo, index) => <li key={index}>{passo}</li>)}
-                    </ul>
-                    </details>
-                </Card>
-                
-                <Card icon={UtensilsCrossed} title="Pontos de Apoio (Onde Comer)" colorClass="bg-green-500">
-                    <div className="space-y-3">
-                    {etapa.pontosDeApoio.map((ponto, index) => (
-                        <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                        <p className="font-bold">{ponto.nome}</p>
-                        <p className="text-sm text-gray-600">Tipo: {ponto.tipo} | KM Aprox: {ponto.km}</p>
-                        </div>
-                    ))}
-                    </div>
-                </Card>
-            </div>
-            <div>
-                <Card icon={Mountain} title="Altimetria" colorClass="bg-yellow-500">
-                    <p>{etapa.altimetria}</p>
-                </Card>
-                
-                <Card icon={AlertTriangle} title="Dificuldades" colorClass="bg-red-500">
-                    <ul className="space-y-2 list-disc list-inside">
-                    {etapa.dificuldades.map((dificuldade, index) => <li key={index}>{dificuldade}</li>)}
-                    </ul>
-                </Card>
-                
-                <Card icon={Star} title="Recomendações e O Que Levar" colorClass="bg-indigo-500">
-                    <h4 className="font-bold mb-2">Recomendações:</h4>
-                    <ul className="space-y-2 list-disc list-inside mb-4">
-                    {etapa.recomendacoes.map((rec, index) => <li key={index}>{rec}</li>)}
-                    </ul>
-                    <hr className="my-4"/>
-                    <h4 className="font-bold mb-2">Sugestão para Comer/Beber:</h4>
-                    <p>{etapa.oQueLevar}</p>
-                </Card>
-            </div>
+        <div>
+          <Card icon={Mountain} title="Altimetria" colorClass="bg-yellow-500"><p>{etapa.altimetria}</p></Card>
+          <Card icon={AlertTriangle} title="Dificuldades" colorClass="bg-red-500"><ul className="space-y-2 list-disc list-inside">{etapa.dificuldades.map((dificuldade, index) => <li key={index}>{dificuldade}</li>)}</ul></Card>
+          <Card icon={Star} title="Recomendações e O Que Levar" colorClass="bg-indigo-500">
+              <h4 className="font-bold mb-2">Recomendações:</h4><ul className="space-y-2 list-disc list-inside mb-4">{etapa.recomendacoes.map((rec, index) => <li key={index}>{rec}</li>)}</ul>
+              <hr className="my-4"/><h4 className="font-bold mb-2">Sugestão para Comer/Beber:</h4><p>{etapa.oQueLevar}</p>
+          </Card>
         </div>
+      </div>
     </div>
   );
 };
@@ -396,6 +332,30 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showOfflineToast, setShowOfflineToast] = useState(false);
   const [startDate, setStartDate] = useState(new Date(2025, 7, 22));
+
+  // A função que chama a API do Gemini agora vive aqui, no componente principal
+  const callGeminiAPI = async (prompt) => {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) return "ERRO: A chave de API do Gemini não foi configurada.";
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const payload = {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.7, topK: 40, topP: 0.95 }
+    };
+    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    if (!response.ok) {
+      const errorBody = await response.json();
+      console.error("API call failed:", errorBody);
+      throw new Error(`API call failed with status: ${response.status}`);
+    }
+    const result = await response.json();
+    if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+      return result.candidates[0].content.parts[0].text;
+    } else {
+      console.error("Invalid response structure from API:", result);
+      throw new Error("Estrutura de resposta inválida da API.");
+    }
+  };
 
   const handleDateChange = (e) => {
     const [year, month, day] = e.target.value.split('-').map(Number);
@@ -451,7 +411,7 @@ export default function App() {
   }, []);
 
   if (selectedEtapa) {
-    return <EtapaDetalhes etapa={selectedEtapa} onBack={() => setSelectedEtapa(null)} isOnline={isOnline} />;
+    return <EtapaDetalhes etapa={selectedEtapa} onBack={() => setSelectedEtapa(null)} isOnline={isOnline} callGeminiAPI={callGeminiAPI} />;
   }
 
   return (
@@ -466,16 +426,16 @@ export default function App() {
       </header>
       
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-center">
-          <div className="flex justify-center items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-start">
+          <div className="flex justify-center items-center lg:col-span-1">
             <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL">
               <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-32 sm:h-40 lg:h-48" />
             </a>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-lg lg:col-span-2">
+          <div className="bg-white p-6 rounded-xl shadow-lg lg:col-span-1">
               <label htmlFor="start-date" className="block text-lg font-bold text-gray-800 mb-2">
                   <Calendar className="inline-block h-6 w-6 mr-2 text-blue-600" />
-                  Selecione a data de início da sua caminhada:
+                  Selecione a data de início:
               </label>
               <input
                   type="date"
@@ -484,6 +444,9 @@ export default function App() {
                   onChange={handleDateChange}
                   className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
+          </div>
+          <div className="lg:col-span-1 h-full">
+            <PeregrinoIA isOnline={isOnline} callGeminiAPI={callGeminiAPI} />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
