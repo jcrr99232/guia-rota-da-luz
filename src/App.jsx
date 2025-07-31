@@ -161,7 +161,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     recognition.maxAlternatives = 1;
     setIsListening(true);
     setPergunta('Ouvindo...');
-    recognition.onresult = (event) => setPergunta(event.results[0][0].transcript);
+    recognition.onresult = (event) => setPergunta(event.results?.[0]?.[0]?.transcript || '');
     recognition.onspeechend = () => {
       recognition.stop();
       setIsListening(false);
@@ -174,28 +174,21 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     recognition.start();
   };
 
-  // --- NOVA FUNÇÃO PARA RESPOSTA COM VOZ ---
   const handleSpeakResponse = (textToSpeak) => {
     if (!('speechSynthesis' in window)) {
       alert("Desculpe, seu navegador não suporta a resposta por voz.");
       return;
     }
-    // Cancela qualquer fala anterior para evitar sobreposição
     window.speechSynthesis.cancel();
-
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.lang = 'pt-BR';
-    
-    // Tenta encontrar uma voz em português do Brasil para mais naturalidade
     const voices = window.speechSynthesis.getVoices();
     const brVoice = voices.find(voice => voice.lang === 'pt-BR');
     if (brVoice) {
       utterance.voice = brVoice;
     }
-
-    utterance.rate = 1.0; // Velocidade da fala
-    utterance.pitch = 1.0; // Tom da voz
-
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
     window.speechSynthesis.speak(utterance);
   };
 
@@ -203,9 +196,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     if (!pergunta.trim()) return;
     setIsLoading(true);
     setResposta('');
-    // Garante que qualquer fala anterior seja interrompida
     window.speechSynthesis.cancel();
-    
     const prompt = `
       Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz em São Paulo.
       Use o seguinte CONTEXTO para basear suas respostas:
@@ -218,7 +209,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
 
       Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 3 parágrafos, usando o contexto acima.
       PERGUNTA: "${pergunta}"
-      
+
       Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.**'
     `;
     try {
@@ -237,6 +228,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center">
         <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
         Pergunte ao Peregrino IA
+        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-6 ml-2" />
       </h3>
       {!isOnline ? (
         <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
@@ -246,15 +238,15 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             <textarea
               value={pergunta}
               onChange={(e) => setPergunta(e.target.value)}
-              placeholder="Digite sua pergunta ou use o microfone..."
+              placeholder="Digite sua pergunta sobre a Rota da Luz ou use o microfone..."
               className="w-full h-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
               rows="3"
               disabled={isLoading}
             />
           </div>
           <div className="flex items-center gap-2">
-            <button 
-              onClick={handleVoiceInput} 
+            <button
+              onClick={handleVoiceInput}
               disabled={isLoading}
               className={`p-2 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-200 hover:bg-gray-300'}`}
               title="Perguntar por voz"
@@ -268,18 +260,19 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             >
               {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar</>}
             </button>
-          </div>
-          
-          {resposta && (
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
-               {/* --- NOVO BOTÃO DE OUVIR --- */}
-              <button 
+            {resposta && (
+              <button
                 onClick={() => handleSpeakResponse(resposta)}
-                className="float-right p-1 text-gray-500 hover:text-purple-600"
+                className="p-2 rounded-full bg-gray-200 hover:bg-gray-300"
                 title="Ouvir resposta"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
               </button>
+            )}
+          </div>
+
+          {resposta && (
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
               <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
             </div>
           )}
