@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, Soup, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare } from 'lucide-react';
+import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2 } from 'lucide-react';
 
 // --- FUNÇÕES AUXILIARES ---
 const getWeekNumber = (date) => {
@@ -149,6 +149,13 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
 
+  // --- NOVA FUNÇÃO PARA LIMPAR ---
+  const handleClear = () => {
+    setPergunta('');
+    setResposta('');
+    window.speechSynthesis.cancel(); // Para qualquer fala em andamento
+  };
+
   const handleVoiceInput = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -161,7 +168,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     recognition.maxAlternatives = 1;
     setIsListening(true);
     setPergunta('Ouvindo...');
-    recognition.onresult = (event) => setPergunta(event.results?.[0]?.[0]?.transcript || '');
+    recognition.onresult = (event) => setPergunta(event.results[0][0].transcript);
     recognition.onspeechend = () => {
       recognition.stop();
       setIsListening(false);
@@ -187,8 +194,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     if (brVoice) {
       utterance.voice = brVoice;
     }
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
     window.speechSynthesis.speak(utterance);
   };
 
@@ -206,10 +211,12 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       - O objetivo é oferecer uma alternativa segura para peregrinos que iam pela Rodovia Presidente Dutra.
       - A rota passa por 9 municípios: Mogi das Cruzes, Guararema, Santa Branca, Paraibuna, Redenção da Serra, Taubaté, Pindamonhangaba, Roseira e Aparecida.
       - A rota NÃO PASSA pela cidade de São Paulo. Ela percorre áreas rurais, cidades do interior e trechos da Serra do Mar.
+      - A credencial oficial do peregrino pode ser retirada em Mogi das Cruzes. // <-- NOVA INFORMAÇÃO
+      - É recomendado ter um bom preparo físico, especialmente para a etapa de Redenção da Serra. // <-- NOVA INFORMAÇÃO
 
       Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 3 parágrafos, usando o contexto acima.
       PERGUNTA: "${pergunta}"
-
+      
       Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.**'
     `;
     try {
@@ -228,7 +235,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center">
         <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
         Pergunte ao Peregrino IA
-        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-6 ml-2" />
+        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-8 ml-2" />
       </h3>
       {!isOnline ? (
         <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
@@ -245,8 +252,8 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             />
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleVoiceInput}
+            <button 
+              onClick={handleVoiceInput} 
               disabled={isLoading}
               className={`p-2 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-200 hover:bg-gray-300'}`}
               title="Perguntar por voz"
@@ -260,10 +267,22 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             >
               {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar</>}
             </button>
-            {resposta && (
+            
+            {/* --- NOVO BOTÃO APAGAR --- */}
+            {(pergunta || resposta) && !isLoading && (
+              <button
+                onClick={handleClear}
+                className="p-2 rounded-full bg-gray-200 hover:bg-red-200"
+                title="Apagar pergunta e resposta"
+              >
+                <Trash2 className="h-5 w-5 text-gray-600 hover:text-red-600" />
+              </button>
+            )}
+
+            {resposta && !isLoading && (
               <button
                 onClick={() => handleSpeakResponse(resposta)}
-                className="p-2 rounded-full bg-gray-200 hover:bg-gray-300"
+                className="p-2 rounded-full bg-gray-200 hover:bg-blue-200"
                 title="Ouvir resposta"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
