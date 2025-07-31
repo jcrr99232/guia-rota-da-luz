@@ -347,14 +347,15 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
           Voltar
       </button>
       
-      <div className="flex justify-between items-center mb-8">
-          <div>
-              <h2 className="text-3xl font-extrabold text-gray-800">{etapa.titulo}</h2>
-              <p className="text-xl text-blue-700 font-semibold mt-1">{formatDate(etapa.date)}</p>
-          </div>
-          <div>
-              <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-12 sm:h-16" />
-          </div>
+      <div className="relative text-center mb-8 border-b pb-4 border-gray-200">
+        {/* Título e Data (agora centralizados) */}
+        <h2 className="text-3xl font-extrabold text-gray-800">{etapa.titulo}</h2>
+        <p className="text-xl text-blue-700 font-semibold mt-1">{formatDate(etapa.date)}</p>
+        
+        {/* Logo posicionado no canto direito */}
+        <div className="absolute top-1/2 right-0 -translate-y-1/2">
+          <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-16 sm:h-20" />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 text-center">
@@ -378,7 +379,7 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
         </div>
         <div className="bg-white p-4 rounded-lg shadow"><p className="text-3xl font-bold text-blue-500">{etapa.distancia}</p><p className="font-semibold text-gray-600">Distância</p></div>
         <div className="bg-white p-4 rounded-lg shadow"><p className="text-3xl font-bold text-blue-500">{etapa.tempoEstimado}</p><p className="font-semibold text-gray-600">Tempo de Caminhada</p></div>
-        <div className="bg-white p-4 rounded-lg shadow"><Clock className="mx-auto h-8 w-8 text-blue-500 mb-2" /><p className="font-bold text-gray-800">Início Sugerido</p><p className="text-lg text-gray-600">{etapa.horarioInicio}</p><p className="text-xs text-gray-500">(Para chegar às 15:30)</p><p className="text-xs text-gray-500 mt-1">(Incluído {etapa.paradaRefeicao} para alimentação)</p></div>
+        <div className="bg-white p-4 rounded-lg shadow"><Clock className="mx-auto h-8 w-8 text-blue-500 mb-2" /><p className="font-bold text-gray-800">Início Sugerido</p><p className="text-lg text-gray-600">{etapa.horarioInicio}</p><p className="text-xs text-gray-500">(Para chegar às 15:30)</p></div>
       </div>
        <p className="text-center text-xs text-gray-500 mb-8 -mt-4 italic">*Previsão baseada em médias históricas. Consulte um serviço de meteorologia para dados em tempo real.</p>
       
@@ -515,7 +516,7 @@ export default function App() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-start">
           <div className="flex justify-center items-center lg:col-span-1">
             <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL">
-              <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-32 sm:h-40 lg:h-48" />
+              <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-48 sm:h-52 lg:h-64" />
             </a>
           </div>
           <div className="bg-white p-6 rounded-xl shadow-lg lg:col-span-1">
@@ -573,7 +574,7 @@ export default function App() {
         </div>
       )}
        <footer className="text-center py-6 text-gray-500 text-sm">
-        <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-16 mx-auto mb-4" />
+        <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-28 mx-auto mb-4" />
         <p>Desenvolvido para auxiliar os peregrinos da Rota da Luz.</p>
         <p>Boa caminhada!</p>
       </footer>
