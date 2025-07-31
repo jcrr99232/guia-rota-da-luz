@@ -477,7 +477,7 @@ export default function App() {
             {/* COLUNA 1: LOGO (ocupa 1 de 3 colunas) */}
             <div className="flex justify-center items-center">
               <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL">
-                <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-32 sm:h-40 lg:h-48" />
+                <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-36 sm:h-48 lg:h-56" />
               </a>
             </div>
 
