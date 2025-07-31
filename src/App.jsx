@@ -196,26 +196,60 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline }) => {
   const previsaoTempo = weeklyCityHistoricalWeather[weekNumber]?.[etapa.cidadeDestino] || weeklyCityHistoricalWeather[33]['Guararema']; // Padrão para Agosto, Guararema
 
 
-  // Function to call the Gemini API
+  // --- NOVA E REAL FUNÇÃO callGeminiAPI ---
   const callGeminiAPI = async (prompt) => {
-    // This is a placeholder as API key management is required for deployment
-    console.log("Chamando API Gemini com o prompt:", prompt);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    if (prompt.includes("dicas")) {
-        return "1. Dica gerada pela IA: Mantenha-se hidratado.\n2. Dica 2: Use calçados confortáveis.\n3. Dica 3: Aproveite a paisagem.";
+    // A chave de API agora é lida de forma segura do ambiente da Vercel
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    
+    // Se a chave não estiver configurada, retorna um aviso
+    if (!apiKey) {
+      return "ERRO: A chave de API do Gemini não foi configurada nas variáveis de ambiente da Vercel.";
     }
-    return `Curiosidades sobre ${etapa.cidadeDestino} geradas pela IA.`;
+
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    
+    const payload = {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      // Configurações para respostas mais criativas
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+      }
+    };
+
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        const errorBody = await response.json();
+        console.error("API call failed:", errorBody);
+        throw new Error(`API call failed with status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+      return result.candidates[0].content.parts[0].text;
+    } else {
+      console.error("Invalid response structure from API:", result);
+      throw new Error("Estrutura de resposta inválida da API.");
+    }
   };
 
   const handleGerarDicas = async () => {
     setIsLoadingDicas(true);
     setDicas('');
-    const prompt = `Como um peregrino experiente da Rota da Luz, forneça 3 dicas inspiradoras e práticas para a etapa '${etapa.titulo}'. As dificuldades conhecidas são: ${etapa.dificuldades.join(', ')}. As dicas devem ser em formato de lista, curtas e focar em preparação mental e física para este trecho específico.`;
+    // Prompt melhorado para mais criatividade
+    const prompt = `Aja como um guia experiente e amigável da Rota da Luz. Para a etapa '${etapa.titulo}', que tem as seguintes dificuldades: ${etapa.dificuldades.join(', ')}, crie 3 dicas curtas, criativas e inspiradoras. Varie as dicas a cada vez. Use um tom encorajador. Formate como uma lista numerada.`;
     try {
         const responseText = await callGeminiAPI(prompt);
         setDicas(responseText);
     } catch (error) {
-        setDicas("Desculpe, não foi possível gerar as dicas no momento. Tente novamente mais tarde.");
+        setDicas("Desculpe, não foi possível gerar as dicas no momento. Verifique o console para mais detalhes.");
         console.error("Error fetching Gemini tips:", error);
     } finally {
         setIsLoadingDicas(false);
@@ -225,18 +259,22 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline }) => {
   const handleGerarCuriosidades = async () => {
     setIsLoadingCuriosidades(true);
     setCuriosidades('');
-    const prompt = `Para um peregrino que está chegando a pé na cidade de ${etapa.cidadeDestino}, descreva em um parágrafo curto (máximo 3 frases) os principais pontos de interesse, curiosidades ou o que fazer na cidade para aproveitar o local.`;
+    // Prompt melhorado para buscar informações específicas
+    const prompt = `Aja como um guia turístico local para a cidade de ${etapa.cidadeDestino}, SP. Para um peregrino que acaba de chegar a pé, descreva em 2 ou 3 parágrafos curtos:
+1.  Os principais pontos turísticos ou históricos imperdíveis da cidade.
+2.  Sugestões de comidas ou pratos típicos da região para experimentar.
+3.  Qualquer evento, festa tradicional ou feira pela qual a cidade é conhecida (mesmo que não esteja acontecendo agora).
+Use um tom acolhedor e informativo.`;
      try {
         const responseText = await callGeminiAPI(prompt);
         setCuriosidades(responseText);
     } catch (error) {
-        setCuriosidades("Desculpe, não foi possível gerar as curiosidades no momento. Tente novamente mais tarde.");
+        setCuriosidades("Desculpe, não foi possível gerar as curiosidades no momento. Verifique o console para mais detalhes.");
         console.error("Error fetching Gemini curiosidades:", error);
     } finally {
         setIsLoadingCuriosidades(false);
     }
   };
-
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 animate-fade-in">
