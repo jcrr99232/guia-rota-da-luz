@@ -50,7 +50,7 @@ const weeklyCityHistoricalWeather = generateWeatherData();
 // --- DADOS ESTÁTICOS DAS ETAPAS ---
 const etapasData = [
   { id: 1, titulo: "Etapa 1: Mogi das Cruzes a Guararema", cidadeDestino: "Guararema", mapaUrl: "https://www.google.com/maps/dir/Universidade+de+Mogi+das+Cruzes,+Avenida+Doutor+Cândido+Xavier+de+Almeida+e+Souza,+200,+Mogi+das+Cruzes+-+SP/Recanto+das+Acácias+Guararema+-+Nogueira,+Guararema+-+SP,+08900-000/@-23.473539,-46.166861,12z/data=!4m14m13!1m5!1m1!1s0x94ce7b54612e4d67:0x227a940e79753457!2m2!1d-46.1856893!2d-23.5358656!1m5!1m1!1s0x94cc537b989ba011:0x39a1a742f1f44d57!2m2!1d-46.0354162!2d-23.4111389!3e2?entry=ttu", distancia: "24,7 km", tempoEstimado: "5h 39min", paradaRefeicao: "90min",
-    itinerario: [ "Siga na direção leste na R. Prof. Álvaro Pavan em direção a Av. Manoel Bezerra Lima Filho (200 m)", "Vire à esquerda na Av. Manoel Bezerra Lima Filho (130 m)", "Na rotatória, pegue a 2ª saída para a Av. Francisco Rodrigues Filho/Rod. General Euryale de Jesus Zerbine/Rod. Henrique Eroles (16,0 km)", "Curva suave à direita para permanecer na Rod. General Euryale de Jesus Zerbine/Rod. Henrique Eroles (88 m)", "Na rotatória, pegue a 1ª saída para a Est. Mun. Argemiro de Souza Melo (800 m)", "Vire à esquerda na Est. Mun. Romeu Tanganelli (2,1 km)", "Vire à esquerda na R. Ruth Do Prado Paula Lopes (700 m)", "Curva suave à direita para permanecer na R. Ruth Do Prado Paula Lopes (1,2 km)", "Vire à esquerda na R. José Fonseca Freire (3,1 km)", "Vire à esquerda (Estrada de uso restrito, 130 m)", "Curva suave à direita (Estrada de uso restrito, 87 m)", "Chegada: Recanto das Acácias Guararema, R. José Fonseca Freire - Nogueira, Guararema - SP" ],
+    itinerario: [ "Siga na direção leste na R. Prof. Álvaro Pavan em direção a Av. Manoel Bezerra Lima Filho (200 m)", "Vire à esquerda na Av. Manoel Bezerra Lima Filho (130 m)", "Na rotatória, pegue a 2ª saída para a Av. Francisco Rodrigues Filho/Rod. General Euryale de Jesus Zerbine/Rod. Henrique Eroles (16,0 km)", "Curva suave à direita para permanecer na Rod. General Euryale de Jesus Zerbine/Rod. Henrique Eroles (88 m)", "Na rotatória, pegue a 1ª saída para a Est. Mun. Argemiro de Souza Melo (800 m)", "Vire à esquerda na Est. Mun. Romeu Tanganelli (2,1 km)", "Vire à esquerda na R. Ruth Do Prado Paula Lopes (700 m)", "Curva suave à direita para permanecer na R. Ruth Do Prado Paula Lopes (1,2 km)", "Vire à esquerda na R. José Fonseca Freire " ],
     pontosDeApoio: [ { nome: "Lanchonete na Rodoviária", km: "Início", tipo: "Lanchonete" }, { nome: "Habbib's", km: "0", tipo: "Restaurante" }, { nome: "Padaria Santo Trigo", km: "0", tipo: "Padaria" }, { nome: "Padaria 2B", km: "11,9", tipo: "Padaria" }, { nome: "Restaurante Lucia", km: "11,9", tipo: "Restaurante" }, { nome: "Bica D'agua Santo Alberto", km: "14", tipo: "Ponto de Água" }, { nome: "Estação Ferroviária Luiz Carlos (Vila Turística)", km: "17", tipo: "Comércio diverso" }, { nome: "Mercado do Gomes", km: "25,9", tipo: "Mercado" }, ],
     altimetria: "O trajeto começa em área urbana e segue para estradas de terra com ondulações suaves. A maior parte do percurso é plana, com algumas subidas e descidas leves, característico da transição da serra para o vale.",
     dificuldades: [ "Longo trecho em estrada de asfalto no início, o que pode ser desgastante.", "Trechos rurais com menor infraestrutura e pontos de apoio.", "Sinal de celular pode ser instável em áreas mais afastadas." ],
@@ -149,11 +149,10 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
 
-  // --- NOVA FUNÇÃO PARA LIMPAR ---
   const handleClear = () => {
     setPergunta('');
     setResposta('');
-    window.speechSynthesis.cancel(); // Para qualquer fala em andamento
+    window.speechSynthesis.cancel();
   };
 
   const handleVoiceInput = () => {
@@ -166,18 +165,36 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     recognition.lang = 'pt-BR';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
+    
     setIsListening(true);
     setPergunta('Ouvindo...');
-    recognition.onresult = (event) => setPergunta(event.results[0][0].transcript);
-    recognition.onspeechend = () => {
+
+    // LÓGICA MODIFICADA PARA SER COMPATÍVEL COM IPHONE
+    recognition.onresult = (event) => {
+      const speechToText = event.results[0][0].transcript;
+      setPergunta(speechToText);
+      // Para de ouvir e desativa o microfone assim que um resultado é obtido
+      setIsListening(false); 
       recognition.stop();
-      setIsListening(false);
     };
+
+    // Mantemos este evento para o caso de o usuário parar de falar antes de um resultado
+    recognition.onspeechend = () => {
+      if (isListening) {
+        setIsListening(false);
+        recognition.stop();
+      }
+    };
+
     recognition.onerror = (event) => {
       console.error("Erro no reconhecimento de voz:", event.error);
-      setPergunta('');
+      // Se o erro for 'no-speech', não limpa a pergunta, pois o usuário pode querer digitar
+      if (event.error !== 'no-speech') {
+        setPergunta('');
+      }
       setIsListening(false);
     };
+    
     recognition.start();
   };
 
@@ -198,7 +215,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   };
 
   const handlePerguntar = async () => {
-    if (!pergunta.trim()) return;
+    if (!pergunta.trim() || pergunta === 'Ouvindo...') return;
     setIsLoading(true);
     setResposta('');
     window.speechSynthesis.cancel();
@@ -213,13 +230,13 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       - O objetivo é oferecer uma alternativa segura para peregrinos que iam pela Rodovia Presidente Dutra.
       - A rota passa por 9 municípios: Mogi das Cruzes, Guararema, Santa Branca, Paraibuna, Redenção da Serra, Taubaté, Pindamonhangaba, Roseira e Aparecida.
       - A rota NÃO PASSA pela cidade de São Paulo. Ela percorre áreas rurais, cidades do interior e trechos da Serra do Mar.
-      - A credencial oficial do peregrino pode ser retirada em Mogi das Cruzes. // <-- NOVA INFORMAÇÃO
-      - É recomendado ter um bom preparo físico, especialmente para a etapa de Redenção da Serra. // <-- NOVA INFORMAÇÃO
+      - A credencial oficial do peregrino pode ser retirada em Mogi das Cruzes.
+      - É recomendado ter um bom preparo físico, especialmente para a etapa de Redenção da Serra.
 
       Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 3 parágrafos, usando o contexto acima.
       PERGUNTA: "${pergunta}"
       
-      Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.**'
+      Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.'
     `;
     try {
       const responseText = await callGeminiAPI(prompt);
@@ -250,7 +267,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
               placeholder="Digite sua pergunta sobre a Rota da Luz ou use o microfone..."
               className="w-full h-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
               rows="3"
-              disabled={isLoading}
+              disabled={isLoading || isListening}
             />
           </div>
           <div className="flex items-center gap-2">
@@ -264,22 +281,22 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             </button>
             <button
               onClick={handlePerguntar}
-              disabled={isLoading || !pergunta.trim() || isListening}
+              disabled={isLoading || !pergunta.trim() || isListening || pergunta === 'Ouvindo...'}
               className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400 transition-all"
             >
               {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar</>}
             </button>
             
-            {/* --- NOVO BOTÃO APAGAR --- */}
-            {(pergunta || resposta) && !isLoading && (
+            {(pergunta && pergunta !== 'Ouvindo...') || resposta ? (
               <button
                 onClick={handleClear}
-                className="p-2 rounded-full bg-gray-200 hover:bg-red-200"
+                disabled={isLoading}
+                className="p-2 rounded-full bg-gray-200 hover:bg-red-200 disabled:bg-gray-100"
                 title="Apagar pergunta e resposta"
               >
-                <Trash2 className="h-5 w-5 text-gray-600 hover:text-red-600" />
+                <Trash2 className={`h-5 w-5 ${isLoading ? 'text-gray-300' : 'text-gray-600 hover:text-red-600'}`} />
               </button>
-            )}
+            ) : null }
 
             {resposta && !isLoading && (
               <button
