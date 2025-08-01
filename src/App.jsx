@@ -254,7 +254,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center">
         <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
         Pergunte ao Peregrino IA
-        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-8 ml-2" />
+        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-14 ml-1 mr-4" />
       </h3>
       {!isOnline ? (
         <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
