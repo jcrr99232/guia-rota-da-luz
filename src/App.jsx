@@ -366,7 +366,7 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
           Voltar
       </button>
       
-      <div className="relative text-center mb-8 border-b pb-4 border-gray-200">
+      <div className="relative text-center mb-8 border-b pb-4 border-gray-200 pr-20">
         {/* Título e Data (agora centralizados) */}
         <h2 className="text-3xl font-extrabold text-gray-800">{etapa.titulo}</h2>
         <p className="text-xl text-blue-700 font-semibold mt-1">{formatDate(etapa.date)}</p>
