@@ -513,12 +513,23 @@ export default function App() {
       </header>
       
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        {/* PRIMEIRA LINHA DE GRIDS */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-start">
+          
+          {/* Coluna 1: Logo AARL */}
           <div className="flex justify-center items-center lg:col-span-1">
             <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL">
-              <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-48 sm:h-52 lg:h-64" />
+              <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-32 sm:h-40 lg:h-48" />
             </a>
           </div>
+
+          {/* Coluna 2: Pergunte ao Peregrino IA */}
+          <div className="lg:col-span-1 h-full">
+            <PeregrinoIA isOnline={isOnline} callGeminiAPI={callGeminiAPI} />
+          </div>
+
+          {/* Coluna 3: Seletor de Data */}
           <div className="bg-white p-6 rounded-xl shadow-lg lg:col-span-1">
               <label htmlFor="start-date" className="block text-lg font-bold text-gray-800 mb-2">
                   <Calendar className="inline-block h-6 w-6 mr-2 text-blue-600" />
@@ -532,10 +543,9 @@ export default function App() {
                   className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
           </div>
-          <div className="lg:col-span-1 h-full">
-            <PeregrinoIA isOnline={isOnline} callGeminiAPI={callGeminiAPI} />
-          </div>
         </div>
+
+        {/* LINHAS SEGUINTES: GRID DAS ETAPAS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allEtapas.map(etapa => {
             const weekNumber = getWeekNumber(etapa.date);
@@ -562,6 +572,7 @@ export default function App() {
           })}
         </div>
       </main>
+
       {showOfflineToast && (
         <div className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-green-600 text-white py-2 px-4 rounded-lg shadow-lg animate-fade-in-out">
           <p>Aplicativo pronto para uso offline!</p>
