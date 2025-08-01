@@ -208,7 +208,8 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       - A Rota da Luz é uma rota de peregrinação sinalizada no estado de São Paulo, Brasil.
       - Ela começa em Mogi das Cruzes e termina no Santuário Nacional de Aparecida.
       - A distância total é de aproximadamente 201 km, divididos em 7 etapas.
-      - É possível fazer a Rota da Luz a pé em menos de 7 dias, mas não é recomendado.
+      - Não é recomendado fazer a Rota da Luz a pé em menos de 7 dias.
+      - É recomendado que as caminhadas de peregrinação ocorram somente durante o dia.
       - O objetivo é oferecer uma alternativa segura para peregrinos que iam pela Rodovia Presidente Dutra.
       - A rota passa por 9 municípios: Mogi das Cruzes, Guararema, Santa Branca, Paraibuna, Redenção da Serra, Taubaté, Pindamonhangaba, Roseira e Aparecida.
       - A rota NÃO PASSA pela cidade de São Paulo. Ela percorre áreas rurais, cidades do interior e trechos da Serra do Mar.
