@@ -361,25 +361,27 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 animate-fade-in">
-      <div className="mb-6 border-b pb-4 border-gray-200">
-        <div className="flex justify-between items-center mb-4">
-          {/* Esquerda: Botão Voltar */}
+      <div className="flex flex-wrap justify-between items-center gap-y-4 mb-8 border-b pb-4 border-gray-200">
+  
+        {/* Esquerda: Botão Voltar */}
+        <div className="flex-shrink-0">
           <button onClick={onBack} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            Voltar
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Voltar
           </button>
-
-          {/* Direita: Logo */}
-          <div>
-            <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-12 sm:h-16" />
-          </div>
+        </div>
+        
+        {/* Centro (ocupa o espaço que sobrar): Título e Data */}
+        <div className="flex-grow text-center">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800">{etapa.titulo}</h2>
+          <p className="text-lg sm:text-xl text-blue-700 font-semibold mt-1">{formatDate(etapa.date)}</p>
+        </div>
+        
+        {/* Direita: Logo */}
+        <div className="flex-shrink-0">
+          <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-12 sm:h-16" />
         </div>
 
-        {/* Centro: Título e Data (agora abaixo) */}
-        <div className="text-center">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-gray-800">{etapa.titulo}</h2>
-          <p className="text-lg md:text-xl text-blue-700 font-semibold mt-1">{formatDate(etapa.date)}</p>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 text-center">
