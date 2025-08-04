@@ -297,7 +297,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
 
           {!resposta && !isLoading && (
             <div className="text-center text-sm text-gray-500">
-              <span>Sugestão: </span>
+              <span>Sugestão, clique em um tema e no altofalante: </span>
               <button 
                 onClick={() => handleTopicClick(suggestedTopics[currentTopicIndex])}
                 className={`font-semibold text-purple-600 hover:text-purple-800 ml-1 p-1 rounded transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}
