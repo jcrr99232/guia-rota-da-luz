@@ -155,6 +155,27 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [resposta, setResposta] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  
+  // --- NOVOS ESTADOS E DADOS PARA SUGESTÕES ---
+  const suggestedTopics = [
+    "Apresentação da Rota da Luz",
+    "Como planejar a peregrinação",
+    "Basílica de Nossa Senhora da Aparecida",
+    "Informações contidas nesse App",
+  ];
+  const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
+
+  // Efeito para ciclar os tópicos a cada 3 segundos
+  useEffect(() => {
+    if (!isLoading && !resposta) { // Pausa o ciclo se estiver carregando ou se já houver uma resposta
+      const intervalId = setInterval(() => {
+        setCurrentTopicIndex(prevIndex => (prevIndex + 1) % suggestedTopics.length);
+      }, 3000); // Muda a cada 3 segundos
+
+      return () => clearInterval(intervalId); // Limpa o intervalo
+    }
+  }, [isLoading, resposta]); // Roda o efeito novamente quando o loading ou a resposta mudam
+
 
   const handleClear = () => {
     setPergunta('');
@@ -172,36 +193,22 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     recognition.lang = 'pt-BR';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
-    
     setIsListening(true);
     setPergunta('Ouvindo...');
-
-    // LÓGICA MODIFICADA PARA SER COMPATÍVEL COM IPHONE
     recognition.onresult = (event) => {
       const speechToText = event.results[0][0].transcript;
       setPergunta(speechToText);
-      // Para de ouvir e desativa o microfone assim que um resultado é obtido
-      setIsListening(false); 
+      setIsListening(false);
       recognition.stop();
     };
-
-    // Mantemos este evento para o caso de o usuário parar de falar antes de um resultado
     recognition.onspeechend = () => {
-      if (isListening) {
-        setIsListening(false);
-        recognition.stop();
-      }
+      if(isListening) { setIsListening(false); recognition.stop(); }
     };
-
     recognition.onerror = (event) => {
       console.error("Erro no reconhecimento de voz:", event.error);
-      // Se o erro for 'no-speech', não limpa a pergunta, pois o usuário pode querer digitar
-      if (event.error !== 'no-speech') {
-        setPergunta('');
-      }
+      if (event.error !== 'no-speech') { setPergunta(''); }
       setIsListening(false);
     };
-    
     recognition.start();
   };
 
@@ -215,14 +222,13 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     utterance.lang = 'pt-BR';
     const voices = window.speechSynthesis.getVoices();
     const brVoice = voices.find(voice => voice.lang === 'pt-BR');
-    if (brVoice) {
-      utterance.voice = brVoice;
-    }
+    if (brVoice) { utterance.voice = brVoice; }
     window.speechSynthesis.speak(utterance);
   };
-
-  const handlePerguntar = async () => {
-    if (!pergunta.trim() || pergunta === 'Ouvindo...') return;
+  
+  // Função refatorada para aceitar a pergunta como argumento
+  const handlePerguntar = async (question) => {
+    if (!question.trim()) return;
     setIsLoading(true);
     setResposta('');
     window.speechSynthesis.cancel();
@@ -241,9 +247,9 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       - É recomendado ter um bom preparo físico, especialmente para a etapa de Redenção da Serra.
 
       Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 3 parágrafos, usando o contexto acima.
-      PERGUNTA: "${pergunta}"
+      PERGUNTA: "${question}"
       
-      Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.'
+      Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.**'
     `;
     try {
       const responseText = await callGeminiAPI(prompt);
@@ -256,12 +262,18 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     }
   };
 
+  // Nova função para o clique no tópico
+  const handleTopicClick = (topic) => {
+    setPergunta(topic);
+    handlePerguntar(topic);
+  };
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col">
       <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center">
         <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
         Pergunte ao Peregrino IA
-        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-14 ml-1 mr-4" />
+        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-8 ml-2" />
       </h3>
       {!isOnline ? (
         <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
@@ -274,48 +286,43 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
               placeholder="Digite sua pergunta sobre a Rota da Luz ou use o microfone..."
               className="w-full h-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
               rows="3"
-              disabled={isLoading || isListening}
+              disabled={isLoading}
             />
           </div>
+
+          {/* --- NOVA SEÇÃO DE SUGESTÕES --- */}
+          {!resposta && !isLoading && (
+            <div className="text-center text-sm text-gray-500">
+              <span>Que tal perguntar sobre:</span>
+              <button 
+                onClick={() => handleTopicClick(suggestedTopics[currentTopicIndex])}
+                className="font-semibold text-purple-600 hover:text-purple-800 ml-2 p-1 rounded transition-colors"
+                title="Clique para perguntar sobre este tema"
+              >
+                "{suggestedTopics[currentTopicIndex]}"
+              </button>
+            </div>
+          )}
+
           <div className="flex items-center gap-2">
-            <button 
-              onClick={handleVoiceInput} 
-              disabled={isLoading}
-              className={`p-2 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-200 hover:bg-gray-300'}`}
-              title="Perguntar por voz"
-            >
+            <button onClick={handleVoiceInput} disabled={isLoading} className={`p-2 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-200 hover:bg-gray-300'}`} title="Perguntar por voz">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
             </button>
-            <button
-              onClick={handlePerguntar}
-              disabled={isLoading || !pergunta.trim() || isListening || pergunta === 'Ouvindo...'}
-              className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400 transition-all"
-            >
+            <button onClick={() => handlePerguntar(pergunta)} disabled={isLoading || !pergunta.trim() || isListening} className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400 transition-all">
               {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar</>}
             </button>
-            
-            {(pergunta && pergunta !== 'Ouvindo...') || resposta ? (
-              <button
-                onClick={handleClear}
-                disabled={isLoading}
-                className="p-2 rounded-full bg-gray-200 hover:bg-red-200 disabled:bg-gray-100"
-                title="Apagar pergunta e resposta"
-              >
-                <Trash2 className={`h-5 w-5 ${isLoading ? 'text-gray-300' : 'text-gray-600 hover:text-red-600'}`} />
+            {(pergunta || resposta) && !isLoading && (
+              <button onClick={handleClear} className="p-2 rounded-full bg-gray-200 hover:bg-red-200" title="Apagar pergunta e resposta">
+                <Trash2 className="h-5 w-5 text-gray-600 hover:text-red-600" />
               </button>
-            ) : null }
-
+            )}
             {resposta && !isLoading && (
-              <button
-                onClick={() => handleSpeakResponse(resposta)}
-                className="p-2 rounded-full bg-gray-200 hover:bg-blue-200"
-                title="Ouvir resposta"
-              >
+              <button onClick={() => handleSpeakResponse(resposta)} className="p-2 rounded-full bg-gray-200 hover:bg-blue-200" title="Ouvir resposta">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
               </button>
             )}
           </div>
-
+          
           {resposta && (
             <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
               <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
