@@ -156,7 +156,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   
-  // --- NOVOS ESTADOS E DADOS PARA SUGESTÕES ---
   const suggestedTopics = [
     "Apresentação da Rota da Luz",
     "Como planejar a peregrinação",
@@ -164,18 +163,22 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     "Informações contidas nesse App",
   ];
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
+  const [isFading, setIsFading] = useState(false); // Estado para a animação
 
-  // Efeito para ciclar os tópicos a cada 3 segundos
+  // Efeito para ciclar os tópicos com animação de fade
   useEffect(() => {
-    if (!isLoading && !resposta) { // Pausa o ciclo se estiver carregando ou se já houver uma resposta
+    if (!isLoading && !resposta) {
       const intervalId = setInterval(() => {
-        setCurrentTopicIndex(prevIndex => (prevIndex + 1) % suggestedTopics.length);
-      }, 3000); // Muda a cada 3 segundos
+        setIsFading(true); // Ativa o fade-out
+        setTimeout(() => {
+          setCurrentTopicIndex(prevIndex => (prevIndex + 1) % suggestedTopics.length);
+          setIsFading(false); // Desativa o fade-out para o fade-in
+        }, 500); // Duração da animação de fade-out
+      }, 3500); // Tempo total: 3s visível + 0.5s de transição
 
-      return () => clearInterval(intervalId); // Limpa o intervalo
+      return () => clearInterval(intervalId);
     }
-  }, [isLoading, resposta]); // Roda o efeito novamente quando o loading ou a resposta mudam
-
+  }, [isLoading, resposta]);
 
   const handleClear = () => {
     setPergunta('');
@@ -226,7 +229,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     window.speechSynthesis.speak(utterance);
   };
   
-  // Função refatorada para aceitar a pergunta como argumento
   const handlePerguntar = async (question) => {
     if (!question.trim()) return;
     setIsLoading(true);
@@ -235,6 +237,9 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     const prompt = `
       Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz em São Paulo.
       Use o seguinte CONTEXTO para basear suas respostas:
+      - A Basílica de Nossa Senhora Aparecida, também conhecida como Santuário Nacional de Aparecida, é o maior santuário mariano do mundo e um importante centro de peregrinação religiosa no Brasil. Sua história está intrinsecamente ligada à descoberta da imagem de Nossa Senhora Aparecida no rio Paraíba do Sul, em 1717.
+      - A imagem de Nossa Senhora Aparecida, inicialmente encontrada no rio, foi peça central na construção da devoção e da Basílica/Santuário. Ela é um símbolo da fé católica no Brasil e foi proclamada Padroeira do Brasil em 1930.
+      - Este App oferece além da possibilidade de obter informações com o Peregrino IA, uma forma simples de planejar a sua peregrinação, trazendo informações detalhadas sobre as 7 etapas, como previsões meteorológicas sobre os dias escolhidos para a peregrinação, a distância aproximada e a altimetria entre cada etapa, dicas, recomendações e muito mais.
       - A Rota da Luz é uma rota de peregrinação sinalizada no estado de São Paulo, Brasil.
       - Ela começa em Mogi das Cruzes e termina no Santuário Nacional de Aparecida.
       - A distância total é de aproximadamente 201 km, divididos em 7 etapas.
@@ -262,7 +267,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     }
   };
 
-  // Nova função para o clique no tópico
   const handleTopicClick = (topic) => {
     setPergunta(topic);
     handlePerguntar(topic);
@@ -290,13 +294,12 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             />
           </div>
 
-          {/* --- NOVA SEÇÃO DE SUGESTÕES --- */}
           {!resposta && !isLoading && (
             <div className="text-center text-sm text-gray-500">
-              <span>Que tal perguntar sobre:</span>
+              <span>Sugestão: </span>
               <button 
                 onClick={() => handleTopicClick(suggestedTopics[currentTopicIndex])}
-                className="font-semibold text-purple-600 hover:text-purple-800 ml-2 p-1 rounded transition-colors"
+                className={`font-semibold text-purple-600 hover:text-purple-800 ml-1 p-1 rounded transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}
                 title="Clique para perguntar sobre este tema"
               >
                 "{suggestedTopics[currentTopicIndex]}"
@@ -325,6 +328,9 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
           
           {resposta && (
             <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
+              <button onClick={() => handleSpeakResponse(resposta)} className="float-right p-1 text-gray-500 hover:text-purple-600" title="Ouvir resposta">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              </button>
               <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
             </div>
           )}
