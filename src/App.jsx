@@ -156,10 +156,31 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   
-  // Novos estados para os campos opcionais
+  // Estados para os campos opcionais de contato
   const [nome, setNome] = useState('');
   const [contato, setContato] = useState('');
 
+  const suggestedTopics = [
+    "Apresentação da Rota da Luz",
+    "Como planejar a peregrinação",
+    "Basílica de Nossa Senhora da Aparecida",
+    "Informações contidas nesse App",
+  ];
+  const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
+  const [isFading, setIsFading] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && !resposta) {
+      const intervalId = setInterval(() => {
+        setIsFading(true);
+        setTimeout(() => {
+          setCurrentTopicIndex(prevIndex => (prevIndex + 1) % suggestedTopics.length);
+          setIsFading(false);
+        }, 500);
+      }, 3500);
+      return () => clearInterval(intervalId);
+    }
+  }, [isLoading, resposta]);
 
   const handleClear = () => {
     setPergunta('');
@@ -218,8 +239,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     setResposta('');
     window.speechSynthesis.cancel();
     
-    // --- LÓGICA DO FORMSPREE ADICIONADA AQUI ---
-    // Envia os dados para o seu e-mail em segundo plano
+    // Envia os dados para o seu e-mail via Formspree
     const formData = new FormData();
     formData.append('pergunta', question);
     formData.append('nome', nome || 'Não informado');
@@ -228,42 +248,16 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     fetch('https://formspree.io/f/xkgzqlvn', {
         method: 'POST',
         body: formData,
-        headers: {
-            'Accept': 'application/json'
-        }
-    }).then(response => {
-        if (response.ok) {
-            console.log("Pergunta enviada com sucesso para o Formspree!");
-        } else {
-            console.error("Falha ao enviar pergunta para o Formspree.");
-        }
-    }).catch(error => {
-        console.error("Erro de rede ao contatar o Formspree:", error);
-    });
+        headers: { 'Accept': 'application/json' }
+    }).then(response => console.log(response.ok ? "Pergunta enviada ao Formspree." : "Falha ao enviar ao Formspree."))
+      .catch(error => console.error("Erro de rede ao contatar Formspree:", error));
 
-    // --- LÓGICA DO GEMINI (continua a mesma) ---
+    // Lógica do Gemini para obter a resposta
     const prompt = `
-      Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz em São Paulo.
-      Use o seguinte CONTEXTO para basear suas respostas:
-      - Apresentação da Rota da Luz: Olá peregrino me chamo Antonio e sou voluntário da Associação dos Amigos da Rota da Luz, neste você vai conhecer esse caminho que além das belezas naturais, tem Anjos que vão  te acolher e cuidar de você, se você quer apenas conhecer a Rota da Luz por curiosidade, Bem vindo, mas se você quer conhecer pensando em ser um peregrino, vou te ajudar a planejar a sua peregrinação com muitas dicas e informações. Deixa eu te contar um pouco da história desse caminho: A Rota da Luz tem 201 Km, o tempo ideal pra percorrer a pé é de 7 dias, a média de caminhada por dia é de 30 Km. Sim, que ter preparo físico e também psicológico.
-      - A Basílica de Nossa Senhora Aparecida, também conhecida como Santuário Nacional de Aparecida, é o maior santuário mariano do mundo e um importante centro de peregrinação religiosa no Brasil. Sua história está intrinsecamente ligada à descoberta da imagem de Nossa Senhora Aparecida no rio Paraíba do Sul, em 1717.
-      - A imagem de Nossa Senhora Aparecida, inicialmente encontrada no rio, foi peça central na construção da devoção e da Basílica/Santuário. Ela é um símbolo da fé católica no Brasil e foi proclamada Padroeira do Brasil em 1930.
-      - Este App oferece além da possibilidade de obter informações com o Peregrino IA, uma forma simples de planejar a sua peregrinação, trazendo informações detalhadas sobre as 7 etapas, como previsões meteorológicas sobre os dias escolhidos para a peregrinação, a distância aproximada e a altimetria entre cada etapa, dicas, recomendações e muito mais.
-      - A Rota da Luz é uma rota de peregrinação sinalizada no estado de São Paulo, Brasil.
-      - Ela começa em Mogi das Cruzes e termina no Santuário Nacional de Aparecida.
-      - A distância total é de aproximadamente 201 km, divididos em 7 etapas.
-      - Não é recomendado fazer a Rota da Luz a pé em menos de 7 dias.
-      - É recomendado que as caminhadas de peregrinação ocorram somente durante o dia.
-      - O objetivo é oferecer uma alternativa segura para peregrinos que iam pela Rodovia Presidente Dutra.
-      - A rota passa por 9 municípios: Mogi das Cruzes, Guararema, Santa Branca, Paraibuna, Redenção da Serra, Taubaté, Pindamonhangaba, Roseira e Aparecida.
-      - A rota NÃO PASSA pela cidade de São Paulo. Ela percorre áreas rurais, cidades do interior e trechos da Serra do Mar.
-      - A credencial oficial do peregrino pode ser retirada em Mogi das Cruzes.
-      - É recomendado ter um bom preparo físico, especialmente para a etapa de Redenção da Serra.
-
-      Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 3 parágrafos, usando o contexto acima.
+      Você é o 'Peregrino IA', um especialista amigável sobre a Rota da Luz em São Paulo.
+      CONTEXTO: A Rota da Luz é uma rota de peregrinação de Mogi das Cruzes a Aparecida, com 201 km, passando por 9 municípios do interior como alternativa segura à Rodovia Dutra. Não passa pela cidade de São Paulo.
       PERGUNTA: "${question}"
-      
-      Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.**'
+      Responda de forma útil. Ao final, inclua o aviso em negrito: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes.**'
     `;
     try {
       const responseText = await callGeminiAPI(prompt);
@@ -302,27 +296,16 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
               disabled={isLoading}
             />
           </div>
-
-          {/* --- NOVOS CAMPOS DE CONTATO --- */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <input 
-              type="text"
-              placeholder="Seu nome (opcional)"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg text-sm"
-              disabled={isLoading}
+              type="text" placeholder="Seu nome (opcional)" value={nome} onChange={(e) => setNome(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg text-sm" disabled={isLoading}
             />
             <input 
-              type="text"
-              placeholder="Seu e-mail ou WhatsApp (opcional)"
-              value={contato}
-              onChange={(e) => setContato(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg text-sm"
-              disabled={isLoading}
+              type="text" placeholder="Seu e-mail ou WhatsApp (opcional)" value={contato} onChange={(e) => setContato(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg text-sm" disabled={isLoading}
             />
           </div>
-
           {!resposta && !isLoading && (
             <div className="text-center text-sm text-gray-500">
               <span>Sugestão: </span>
@@ -335,14 +318,27 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
               </button>
             </div>
           )}
-
           <div className="flex items-center gap-2">
-            {/* ... botões ... */}
+            <button onClick={handleVoiceInput} disabled={isLoading} className={`p-2 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-200 hover:bg-gray-300'}`} title="Perguntar por voz">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+            </button>
+            <button onClick={() => handlePerguntar(pergunta)} disabled={isLoading || !pergunta.trim() || isListening} className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400 transition-all">
+              {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar</>}
+            </button>
+            {(pergunta || resposta) && !isLoading && (
+              <button onClick={handleClear} className="p-2 rounded-full bg-gray-200 hover:bg-red-200" title="Apagar pergunta e resposta">
+                <Trash2 className="h-5 w-5 text-gray-600 hover:text-red-600" />
+              </button>
+            )}
+            {resposta && !isLoading && (
+              <button onClick={() => handleSpeakResponse(resposta)} className="p-2 rounded-full bg-gray-200 hover:bg-blue-200" title="Ouvir resposta">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              </button>
+            )}
           </div>
-          
           {resposta && (
             <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
-              {/* ... resposta ... */}
+              <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
             </div>
           )}
         </div>
