@@ -156,33 +156,16 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   
-  const suggestedTopics = [
-    "Apresentação da Rota da Luz",
-    "Como planejar a peregrinação",
-    "Basílica de Nossa Senhora da Aparecida",
-    "Informações contidas nesse App",
-  ];
-  const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
-  const [isFading, setIsFading] = useState(false); // Estado para a animação
+  // Novos estados para os campos opcionais
+  const [nome, setNome] = useState('');
+  const [contato, setContato] = useState('');
 
-  // Efeito para ciclar os tópicos com animação de fade
-  useEffect(() => {
-    if (!isLoading && !resposta) {
-      const intervalId = setInterval(() => {
-        setIsFading(true); // Ativa o fade-out
-        setTimeout(() => {
-          setCurrentTopicIndex(prevIndex => (prevIndex + 1) % suggestedTopics.length);
-          setIsFading(false); // Desativa o fade-out para o fade-in
-        }, 500); // Duração da animação de fade-out
-      }, 3500); // Tempo total: 3s visível + 0.5s de transição
-
-      return () => clearInterval(intervalId);
-    }
-  }, [isLoading, resposta]);
 
   const handleClear = () => {
     setPergunta('');
     setResposta('');
+    setNome('');
+    setContato('');
     window.speechSynthesis.cancel();
   };
 
@@ -234,6 +217,31 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     setIsLoading(true);
     setResposta('');
     window.speechSynthesis.cancel();
+    
+    // --- LÓGICA DO FORMSPREE ADICIONADA AQUI ---
+    // Envia os dados para o seu e-mail em segundo plano
+    const formData = new FormData();
+    formData.append('pergunta', question);
+    formData.append('nome', nome || 'Não informado');
+    formData.append('contato', contato || 'Não informado');
+    
+    fetch('https://formspree.io/f/xkgzqlvn', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json'
+        }
+    }).then(response => {
+        if (response.ok) {
+            console.log("Pergunta enviada com sucesso para o Formspree!");
+        } else {
+            console.error("Falha ao enviar pergunta para o Formspree.");
+        }
+    }).catch(error => {
+        console.error("Erro de rede ao contatar o Formspree:", error);
+    });
+
+    // --- LÓGICA DO GEMINI (continua a mesma) ---
     const prompt = `
       Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz em São Paulo.
       Use o seguinte CONTEXTO para basear suas respostas:
@@ -295,9 +303,29 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             />
           </div>
 
+          {/* --- NOVOS CAMPOS DE CONTATO --- */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input 
+              type="text"
+              placeholder="Seu nome (opcional)"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+              disabled={isLoading}
+            />
+            <input 
+              type="text"
+              placeholder="Seu e-mail ou WhatsApp (opcional)"
+              value={contato}
+              onChange={(e) => setContato(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+              disabled={isLoading}
+            />
+          </div>
+
           {!resposta && !isLoading && (
             <div className="text-center text-sm text-gray-500">
-              <span>Sugestão, clique em um tema e no altofalante: </span>
+              <span>Sugestão: </span>
               <button 
                 onClick={() => handleTopicClick(suggestedTopics[currentTopicIndex])}
                 className={`font-semibold text-purple-600 hover:text-purple-800 ml-1 p-1 rounded transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}
@@ -309,30 +337,12 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
           )}
 
           <div className="flex items-center gap-2">
-            <button onClick={handleVoiceInput} disabled={isLoading} className={`p-2 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-200 hover:bg-gray-300'}`} title="Perguntar por voz">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-            </button>
-            <button onClick={() => handlePerguntar(pergunta)} disabled={isLoading || !pergunta.trim() || isListening} className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400 transition-all">
-              {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar</>}
-            </button>
-            {(pergunta || resposta) && !isLoading && (
-              <button onClick={handleClear} className="p-2 rounded-full bg-gray-200 hover:bg-red-200" title="Apagar pergunta e resposta">
-                <Trash2 className="h-5 w-5 text-gray-600 hover:text-red-600" />
-              </button>
-            )}
-            {resposta && !isLoading && (
-              <button onClick={() => handleSpeakResponse(resposta)} className="p-2 rounded-full bg-gray-200 hover:bg-blue-200" title="Ouvir resposta">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-              </button>
-            )}
+            {/* ... botões ... */}
           </div>
           
           {resposta && (
             <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
-              <button onClick={() => handleSpeakResponse(resposta)} className="float-right p-1 text-gray-500 hover:text-purple-600" title="Ouvir resposta">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-              </button>
-              <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
+              {/* ... resposta ... */}
             </div>
           )}
         </div>
