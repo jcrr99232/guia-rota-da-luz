@@ -301,36 +301,41 @@ Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso
     <div className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col">
       <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center">
         <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
-        Pergunto ao Peregrino IA
-        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-8 ml-2" />
+        Pergunte ao Peregrino IA
+        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-12 ml-2" />
       </h3>
       {!isOnline ? (
         <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
       ) : (
         <div className="space-y-4 flex-grow flex flex-col">
-          <div className="relative flex-grow">
+          {/* 1. CAMPOS DE CONTATO (INPUTS) - AGORA PRIMEIRO */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input 
+              type="text" placeholder="Seu nome (opcional)" value={nome} onChange={(e) => setNome(e.target.value)}
+             className="w-full p-2 border border-gray-300 rounded-lg text-sm placeholder:text-gray-500 placeholder:text-xs" disabled={isLoading}
+
+            />
+            <input 
+              type="text" placeholder="E-mail/WhatsApp (opcional)" value={contato} onChange={(e) => setContato(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg text-sm placeholder:text-gray-500 placeholder:text-xs" disabled={isLoading}
+
+            />
+          </div>
+          {/* 2. CAIXA DE PERGUNTA (TEXTAREA) - AGORA SEGUNDO */}
+          <div className="relative">
             <textarea
               value={pergunta}
               onChange={(e) => setPergunta(e.target.value)}
               placeholder="Digite sua pergunta sobre a Rota da Luz ou use o microfone..."
-              className="w-full h-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
-              rows="3"
+              className="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm placeholder:text-gray-500 placeholder:text-xs"
+              rows="2"
               disabled={isLoading}
             />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <input 
-              type="text" placeholder="Seu nome (opcional)" value={nome} onChange={(e) => setNome(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg text-sm" disabled={isLoading}
-            />
-            <input 
-              type="text" placeholder="Seu e-mail ou WhatsApp (opcional)" value={contato} onChange={(e) => setContato(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg text-sm" disabled={isLoading}
-            />
-          </div>
+          
           {!resposta && !isLoading && (
             <div className="text-center text-sm text-gray-500">
-              <span>Sugestão: </span>
+              <span>Sugestão: clique em um dos temas abaixo. </span>
               <button 
                 onClick={() => handleTopicClick(suggestedTopics[currentTopicIndex])}
                 className={`font-semibold text-purple-600 hover:text-purple-800 ml-1 p-1 rounded transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}
@@ -604,7 +609,7 @@ export default function App() {
           {/* Coluna 1: Logo AARL */}
           <div className="flex justify-center items-center lg:col-span-1">
             <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL">
-              <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-32 sm:h-40 lg:h-48" />
+              <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-46 sm:h-60 lg:h-56" />
             </a>
           </div>
 
