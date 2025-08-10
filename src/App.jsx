@@ -506,26 +506,6 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, selecoes, onHos
             <p className="text-3xl font-bold text-blue-500">{etapa.distancia}</p>
             <p className="font-semibold text-gray-600">Distância da Etapa</p>
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-200 text-left text-sm">
-            <h4 className="font-bold text-gray-700 mb-2 text-center">Calcular Distância Personalizada</h4>
-            <label htmlFor="origem-select" className="block font-medium text-gray-600">Hospedagem em {etapa.cidadeOrigem}:</label>
-            <select id="origem-select" value={selecoes.origem || ''} onChange={(e) => onHospedagemChange(etapa.id, 'origem', e.target.value)} className="w-full mt-1 p-2 border border-gray-300 rounded-md">
-              <option value="">Selecione a origem...</option>
-              {listaHospedagensOrigem.map(h => <option key={h.nome} value={h.nome}>{h.nome}</option>)}
-            </select>
-            <label htmlFor="destino-select" className="block font-medium text-gray-600 mt-3">Hospedagem em {etapa.cidadeDestino}:</label>
-            <select id="destino-select" value={selecoes.destino || ''} onChange={(e) => onHospedagemChange(etapa.id, 'destino', e.target.value)} className="w-full mt-1 p-2 border border-gray-300 rounded-md">
-              <option value="">Selecione o destino...</option>
-              {listaHospedagensDestino.map(h => <option key={h.nome} value={h.nome}>{h.nome}</option>)}
-            </select>
-            {distanciaCalculada !== null && (
-              <div className="mt-4 text-center bg-blue-50 p-3 rounded-lg">
-                <p className="font-semibold text-gray-700">Distância de porta a porta:</p>
-                <p className="text-2xl font-bold text-blue-600">{distanciaCalculada} km</p>
-                <p className="text-xs text-gray-500 italic mt-1">*Valor aproximado.</p>
-              </div>
-            )}
-          </div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow"><p className="text-3xl font-bold text-blue-500">{etapa.tempoEstimado}</p><p className="font-semibold text-gray-600">Tempo de Caminhada</p></div>
         <div className="bg-white p-4 rounded-lg shadow"><Clock className="mx-auto h-8 w-8 text-blue-500 mb-2" /><p className="font-bold text-gray-800">Início Sugerido</p><p className="text-lg text-gray-600">{etapa.horarioInicio}</p><p className="text-xs text-gray-500">(Para chegar às 15:30)</p><p className="text-xs text-gray-500 mt-1">(Incluído {etapa.paradaRefeicao} para alimentação)</p></div>
@@ -578,6 +558,81 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, selecoes, onHos
   );
 };
 
+// --- NOVO COMPONENTE: ResumoRoteiro ---
+const ResumoRoteiro = ({ allEtapas, selecoesHospedagem, onBack }) => {
+  return (
+    <div className="p-4 sm:p-6 lg:p-8 animate-fade-in">
+      <div className="flex justify-between items-center mb-6 print:hidden">
+        <div>
+          <h1 className="text-3xl font-extrabold text-gray-800">Resumo do Seu Roteiro</h1>
+          <p className="text-gray-600">Este é o seu plano de peregrinação personalizado.</p>
+        </div>
+        <div className="flex gap-2">
+           <button onClick={() => window.print()} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+              <Printer className="h-5 w-5 mr-2" />
+              Imprimir
+          </button>
+          <button onClick={onBack} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Voltar
+          </button>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="w-full text-sm text-left text-gray-700">
+          <thead className="text-xs text-gray-800 uppercase bg-gray-100">
+            <tr>
+              <th scope="col" className="px-4 py-3">Etapa</th>
+              <th scope="col" className="px-4 py-3">Origem</th>
+              <th scope="col" className="px-4 py-3">Destino</th>
+              <th scope="col" className="px-4 py-3">Distância</th>
+              <th scope="col" className="px-4 py-3">Clima</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allEtapas.map(etapa => {
+              const selecao = selecoesHospedagem[etapa.id] || {};
+              const origem = hospedagensPorCidade[etapa.cidadeOrigem]?.find(h => h.nome === selecao.origem);
+              const destino = hospedagensPorCidade[etapa.cidadeDestino]?.find(h => h.nome === selecao.destino);
+              
+              let distanciaCalculada = etapa.distancia;
+              if (origem && destino) {
+                const dist = Math.abs(destino.km - origem.km) + origem.foraDaRota + destino.foraDaRota;
+                distanciaCalculada = `${dist.toFixed(1)} km`;
+              }
+              
+              const weekNumber = getWeekNumber(etapa.date);
+              const previsao = weeklyCityHistoricalWeather[weekNumber]?.[etapa.cidadeDestino] || weeklyCityHistoricalWeather[33]['Guararema'];
+
+              return (
+                <tr key={etapa.id} className="border-b hover:bg-gray-50">
+                  <td className="px-4 py-4 font-bold">{etapa.id}</td>
+                  <td className="px-4 py-4">
+                    <p className="font-semibold">{etapa.cidadeOrigem}</p>
+                    <p className="text-xs text-gray-500">{origem?.nome || 'Não selecionado'}</p>
+                    <p className="text-xs text-gray-500">{origem?.fone}</p>
+                  </td>
+                  <td className="px-4 py-4">
+                    <p className="font-semibold">{etapa.cidadeDestino}</p>
+                    <p className="text-xs text-gray-500">{destino?.nome || 'Não selecionado'}</p>
+                    <p className="text-xs text-gray-500">{destino?.fone}</p>
+                  </td>
+                  <td className="px-4 py-4 font-semibold">{distanciaCalculada}</td>
+                  <td className="px-4 py-4">
+                    <p>{previsao.min} / {previsao.max}</p>
+                    <p className="text-xs text-gray-500">Chuva: {previsao.chanceChuva}</p>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
 export default function App() {
   const [selectedEtapa, setSelectedEtapa] = useState(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -594,8 +649,15 @@ export default function App() {
       // Lógica para auto-preenchimento
       if (tipo === 'destino' && etapaId < etapasData.length) {
         const proximaEtapaId = etapaId + 1;
-        if (!newState[proximaEtapaId]) { newState[proximaEtapaId] = {}; }
-        newState[proximaEtapaId].origem = nomeHospedagem;
+        const proximaEtapa = etapasData.find(e => e.id === proximaEtapaId);
+        if (proximaEtapa) {
+            const destinoAnterior = hospedagensPorCidade[etapa.cidadeDestino]?.find(h => h.nome === nomeHospedagem);
+            const proximaOrigem = hospedagensPorCidade[proximaEtapa.cidadeOrigem]?.find(h => h.nome === destinoAnterior?.nome);
+            if (proximaOrigem) {
+                if (!newState[proximaEtapaId]) { newState[proximaEtapaId] = {}; }
+                newState[proximaEtapaId].origem = proximaOrigem.nome;
+            }
+        }
       }
       
       newState[etapaId][tipo] = nomeHospedagem;
@@ -744,8 +806,7 @@ export default function App() {
             {allEtapas.map((etapa, index) => {
               const selecaoAtual = selecoesHospedagem[etapa.id] || {};
               const origemAnterior = index > 0 ? selecoesHospedagem[allEtapas[index-1].id]?.destino : undefined;
-              const origemEtapa = origemAnterior || selecaoAtual.origem;
-
+              
               return (
                 <div key={etapa.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4 first:border-t-0 first:pt-0">
                   <div className="md:col-span-1">
@@ -756,7 +817,7 @@ export default function App() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Origem em {etapa.cidadeOrigem}</label>
                       <select 
-                        value={origemEtapa || ''}
+                        value={origemAnterior || selecaoAtual.origem || ''}
                         onChange={(e) => handleHospedagemChange(etapa.id, 'origem', e.target.value)}
                         disabled={index > 0}
                         className="mt-1 w-full p-2 border border-gray-300 rounded-md disabled:bg-gray-100"
