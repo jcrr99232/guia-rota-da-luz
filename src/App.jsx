@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2, Building, FileText } from 'lucide-react';
+import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2, Building, FileText, Printer } from 'lucide-react';
 
-// --- FUNÇÕES AUXILIARES ---
+// --- FUNÇÕES AUXILIARES, DADOS DE CLIMA, HOSPEDAGENS E ETAPAS ---
 const getWeekNumber = (date) => {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -17,8 +17,6 @@ const parseTime = (timeStr) => {
     const minutes = minMatch ? parseInt(minMatch[1], 10) : 0;
     return hours * 60 + minutes;
 };
-
-// --- GERAÇÃO DINÂMICA DE DADOS METEOROLÓGICOS ---
 const weeklyHistoricalWeatherBase = {
   1: { min: 19, max: 28, chanceChuva: 75, umidade: 82 }, 2: { min: 19, max: 28, chanceChuva: 70, umidade: 80 }, 3: { min: 18, max: 27, chanceChuva: 60, umidade: 77 }, 4: { min: 16, max: 26, chanceChuva: 40, umidade: 72 }, 5: { min: 13, max: 24, chanceChuva: 25, umidade: 65 }, 6: { min: 11, max: 23, chanceChuva: 20, umidade: 62 }, 7: { min: 10, max: 23, chanceChuva: 20, umidade: 62 }, 8: { min: 12, max: 25, chanceChuva: 15, umidade: 57 }, 9: { min: 14, max: 26, chanceChuva: 35, umidade: 65 }, 10: { min: 16, max: 27, chanceChuva: 50, umidade: 72 }, 11: { min: 17, max: 27, chanceChuva: 65, umidade: 77 }, 12: { min: 18, max: 28, chanceChuva: 70, umidade: 82 },
 };
@@ -45,8 +43,6 @@ const generateWeatherData = () => {
   return weatherData;
 };
 const weeklyCityHistoricalWeather = generateWeatherData();
-
-// --- DADOS DAS HOSPEDAGENS POR CIDADE ---
 const hospedagensPorCidade = {
   "Mogi das Cruzes": [
     { nome: "IBIS HOTEL (desconto para peregrinos)", km: 0.0, foraDaRota: 0.4, fone: "(11)2813-3800", contato: "WHATSAPP" },
@@ -396,7 +392,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             )}
             {resposta && !isLoading && (
               <button onClick={() => handleSpeakResponse(resposta)} className="p-2 rounded-full bg-gray-200 hover:bg-blue-200" title="Ouvir resposta">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
               </button>
             )}
           </div>
