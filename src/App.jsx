@@ -520,7 +520,7 @@ const ResumoRoteiro = ({ allEtapas, selecoesHospedagem, onBack }) => {
               <th scope="col" className="px-4 py-3">Origem</th>
               <th scope="col" className="px-4 py-3">Destino</th>
               <th scope="col" className="px-4 py-3">Distância</th>
-              <th scope="col" className="px-4 py-3">Clima</th>
+              <th scope="col" className="px-4 py-3">Clima (7h/12h/17h)</th>
             </tr>
           </thead>
           <tbody>
