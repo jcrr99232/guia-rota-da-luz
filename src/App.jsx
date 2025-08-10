@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2, Building } from 'lucide-react';
+import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2, Building, FileText } from 'lucide-react';
 
-// --- FUNÇÕES AUXILIARES ---
+// --- FUNÇÕES AUXILIARES, DADOS DE CLIMA, HOSPEDAGENS ---
 const getWeekNumber = (date) => {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -17,8 +17,6 @@ const parseTime = (timeStr) => {
     const minutes = minMatch ? parseInt(minMatch[1], 10) : 0;
     return hours * 60 + minutes;
 };
-
-// --- GERAÇÃO DINÂMICA DE DADOS METEOROLÓGICOS ---
 const weeklyHistoricalWeatherBase = {
   1: { min: 19, max: 28, chanceChuva: 75, umidade: 82 }, 2: { min: 19, max: 28, chanceChuva: 70, umidade: 80 }, 3: { min: 18, max: 27, chanceChuva: 60, umidade: 77 }, 4: { min: 16, max: 26, chanceChuva: 40, umidade: 72 }, 5: { min: 13, max: 24, chanceChuva: 25, umidade: 65 }, 6: { min: 11, max: 23, chanceChuva: 20, umidade: 62 }, 7: { min: 10, max: 23, chanceChuva: 20, umidade: 62 }, 8: { min: 12, max: 25, chanceChuva: 15, umidade: 57 }, 9: { min: 14, max: 26, chanceChuva: 35, umidade: 65 }, 10: { min: 16, max: 27, chanceChuva: 50, umidade: 72 }, 11: { min: 17, max: 27, chanceChuva: 65, umidade: 77 }, 12: { min: 18, max: 28, chanceChuva: 70, umidade: 82 },
 };
@@ -45,8 +43,6 @@ const generateWeatherData = () => {
   return weatherData;
 };
 const weeklyCityHistoricalWeather = generateWeatherData();
-
-// --- DADOS DAS HOSPEDAGENS POR CIDADE ---
 const hospedagensPorCidade = {
   "Mogi das Cruzes": [
     { nome: "IBIS HOTEL (desconto para peregrinos)", km: 0.0, foraDaRota: 0.4, fone: "(11)2813-3800", contato: "WHATSAPP" },
@@ -125,8 +121,6 @@ const hospedagensPorCidade = {
     { nome: "HOTEL SANTO AFONSO", km: 200.0, foraDaRota: 0.0, fone: "(12)99667-7415", contato: "RECEPÇÃO" }
   ]
 };
-
-// --- DADOS ESTÁTICOS DAS ETAPAS ---
 const etapasData = [
   { id: 1, titulo: "Etapa 1: Mogi das Cruzes a Guararema", cidadeOrigem: "Mogi das Cruzes", cidadeDestino: "Guararema", cidadesDaEtapa: [ { nome: "Mogi das Cruzes", url: "https://www.mogidascruzes.sp.gov.br/" }, { nome: "Guararema", url: "https://guararema.sp.gov.br/turismo" } ], mapaUrl: "https://www.google.com/maps/dir/Universidade+de+Mogi+das+Cruzes,+Avenida+Doutor+Cândido+Xavier+de+Almeida+e+Souza,+200,+Mogi+das+Cruzes+-+SP/Recanto+das+Acácias+Guararema+-+Nogueira,+Guararema+-+SP,+08900-000/@-23.473539,-46.166861,12z/data=!4m14m13!1m5!1m1!1s0x94ce7b54612e4d67:0x227a940e79753457!2m2!1d-46.1856893!2d-23.5358656!1m5!1m1!1s0x94cc537b989ba011:0x39a1a742f1f44d57!2m2!1d-46.0354162!2d-23.4111389!3e2?entry=ttu", altimetriaImgUrl: "/altimetria-etapa-1.jpg", distancia: "24,7 km", tempoEstimado: "5h 39min", paradaRefeicao: "90min",
     itinerario: [ "Siga na direção leste na R. Prof. Álvaro Pavan em direção a Av. Manoel Bezerra Lima Filho (200 m)", "Vire à esquerda na Av. Manoel Bezerra Lima Filho (130 m)", "Na rotatória, pegue a 2ª saída para a Av. Francisco Rodrigues Filho/Rod. General Euryale de Jesus Zerbine/Rod. Henrique Eroles (16,0 km)", "Curva suave à direita para permanecer na Rod. General Euryale de Jesus Zerbine/Rod. Henrique Eroles (88 m)", "Na rotatória, pegue a 1ª saída para a Est. Mun. Argemiro de Souza Melo (800 m)", "Vire à esquerda na Est. Mun. Romeu Tanganelli (2,1 km)", "Vire à esquerda na R. Ruth Do Prado Paula Lopes (700 m)", "Curva suave à direita para permanecer na R. Ruth Do Prado Paula Lopes (1,2 km)", "Vire à esquerda na R. José Fonseca Freire " ],
@@ -320,28 +314,11 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       .catch(error => console.error("Erro de rede ao contatar Google Script:", error));
 
     const prompt = `
-      Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz no Estado de São Paulo.
-      Use o seguinte CONTEXTO para basear suas respostas:
-      - Apresentação da Rota da Luz: Olá peregrino me chamo Antonio e sou voluntário da Associação dos Amigos da Rota da Luz, neste site você vai conhecer esse caminho que além das belezas naturais, tem Anjos que vão te acolher e cuidar de você, se você quer apenas conhecer a Rota da Luz por curiosidade, Bem vindo, mas se você quer conhecer pensando em ser um peregrino, vou te ajudar a planejar a sua peregrinação com muitas dicas e informações. Deixa eu te contar um pouco da história desse caminho: A Rota da Luz tem 201 Km, o tempo ideal pra percorrer a pé é de 7 dias, a média de caminhada por dia é de 30 Km. Sim, que ter preparo físico e também psicológico.
-      - A Basílica de Nossa Senhora Aparecida, também conhecida como Santuário Nacional de Aparecida, é o maior santuário mariano do mundo e um importante centro de peregrinação religiosa no Brasil. Sua história está intrinsecamente ligada à descoberta da imagem de Nossa Senhora Aparecida no rio Paraíba do Sul, em 1717.
-      - A imagem de Nossa Senhora Aparecida, inicialmente encontrada no rio, foi peça central na construção da devoção e da Basílica/Santuário. Ela é um símbolo da fé católica no Brasil e foi proclamada Padroeira do Brasil em 1930.
-      - Este App oferece além da possibilidade de obter informações com o Peregrino IA, uma forma simples de planejar a sua peregrinação, trazendo informações detalhadas sobre as 7 etapas, como previsões meteorológicas sobre os dias escolhidos para a peregrinação, a distância aproximada e a altimetria entre cada etapa, dicas, recomendações e muito mais.
-      - A Rota da Luz é uma rota de peregrinação sinalizada no estado de São Paulo, Brasil.
-      - Ela começa em Mogi das Cruzes e termina no Santuário Nacional de Aparecida.
-      - A distância total é de aproximadamente 201 km, divididos em 7 etapas.
-      - Não é recomendado fazer a Rota da Luz a pé em menos de 7 dias.
-      - É recomendado que as caminhadas de peregrinação ocorram somente durante o dia.
-      - O objetivo é oferecer uma alternativa segura para peregrinos que iam pela Rodovia Presidente Dutra.
-      - A rota passa por 9 municípios: Mogi das Cruzes, Guararema, Santa Branca, Paraibuna, Redenção da Serra, Taubaté, Pindamonhangaba, Roseira e Aparecida.
-      - A rota NÃO PASSA pela cidade de São Paulo. Ela percorre áreas rurais, cidades do interior e trechos da Serra do Mar.
-      - A credencial oficial do peregrino pode ser retirada em Mogi das Cruzes.
-      - É recomendado ter um bom preparo físico, especialmente para a etapa de Redenção da Serra.
-
-      Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 3 parágrafos, usando o contexto acima.
+      Você é o 'Peregrino IA', um especialista amigável sobre a Rota da Luz em São Paulo.
+      CONTEXTO: A Rota da Luz é uma rota de peregrinação de Mogi das Cruzes a Aparecida, com 201 km, passando por 9 municípios do interior como alternativa segura à Rodovia Dutra. Não passa pela cidade de São Paulo.
       PERGUNTA: "${question}"
-      Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.**'
-      `;
-
+      Responda de forma útil. Ao final, inclua o aviso em negrito: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes.**'
+    `;
     try {
       const responseText = await callGeminiAPI(prompt);
       setResposta(responseText);
@@ -430,106 +407,60 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   );
 };
 
-// --- NOVO COMPONENTE: ResumoRoteiro ---
-const ResumoRoteiro = ({ allEtapas, selecoesHospedagem, onBack }) => {
-  return (
-    <div className="p-4 sm:p-6 lg:p-8 animate-fade-in">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-extrabold text-gray-800">Resumo do Seu Roteiro</h1>
-          <p className="text-gray-600">Este é o seu plano de peregrinação personalizado.</p>
-        </div>
-        <button onClick={onBack} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            Voltar
-        </button>
-      </div>
-
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="w-full text-sm text-left text-gray-700">
-          <thead className="text-xs text-gray-800 uppercase bg-gray-100">
-            <tr>
-              <th scope="col" className="px-4 py-3">Etapa</th>
-              <th scope="col" className="px-4 py-3">Origem</th>
-              <th scope="col" className="px-4 py-3">Destino</th>
-              <th scope="col" className="px-4 py-3">Distância</th>
-              <th scope="col" className="px-4 py-3">Clima</th>
-            </tr>
-          </thead>
-          <tbody>
-            {allEtapas.map(etapa => {
-              const selecao = selecoesHospedagem[etapa.id] || {};
-              const origem = hospedagensPorCidade[etapa.cidadeOrigem]?.find(h => h.nome === selecao.origem);
-              const destino = hospedagensPorCidade[etapa.cidadeDestino]?.find(h => h.nome === selecao.destino);
-              
-              let distanciaCalculada = etapa.distancia;
-              if (origem && destino) {
-                const dist = Math.abs(destino.km - origem.km) + origem.foraDaRota + destino.foraDaRota;
-                distanciaCalculada = `${dist.toFixed(1)} km`; // Arredondado para 1 casa decimal
-              }
-              
-              const weekNumber = getWeekNumber(etapa.date);
-              const previsao = weeklyCityHistoricalWeather[weekNumber]?.[etapa.cidadeDestino] || weeklyCityHistoricalWeather[33]['Guararema'];
-
-              return (
-                <tr key={etapa.id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-4 font-bold">{etapa.id}</td>
-                  <td className="px-4 py-4">
-                    <p className="font-semibold">{etapa.cidadeOrigem}</p>
-                    <p className="text-xs text-gray-500">{origem?.nome || 'Não selecionado'}</p>
-                    <p className="text-xs text-gray-500">{origem?.fone}</p>
-                  </td>
-                  <td className="px-4 py-4">
-                    <p className="font-semibold">{etapa.cidadeDestino}</p>
-                    <p className="text-xs text-gray-500">{destino?.nome || 'Não selecionado'}</p>
-                    <p className="text-xs text-gray-500">{destino?.fone}</p>
-                  </td>
-                  <td className="px-4 py-4 font-semibold">{distanciaCalculada}</td>
-                  <td className="px-4 py-4">
-                    <p>{previsao.min} / {previsao.max}</p>
-                    <p className="text-xs text-gray-500">Chuva: {previsao.chanceChuva}</p>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
-
 const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, selecoes, onHospedagemChange }) => {
   const [dicas, setDicas] = useState('');
   const [curiosidades, setCuriosidades] = useState('');
   const [isLoadingDicas, setIsLoadingDicas] = useState(false);
   const [isLoadingCuriosidades, setIsLoadingCuriosidades] = useState(false);
-  const [distanciaCalculada, setDistanciaCalculada] = useState(null);
-
+  
   const listaHospedagensOrigem = hospedagensPorCidade[etapa.cidadeOrigem] || [];
   const listaHospedagensDestino = hospedagensPorCidade[etapa.cidadeDestino] || [];
 
-  useEffect(() => {
-    const origemSelecionada = selecoes.origem;
-    const destinoSelecionado = selecoes.destino;
+  const origemSelecionada = selecoes.origem;
+  const destinoSelecionado = selecoes.destino;
+  let distanciaCalculada = null;
 
-    if (origemSelecionada && destinoSelecionado) {
-      const origem = listaHospedagensOrigem.find(h => h.nome === origemSelecionada);
-      const destino = listaHospedagensDestino.find(h => h.nome === destinoSelecionado);
+  if (origemSelecionada && destinoSelecionado) {
+    const origem = listaHospedagensOrigem.find(h => h.nome === origemSelecionada);
+    const destino = listaHospedagensDestino.find(h => h.nome === destinoSelecionado);
 
-      if (origem && destino) {
-        const distanciaNaRota = Math.abs(destino.km - origem.km);
-        const distanciaTotal = distanciaNaRota + origem.foraDaRota + destino.foraDaRota;
-        setDistanciaCalculada(distanciaTotal.toFixed(2));
-      }
-    } else {
-      setDistanciaCalculada(null);
+    if (origem && destino) {
+      const distanciaNaRota = Math.abs(destino.km - origem.km);
+      const distanciaTotal = distanciaNaRota + origem.foraDaRota + destino.foraDaRota;
+      distanciaCalculada = distanciaTotal.toFixed(2);
     }
-  }, [selecoes, listaHospedagensOrigem, listaHospedagensDestino]);
+  }
   
-  const handleGerarDicas = async () => { /* ... seu código existente ... */ };
-  const handleGerarCuriosidades = async () => { /* ... seu código existente ... */ };
-  
+  const handleGerarDicas = async () => {
+    setIsLoadingDicas(true);
+    setDicas('');
+    const prompt = `Aja como um guia experiente da Rota da Luz. Para a etapa '${etapa.titulo}', com dificuldades: ${etapa.dificuldades.join(', ')}, crie 3 dicas curtas, criativas e inspiradoras. Varie as dicas. Use tom encorajador. Formate como lista numerada.`;
+    try {
+        const responseText = await callGeminiAPI(prompt);
+        setDicas(responseText);
+    } catch (error) {
+        setDicas("Desculpe, não foi possível gerar as dicas no momento.");
+        console.error("Error fetching Gemini tips:", error);
+    } finally {
+        setIsLoadingDicas(false);
+    }
+  };
+
+  const handleGerarCuriosidades = async () => {
+    setIsLoadingCuriosidades(true);
+    setCuriosidades('');
+    const prompt = `Aja como um guia turístico local para a cidade de ${etapa.cidadeDestino}, SP. Para um peregrino a pé, descreva em 2 ou 3 parágrafos curtos: 1. Pontos turísticos. 2. Comidas típicas. 3. Eventos tradicionais. Use um tom acolhedor.`;
+     try {
+        const responseText = await callGeminiAPI(prompt);
+        setCuriosidades(responseText);
+    } catch (error) {
+        setCuriosidades("Desculpe, não foi possível gerar as curiosidades no momento.");
+        console.error("Error fetching Gemini curiosidades:", error);
+    } finally {
+        setIsLoadingCuriosidades(false);
+    }
+  };
+
   const weekNumber = getWeekNumber(etapa.date);
   const previsaoTempo = weeklyCityHistoricalWeather[weekNumber]?.[etapa.cidadeDestino] || weeklyCityHistoricalWeather[33]['Guararema'];
 
@@ -577,12 +508,12 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, selecoes, onHos
           </div>
           <div className="mt-4 pt-4 border-t border-gray-200 text-left text-sm">
             <h4 className="font-bold text-gray-700 mb-2 text-center">Calcular Distância Personalizada</h4>
-            <label htmlFor="origem-select" className="block font-medium text-gray-600">Sua hospedagem em {etapa.cidadeOrigem}:</label>
+            <label htmlFor="origem-select" className="block font-medium text-gray-600">Hospedagem em {etapa.cidadeOrigem}:</label>
             <select id="origem-select" value={selecoes.origem || ''} onChange={(e) => onHospedagemChange(etapa.id, 'origem', e.target.value)} className="w-full mt-1 p-2 border border-gray-300 rounded-md">
               <option value="">Selecione a origem...</option>
               {listaHospedagensOrigem.map(h => <option key={h.nome} value={h.nome}>{h.nome}</option>)}
             </select>
-            <label htmlFor="destino-select" className="block font-medium text-gray-600 mt-3">Sua hospedagem em {etapa.cidadeDestino}:</label>
+            <label htmlFor="destino-select" className="block font-medium text-gray-600 mt-3">Hospedagem em {etapa.cidadeDestino}:</label>
             <select id="destino-select" value={selecoes.destino || ''} onChange={(e) => onHospedagemChange(etapa.id, 'destino', e.target.value)} className="w-full mt-1 p-2 border border-gray-300 rounded-md">
               <option value="">Selecione o destino...</option>
               {listaHospedagensDestino.map(h => <option key={h.nome} value={h.nome}>{h.nome}</option>)}
@@ -652,18 +583,13 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showOfflineToast, setShowOfflineToast] = useState(false);
   const [startDate, setStartDate] = useState(new Date(2025, 7, 22));
-  const [modoResumo, setModoResumo] = useState(false);
-  
-  // --- NOVA MEMÓRIA CENTRAL ---
   const [selecoesHospedagem, setSelecoesHospedagem] = useState({});
+  const [modoResumo, setModoResumo] = useState(false);
 
-  // --- NOVA FUNÇÃO PARA ATUALIZAR A MEMÓRIA CENTRAL ---
   const handleHospedagemChange = (etapaId, tipo, nomeHospedagem) => {
     setSelecoesHospedagem(prevState => {
       const newState = { ...prevState };
-      if (!newState[etapaId]) {
-        newState[etapaId] = {};
-      }
+      if (!newState[etapaId]) { newState[etapaId] = {}; }
       newState[etapaId][tipo] = nomeHospedagem;
       return newState;
     });
@@ -799,28 +725,18 @@ export default function App() {
               />
           </div>
         </div>
-
-        {/* --- INÍCIO DO NOVO TRECHO --- */}
-        {(() => {
-          // Lógica para verificar se o planejamento está completo
-          const isPlanningComplete = allEtapas.every(etapa => 
-            selecoesHospedagem[etapa.id]?.origem && selecoesHospedagem[etapa.id]?.destino
-          );
-
-          return (
-            <div className="my-8 text-center">
-              <button 
-                onClick={() => setModoResumo(true)}
-                disabled={!isPlanningComplete}
-                className="inline-flex items-center px-8 py-4 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
-                title={isPlanningComplete ? "Gerar resumo do seu roteiro" : "Selecione a origem e o destino de todas as 7 etapas para habilitar"}
-              >
-                <FileText className="h-5 w-5 mr-3" />
-                {isPlanningComplete ? "Gerar Roteiro Personalizado" : "Planeje todas as Etapas para Gerar"}
-              </button>
-            </div>
-          );
-        })()}
+        
+        <div className="my-8 text-center">
+          <button 
+            onClick={() => setModoResumo(true)}
+            disabled={!isPlanningComplete}
+            className="inline-flex items-center px-8 py-4 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
+            title={isPlanningComplete ? "Gerar resumo do seu roteiro" : "Selecione a origem e o destino de todas as 7 etapas para habilitar"}
+          >
+            <FileText className="h-5 w-5 mr-3" />
+            {isPlanningComplete ? "Gerar Roteiro Personalizado" : "Planeje todas as Etapas para Gerar"}
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allEtapas.map(etapa => {
@@ -848,6 +764,7 @@ export default function App() {
           })}
         </div>
       </main>
+      
       {showOfflineToast && (
         <div className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-green-600 text-white py-2 px-4 rounded-lg shadow-lg animate-fade-in-out">
           <p>Aplicativo pronto para uso offline!</p>
