@@ -430,6 +430,75 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   );
 };
 
+// --- NOVO COMPONENTE: ResumoRoteiro ---
+const ResumoRoteiro = ({ allEtapas, selecoesHospedagem, onBack }) => {
+  return (
+    <div className="p-4 sm:p-6 lg:p-8 animate-fade-in">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-extrabold text-gray-800">Resumo do Seu Roteiro</h1>
+          <p className="text-gray-600">Este é o seu plano de peregrinação personalizado.</p>
+        </div>
+        <button onClick={onBack} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Voltar
+        </button>
+      </div>
+
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="w-full text-sm text-left text-gray-700">
+          <thead className="text-xs text-gray-800 uppercase bg-gray-100">
+            <tr>
+              <th scope="col" className="px-4 py-3">Etapa</th>
+              <th scope="col" className="px-4 py-3">Origem</th>
+              <th scope="col" className="px-4 py-3">Destino</th>
+              <th scope="col" className="px-4 py-3">Distância</th>
+              <th scope="col" className="px-4 py-3">Clima</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allEtapas.map(etapa => {
+              const selecao = selecoesHospedagem[etapa.id] || {};
+              const origem = hospedagensPorCidade[etapa.cidadeOrigem]?.find(h => h.nome === selecao.origem);
+              const destino = hospedagensPorCidade[etapa.cidadeDestino]?.find(h => h.nome === selecao.destino);
+              
+              let distanciaCalculada = etapa.distancia;
+              if (origem && destino) {
+                const dist = Math.abs(destino.km - origem.km) + origem.foraDaRota + destino.foraDaRota;
+                distanciaCalculada = `${dist.toFixed(1)} km`; // Arredondado para 1 casa decimal
+              }
+              
+              const weekNumber = getWeekNumber(etapa.date);
+              const previsao = weeklyCityHistoricalWeather[weekNumber]?.[etapa.cidadeDestino] || weeklyCityHistoricalWeather[33]['Guararema'];
+
+              return (
+                <tr key={etapa.id} className="border-b hover:bg-gray-50">
+                  <td className="px-4 py-4 font-bold">{etapa.id}</td>
+                  <td className="px-4 py-4">
+                    <p className="font-semibold">{etapa.cidadeOrigem}</p>
+                    <p className="text-xs text-gray-500">{origem?.nome || 'Não selecionado'}</p>
+                    <p className="text-xs text-gray-500">{origem?.fone}</p>
+                  </td>
+                  <td className="px-4 py-4">
+                    <p className="font-semibold">{etapa.cidadeDestino}</p>
+                    <p className="text-xs text-gray-500">{destino?.nome || 'Não selecionado'}</p>
+                    <p className="text-xs text-gray-500">{destino?.fone}</p>
+                  </td>
+                  <td className="px-4 py-4 font-semibold">{distanciaCalculada}</td>
+                  <td className="px-4 py-4">
+                    <p>{previsao.min} / {previsao.max}</p>
+                    <p className="text-xs text-gray-500">Chuva: {previsao.chanceChuva}</p>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
 const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, selecoes, onHospedagemChange }) => {
   const [dicas, setDicas] = useState('');
   const [curiosidades, setCuriosidades] = useState('');
@@ -583,6 +652,7 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showOfflineToast, setShowOfflineToast] = useState(false);
   const [startDate, setStartDate] = useState(new Date(2025, 7, 22));
+  const [modoResumo, setModoResumo] = useState(false);
   
   // --- NOVA MEMÓRIA CENTRAL ---
   const [selecoesHospedagem, setSelecoesHospedagem] = useState({});
@@ -675,6 +745,14 @@ export default function App() {
     };
   }, []);
 
+  if (modoResumo) {
+    return <ResumoRoteiro 
+             allEtapas={allEtapas}
+             selecoesHospedagem={selecoesHospedagem}
+             onBack={() => setModoResumo(false)}
+           />;
+  }
+
   if (selectedEtapa) {
     return <EtapaDetalhes 
              etapa={selectedEtapa} 
@@ -721,6 +799,29 @@ export default function App() {
               />
           </div>
         </div>
+
+        {/* --- INÍCIO DO NOVO TRECHO --- */}
+        {(() => {
+          // Lógica para verificar se o planejamento está completo
+          const isPlanningComplete = allEtapas.every(etapa => 
+            selecoesHospedagem[etapa.id]?.origem && selecoesHospedagem[etapa.id]?.destino
+          );
+
+          return (
+            <div className="my-8 text-center">
+              <button 
+                onClick={() => setModoResumo(true)}
+                disabled={!isPlanningComplete}
+                className="inline-flex items-center px-8 py-4 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
+                title={isPlanningComplete ? "Gerar resumo do seu roteiro" : "Selecione a origem e o destino de todas as 7 etapas para habilitar"}
+              >
+                <FileText className="h-5 w-5 mr-3" />
+                {isPlanningComplete ? "Gerar Roteiro Personalizado" : "Planeje todas as Etapas para Gerar"}
+              </button>
+            </div>
+          );
+        })()}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allEtapas.map(etapa => {
             const weekNumber = getWeekNumber(etapa.date);
