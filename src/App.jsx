@@ -590,6 +590,14 @@ export default function App() {
     setSelecoesHospedagem(prevState => {
       const newState = { ...prevState };
       if (!newState[etapaId]) { newState[etapaId] = {}; }
+      
+      // Lógica para auto-preenchimento
+      if (tipo === 'destino' && etapaId < etapasData.length) {
+        const proximaEtapaId = etapaId + 1;
+        if (!newState[proximaEtapaId]) { newState[proximaEtapaId] = {}; }
+        newState[proximaEtapaId].origem = nomeHospedagem;
+      }
+      
       newState[etapaId][tipo] = nomeHospedagem;
       return newState;
     });
@@ -730,6 +738,51 @@ export default function App() {
           </div>
         </div>
         
+        <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Planeje suas Hospedagens</h2>
+          <div className="space-y-4">
+            {allEtapas.map((etapa, index) => {
+              const selecaoAtual = selecoesHospedagem[etapa.id] || {};
+              const origemAnterior = index > 0 ? selecoesHospedagem[allEtapas[index-1].id]?.destino : undefined;
+              const origemEtapa = origemAnterior || selecaoAtual.origem;
+
+              return (
+                <div key={etapa.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4 first:border-t-0 first:pt-0">
+                  <div className="md:col-span-1">
+                    <p className="font-bold text-blue-600">ETAPA {etapa.id}</p>
+                    <p className="text-sm text-gray-500">{etapa.titulo}</p>
+                  </div>
+                  <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Origem em {etapa.cidadeOrigem}</label>
+                      <select 
+                        value={origemEtapa || ''}
+                        onChange={(e) => handleHospedagemChange(etapa.id, 'origem', e.target.value)}
+                        disabled={index > 0}
+                        className="mt-1 w-full p-2 border border-gray-300 rounded-md disabled:bg-gray-100"
+                      >
+                        <option value="">Selecione...</option>
+                        {hospedagensPorCidade[etapa.cidadeOrigem]?.map(h => <option key={h.nome} value={h.nome}>{h.nome}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Destino em {etapa.cidadeDestino}</label>
+                      <select 
+                        value={selecaoAtual.destino || ''}
+                        onChange={(e) => handleHospedagemChange(etapa.id, 'destino', e.target.value)}
+                        className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+                      >
+                        <option value="">Selecione...</option>
+                        {hospedagensPorCidade[etapa.cidadeDestino]?.map(h => <option key={h.nome} value={h.nome}>{h.nome}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="my-8 text-center">
           <button 
             onClick={() => setModoResumo(true)}
@@ -742,6 +795,7 @@ export default function App() {
           </button>
         </div>
 
+        <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8 text-center">Clique em uma etapa para ver os detalhes</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allEtapas.map(etapa => {
             const weekNumber = getWeekNumber(etapa.date);
