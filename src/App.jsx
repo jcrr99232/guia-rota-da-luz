@@ -737,8 +737,6 @@ export default function App() {
              onBack={() => setSelectedEtapa(null)} 
              isOnline={isOnline} 
              callGeminiAPI={callGeminiAPI}
-             selecoes={selecoesHospedagem[selectedEtapa.id] || {}}
-             onHospedagemChange={handleHospedagemChange}
            />;
   }
 
