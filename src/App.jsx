@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2, Building, FileText } from 'lucide-react';
 
-// --- FUNÇÕES AUXILIARES, DADOS DE CLIMA, HOSPEDAGENS ---
+// --- FUNÇÕES AUXILIARES ---
 const getWeekNumber = (date) => {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -17,6 +17,8 @@ const parseTime = (timeStr) => {
     const minutes = minMatch ? parseInt(minMatch[1], 10) : 0;
     return hours * 60 + minutes;
 };
+
+// --- GERAÇÃO DINÂMICA DE DADOS METEOROLÓGICOS ---
 const weeklyHistoricalWeatherBase = {
   1: { min: 19, max: 28, chanceChuva: 75, umidade: 82 }, 2: { min: 19, max: 28, chanceChuva: 70, umidade: 80 }, 3: { min: 18, max: 27, chanceChuva: 60, umidade: 77 }, 4: { min: 16, max: 26, chanceChuva: 40, umidade: 72 }, 5: { min: 13, max: 24, chanceChuva: 25, umidade: 65 }, 6: { min: 11, max: 23, chanceChuva: 20, umidade: 62 }, 7: { min: 10, max: 23, chanceChuva: 20, umidade: 62 }, 8: { min: 12, max: 25, chanceChuva: 15, umidade: 57 }, 9: { min: 14, max: 26, chanceChuva: 35, umidade: 65 }, 10: { min: 16, max: 27, chanceChuva: 50, umidade: 72 }, 11: { min: 17, max: 27, chanceChuva: 65, umidade: 77 }, 12: { min: 18, max: 28, chanceChuva: 70, umidade: 82 },
 };
@@ -43,6 +45,8 @@ const generateWeatherData = () => {
   return weatherData;
 };
 const weeklyCityHistoricalWeather = generateWeatherData();
+
+// --- DADOS DAS HOSPEDAGENS POR CIDADE ---
 const hospedagensPorCidade = {
   "Mogi das Cruzes": [
     { nome: "IBIS HOTEL (desconto para peregrinos)", km: 0.0, foraDaRota: 0.4, fone: "(11)2813-3800", contato: "WHATSAPP" },
@@ -380,7 +384,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
           )}
           <div className="flex items-center gap-2">
             <button onClick={handleVoiceInput} disabled={isLoading} className={`p-2 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-200 hover:bg-gray-300'}`} title="Perguntar por voz">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
             </button>
             <button onClick={() => handlePerguntar(pergunta)} disabled={isLoading || !pergunta.trim() || isListening} className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400 transition-all">
               {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar</>}
@@ -670,6 +674,10 @@ export default function App() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  const isPlanningComplete = allEtapas.every(etapa => 
+    selecoesHospedagem[etapa.id]?.origem && selecoesHospedagem[etapa.id]?.destino
+  );
 
   if (modoResumo) {
     return <ResumoRoteiro 
