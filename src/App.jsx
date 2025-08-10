@@ -407,29 +407,11 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   );
 };
 
-const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, selecoes, onHospedagemChange }) => {
+const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
   const [dicas, setDicas] = useState('');
   const [curiosidades, setCuriosidades] = useState('');
   const [isLoadingDicas, setIsLoadingDicas] = useState(false);
   const [isLoadingCuriosidades, setIsLoadingCuriosidades] = useState(false);
-  
-  const listaHospedagensOrigem = hospedagensPorCidade[etapa.cidadeOrigem] || [];
-  const listaHospedagensDestino = hospedagensPorCidade[etapa.cidadeDestino] || [];
-
-  const origemSelecionada = selecoes.origem;
-  const destinoSelecionado = selecoes.destino;
-  let distanciaCalculada = null;
-
-  if (origemSelecionada && destinoSelecionado) {
-    const origem = listaHospedagensOrigem.find(h => h.nome === origemSelecionada);
-    const destino = listaHospedagensDestino.find(h => h.nome === destinoSelecionado);
-
-    if (origem && destino) {
-      const distanciaNaRota = Math.abs(destino.km - origem.km);
-      const distanciaTotal = distanciaNaRota + origem.foraDaRota + destino.foraDaRota;
-      distanciaCalculada = distanciaTotal.toFixed(2);
-    }
-  }
   
   const handleGerarDicas = async () => {
     setIsLoadingDicas(true);
@@ -649,15 +631,10 @@ export default function App() {
       // Lógica para auto-preenchimento
       if (tipo === 'destino' && etapaId < etapasData.length) {
         const proximaEtapaId = etapaId + 1;
-        const proximaEtapa = etapasData.find(e => e.id === proximaEtapaId);
-        if (proximaEtapa) {
-            const destinoAnterior = hospedagensPorCidade[etapa.cidadeDestino]?.find(h => h.nome === nomeHospedagem);
-            const proximaOrigem = hospedagensPorCidade[proximaEtapa.cidadeOrigem]?.find(h => h.nome === destinoAnterior?.nome);
-            if (proximaOrigem) {
-                if (!newState[proximaEtapaId]) { newState[proximaEtapaId] = {}; }
-                newState[proximaEtapaId].origem = proximaOrigem.nome;
-            }
+        if (!newState[proximaEtapaId]) {
+            newState[proximaEtapaId] = {};
         }
+        newState[proximaEtapaId].origem = nomeHospedagem;
       }
       
       newState[etapaId][tipo] = nomeHospedagem;
