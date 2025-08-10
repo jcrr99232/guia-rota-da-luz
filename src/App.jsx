@@ -45,7 +45,7 @@ const generateWeatherData = () => {
 const weeklyCityHistoricalWeather = generateWeatherData();
 const hospedagensPorCidade = {
   "Mogi das Cruzes": [
-    { nome: "IBIS HOTEL (desconto para peregrinos)", km: 0.0, foraDaRota: 0.4, fone: "(11)2813-3800", contato: "WHATSAPP" },
+    { nome: "IBIS HOTEL", km: 0.0, foraDaRota: 0.4, fone: "(11)2813-3800", contato: "WHATSAPP" },
     { nome: "POUSADA WG CARVALHO", km: 0.0, foraDaRota: 0.7, fone: "(11)4791-3216", contato: "WILSON" },
     { nome: "POUSADA TOKIO PLAZA", km: 0.0, foraDaRota: 1.2, fone: "(11)94203-1000", contato: "RECEPÇÃO" },
     { nome: "HOTEL MALBOR", km: 0.0, foraDaRota: 2.2, fone: "(11)4735-7300", contato: "RECEPÇÃO" }
@@ -570,7 +570,7 @@ const ResumoRoteiro = ({ allEtapas, selecoesHospedagem, onBack }) => {
               <th scope="col" className="px-4 py-3">Origem</th>
               <th scope="col" className="px-4 py-3">Destino</th>
               <th scope="col" className="px-4 py-3">Distância</th>
-              <th scope="col" className="px-4 py-3">Clima</th>
+              <th scope="col" className="px-4 py-3">Clima (7h/12h/17h)</th>
             </tr>
           </thead>
           <tbody>
@@ -602,14 +602,18 @@ const ResumoRoteiro = ({ allEtapas, selecoesHospedagem, onBack }) => {
                     <p className="text-xs text-gray-500">{destino?.nome || 'Não selecionado'}</p>
                     <p className="text-xs text-gray-500">{destino?.fone}</p>
                   </td>
-                  <td className="px-4 py-4">
+                   <td className="px-4 py-4">
                     <p className="font-semibold">{distanciaCalculada}</p>
                     <p className="text-xs text-gray-500 italic">porta a porta</p>
                   </td>
                   <td className="px-4 py-4">
-                    <p className="font-semibold">{previsao.min} / {previsao.max}</p>
-                    <p className="text-xs text-gray-500">Chuva: {previsao.chanceChuva}</p>
-                    <p className="text-xs text-gray-500 italic">médias históricas</p>
+                    <div className="flex gap-2 justify-start md:justify-center">
+                      <span className="font-semibold bg-gray-100 px-2 py-1 rounded-md text-xs" title="Manhã (7h)">{previsao.horarios[0].temp}</span>
+                      <span className="font-semibold bg-gray-100 px-2 py-1 rounded-md text-xs" title="Meio-dia (12h)">{previsao.horarios[1].temp}</span>
+                      <span className="font-semibold bg-gray-100 px-2 py-1 rounded-md text-xs" title="Tarde (17h)">{previsao.horarios[2].temp}</span>
+                    </div>
+                    <p className="text-xs text-gray-500 text-center mt-1">Chuva: {previsao.chanceChuva}</p>
+                    <p className="text-xs text-gray-500 italic text-center">médias históricas</p>
                   </td>
                 </tr>
               );
