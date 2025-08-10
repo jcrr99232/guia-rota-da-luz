@@ -602,10 +602,14 @@ const ResumoRoteiro = ({ allEtapas, selecoesHospedagem, onBack }) => {
                     <p className="text-xs text-gray-500">{destino?.nome || 'Não selecionado'}</p>
                     <p className="text-xs text-gray-500">{destino?.fone}</p>
                   </td>
-                  <td className="px-4 py-4 font-semibold">{distanciaCalculada}</td>
                   <td className="px-4 py-4">
-                    <p>{previsao.min} / {previsao.max}</p>
+                    <p className="font-semibold">{distanciaCalculada}</p>
+                    <p className="text-xs text-gray-500 italic">porta a porta</p>
+                  </td>
+                  <td className="px-4 py-4">
+                    <p className="font-semibold">{previsao.min} / {previsao.max}</p>
                     <p className="text-xs text-gray-500">Chuva: {previsao.chanceChuva}</p>
+                    <p className="text-xs text-gray-500 italic">médias históricas</p>
                   </td>
                 </tr>
               );
