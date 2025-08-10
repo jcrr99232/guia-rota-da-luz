@@ -566,6 +566,7 @@ const ResumoRoteiro = ({ allEtapas, selecoesHospedagem, onBack }) => {
           <thead className="text-xs text-gray-800 uppercase bg-gray-100">
             <tr>
               <th scope="col" className="px-4 py-3">Etapa</th>
+              <th scope="col" className="px-4 py-3">Data</th>
               <th scope="col" className="px-4 py-3">Origem</th>
               <th scope="col" className="px-4 py-3">Destino</th>
               <th scope="col" className="px-4 py-3">Distância</th>
@@ -590,6 +591,7 @@ const ResumoRoteiro = ({ allEtapas, selecoesHospedagem, onBack }) => {
               return (
                 <tr key={etapa.id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-4 font-bold">{etapa.id}</td>
+                  <td className="px-4 py-4">{formatDate(etapa.date)}</td>
                   <td className="px-4 py-4">
                     <p className="font-semibold">{etapa.cidadeOrigem}</p>
                     <p className="text-xs text-gray-500">{origem?.nome || 'Não selecionado'}</p>
@@ -628,7 +630,6 @@ export default function App() {
       const newState = { ...prevState };
       if (!newState[etapaId]) { newState[etapaId] = {}; }
       
-      // Lógica para auto-preenchimento
       if (tipo === 'destino' && etapaId < etapasData.length) {
         const proximaEtapaId = etapaId + 1;
         if (!newState[proximaEtapaId]) {
@@ -763,9 +764,14 @@ export default function App() {
             <PeregrinoIA isOnline={isOnline} callGeminiAPI={callGeminiAPI} />
           </div>
           <div className="bg-white p-6 rounded-xl shadow-lg lg:col-span-1">
-              <label htmlFor="start-date" className="block text-lg font-bold text-gray-800 mb-2">
-                  <Calendar className="inline-block h-6 w-6 mr-2 text-blue-600" />
-                  Selecione a data de início:
+              <h3 className="text-lg font-bold text-gray-800 mb-2">Planejamento Personalizado</h3>
+              <ol className="list-decimal list-inside text-sm text-gray-600 space-y-1 mb-4">
+                  <li>Selecione a data de início da peregrinação.</li>
+                  <li>Abaixo, selecione as pousadas para cada etapa.</li>
+                  <li>Clique no botão verde "Gerar Roteiro Personalizado".</li>
+              </ol>
+              <label htmlFor="start-date" className="block text-sm font-bold text-gray-800 mb-2">
+                  1. Selecione a data de início:
               </label>
               <input
                   type="date"
@@ -778,7 +784,7 @@ export default function App() {
         </div>
         
         <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Planeje suas Hospedagens</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">2. Selecione suas Hospedagens</h2>
           <div className="space-y-4">
             {allEtapas.map((etapa, index) => {
               const selecaoAtual = selecoesHospedagem[etapa.id] || {};
@@ -833,7 +839,7 @@ export default function App() {
           </button>
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8 text-center">Clique em uma etapa para ver os detalhes</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8 text-center">Clique em uma etapa para ver os detalhes completos</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allEtapas.map(etapa => {
             const weekNumber = getWeekNumber(etapa.date);
