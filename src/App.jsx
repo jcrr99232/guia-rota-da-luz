@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2, Building, FileText, Printer } from 'lucide-react';
 
-// --- FUNÇÕES AUXILIARES, DADOS DE CLIMA, HOSPEDAGENS E ETAPAS ---
+// --- FUNÇÕES AUXILIARES, DADOS DE CLIMA, HOSPEDAGENS ---
 const getWeekNumber = (date) => {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -44,85 +44,17 @@ const generateWeatherData = () => {
 };
 const weeklyCityHistoricalWeather = generateWeatherData();
 const hospedagensPorCidade = {
-  "Mogi das Cruzes": [
-    { nome: "IBIS HOTEL", km: 0.0, foraDaRota: 0.4, fone: "(11)2813-3800", contato: "WHATSAPP" },
-    { nome: "POUSADA WG CARVALHO", km: 0.0, foraDaRota: 0.7, fone: "(11)4791-3216", contato: "WILSON" },
-    { nome: "POUSADA TOKIO PLAZA", km: 0.0, foraDaRota: 1.2, fone: "(11)94203-1000", contato: "RECEPÇÃO" },
-    { nome: "HOTEL MALBOR", km: 0.0, foraDaRota: 2.2, fone: "(11)4735-7300", contato: "RECEPÇÃO" }
-  ],
-  "Guararema": [
-    { nome: "RECANTO DAS ACACIAS", km: 25.0, foraDaRota: 0.0, fone: "(11)99972-5212", contato: "TANIAH" },
-    { nome: "RECANTO CHEIO DE CHEIRO", km: 25.0, foraDaRota: 0.0, fone: "(11)99959-4186", contato: "REGIANE" },
-    { nome: "CASA MARIA FUMAÇA", km: 26.0, foraDaRota: 0.2, fone: "(11)991695-2087", contato: "EMILIA" },
-    { nome: "HOSPEDARIA SÃO BENEDITO", km: 26.6, foraDaRota: 0.4, fone: "(11)97217-9138", contato: "PADRE BIRA" },
-    { nome: "POUSADA CALIL", km: 26.6, foraDaRota: 0.9, fone: "(11)95311-0920", contato: "ELAINE" },
-    { nome: "POUSADA SAPUCAIA", km: 26.6, foraDaRota: 2.1, fone: "(11)97221-6812", contato: "DANIEL" },
-    { nome: "CASA DO VALE", km: 27.6, foraDaRota: 0.7, fone: "(11)97451-0454", contato: "SHEILA" },
-    { nome: "CENTRO DE APOIO D'AJUDA", km: 27.9, foraDaRota: 0.0, fone: "(11)97392-4192", contato: "MARIA NEVES" }
-  ],
-  "Santa Branca": [
-    { nome: "ESPAÇO MANGANAGUA", km: 36.5, foraDaRota: 0.0, fone: "(11)97302-0535", contato: "JOSE" },
-    { nome: "CHÁCARA MIRANTE DO RIO", km: 45.5, foraDaRota: 0.0, fone: "(12)99622-4810", contato: "FÁTIMA" },
-    { nome: "POUSADA PEDALAMOS CICLOTURISMO", km: 46.0, foraDaRota: 0.08, fone: "(12)98162-6122", contato: "PEDRO CAMPOS" },
-    { nome: "POUSADA CORAÇÃO PEREGRINO", km: 46.3, foraDaRota: 0.015, fone: "(12)99792-7116", contato: "ANA CAROLINA" },
-    { nome: "POUSADA REMANSO ROTA DA LUZ", km: 46.3, foraDaRota: 0.02, fone: "(12)99761-9794", contato: "MARIA JOSE" },
-    { nome: "HOSPEDAGEM JASMO", km: 46.4, foraDaRota: 0.35, fone: "(12)99764-8346", contato: "JASMO" },
-    { nome: "HOSTEL GARDEN ALBUQUERQUE", km: 46.6, foraDaRota: 2.0, fone: "(12)99147-6194", contato: "RECEPÇÃO" },
-    { nome: "CHACARA CAMBUCI HOSPEDADGEM", km: 46.6, foraDaRota: 2.0, fone: "(12)98122-1519", contato: "GU BRAGA" },
-    { nome: "SITIO REMANSO DO VALE", km: 46.6, foraDaRota: 4.0, fone: "(12)99761-9794", contato: "MARIA JOSE" },
-    { nome: "POUSADA SANTA JULIA", km: 53.0, foraDaRota: 0.0, fone: "(12)98221-9558", contato: "MARCOS" },
-    { nome: "POUSADA SITIO DO VALDIR", km: 55.1, foraDaRota: 0.0, fone: "(12)99612-4564", contato: "VALDIR" }
-  ],
-  "Paraibuna": [
-    { nome: "POUSADA SITIO RECANTO DAS FLORES", km: 82.7, foraDaRota: 3.7, fone: "(12)99105-4807", contato: "VERA" },
-    { nome: "POUSADA VILA DE LUCA", km: 83.1, foraDaRota: 0.0, fone: "(12)99657-9363", contato: "RECEPÇÃO" },
-    { nome: "POUSADA NATHALIA CANELLA", km: 83.1, foraDaRota: 7.0, fone: "(12)99605-6263", contato: "NATHALIA" },
-    { nome: "POUSADA TRES RIOS", km: 83.1, foraDaRota: 0.45, fone: "(11)99425-5286", contato: "ANA MARIA" },
-    { nome: "POUSADA RECANTO BOA VENTURA", km: 91.7, foraDaRota: 0.0, fone: "(12)98814-9940", contato: "PAULO/Neuza" },
-    { nome: "POUSADA CAXAMBU", km: 92.0, foraDaRota: 0.0, fone: "(12)98836-9937", contato: "CLEBER" },
-    { nome: "RANCHO NOSSA SENHORA APARECIDA", km: 93.0, foraDaRota: 0.0, fone: "(12)99735-7114", contato: "NEIDE" },
-    { nome: "RENAISSANCE CHALÉS", km: 96.3, foraDaRota: 0.0, fone: "(11)93008-0331", contato: "ELIZETE" }
-  ],
-  "Redenção da Serra": [
-    { nome: "POUSADA DOS PEREIRAS", km: 108.0, foraDaRota: 0.0, fone: "(12)99721-8999", contato: "DANIEL" },
-    { nome: "POUSADA DA MARLENE", km: 111.7, foraDaRota: 0.0, fone: "(12)99709-4837", contato: "MARLENE" },
-    { nome: "RECANTO BELA VISTA", km: 111.7, foraDaRota: 6.2, fone: "(12)99611-8522", contato: "ANTONIO" },
-    { nome: "POUSADA ROTA DA FÉ", km: 113.1, foraDaRota: 0.15, fone: "(12)99143-9362", contato: "REGINA" },
-    { nome: "POUSADA DO JAPONES", km: 114.1, foraDaRota: 0.0, fone: "(11)99143-8855", contato: "MICHELE" },
-    { nome: "POUSADA DO LOUZADA", km: 111.7, foraDaRota: 3.8, fone: "(12)99749-2003", contato: "LOUZADA" },
-    { nome: "POUSADA DO INACIO", km: 114.0, foraDaRota: 0.0, fone: "(12)99769-5497", contato: "DANI" },
-    { nome: "RANCHO DOS PÁSSAROS", km: 114.4, foraDaRota: 0.0, fone: "(12)99731-1196", contato: "CARLINHOS" },
-    { nome: "POUSADA PRIMAVERA", km: 114.6, foraDaRota: 0.0, fone: "(12)98835-0552", contato: "RICARDO" }
-  ],
-  "Taubaté": [
-    { nome: "FAZENDA BOA ESPERANÇA", km: 142.0, foraDaRota: 2.8, fone: "(12)99726-8225", contato: "ADRIANA" },
-    { nome: "POUSADA PARADA DA ROTA", km: 144.9, foraDaRota: 0.2, fone: "(12)99131-4248", contato: "JANDIRO" },
-    { nome: "HOTEL SAN MICHEL", km: 146.4, foraDaRota: 1.2, fone: "(12)99158-8718", contato: "RECEPÇÃO" },
-    { nome: "HOTEL SÃO NICOLAU", km: 146.8, foraDaRota: 1.1, fone: "(12)99141-0653", contato: "RECEPÇÃO" },
-    { nome: "POUSADA PRIMAVERA TAUBATÉ", km: 146.4, foraDaRota: 1.2, fone: "(12)3632-1313", contato: "MARILAH" },
-    { nome: "CARLTON PLAZA BAOBA", km: 146.8, foraDaRota: 2.1, fone: "(12)99702-5754", contato: "VIVIAN" }
-  ],
-  "Pindamonhangaba": [
-    { nome: "SITIO 4 MILHAS", km: 167.5, foraDaRota: 0.0, fone: "(12)99728-7044", contato: "HELEN ROSE" },
-    { nome: "SAGRADO CORAÇÕES", km: 171.1, foraDaRota: 0.5, fone: "(12)99760-2310", contato: "RECEPÇÃO" },
-    { nome: "PIRAPOUL HOTEL", km: 171.1, foraDaRota: 1.9, fone: "(12)99794-2605", contato: "RECEPÇÃO" },
-    { nome: "RECANTO MONA", km: 171.1, foraDaRota: 2.0, fone: "(12)99103-6112", contato: "GLAUCIA" },
-    { nome: "VALE HOSTEL", km: 171.1, foraDaRota: 2.2, fone: "(12)99102-7709", contato: "MICHELI" },
-    { nome: "PINDA PLAZA HOTEL", km: 172.6, foraDaRota: 0.0, fone: "(12)99627-8080", contato: "RECEPÇÃO" },
-    { nome: "POLIS HOTEL", km: 176.0, foraDaRota: 0.2, fone: "(12)3641-2249", contato: "RECEPÇÃO" }
-  ],
-  "Aparecida": [
-    { nome: "POUSADA SANTINHA", km: 188.5, foraDaRota: 0.0, fone: "(12)3646-3000", contato: "RECEPÇÃO" },
-    { nome: "APARECIDA HOTEL", km: 194.0, foraDaRota: 0.0, fone: "(12)3105-7015", contato: "RECEPÇÃO" },
-    { nome: "HOTEL BENFICA", km: 196.5, foraDaRota: 0.0, fone: "(12)3105-2794", contato: "RECEPÇÃO" },
-    { nome: "POUSADA JOVIMAR", km: 197.0, foraDaRota: 0.0, fone: "(12)99631-4234", contato: "THALITA" },
-    { nome: "POUSADA ITAGUAÇU", km: 198.5, foraDaRota: 0.0, fone: "(12)98845-5475", contato: "FELIPE" },
-    { nome: "HOTEL SÃO RAFAEL", km: 198.9, foraDaRota: 0.0, fone: "(12)98312-9384", contato: "EVERSON" },
-    { nome: "HOTEL SANTO AFONSO", km: 200.0, foraDaRota: 0.0, fone: "(12)99667-7415", contato: "RECEPÇÃO" }
-  ]
+  "Mogi das Cruzes": [ { nome: "IBIS HOTEL)", km: 0.0, foraDaRota: 0.4, fone: "(11)2813-3800", contato: "WHATSAPP" }, { nome: "POUSADA WG CARVALHO", km: 0.0, foraDaRota: 0.7, fone: "(11)4791-3216", contato: "WILSON" }, { nome: "POUSADA TOKIO PLAZA", km: 0.0, foraDaRota: 1.2, fone: "(11)94203-1000", contato: "RECEPÇÃO" }, { nome: "HOTEL MALBOR", km: 0.0, foraDaRota: 2.2, fone: "(11)4735-7300", contato: "RECEPÇÃO" } ],
+  "Guararema": [ { nome: "RECANTO DAS ACACIAS", km: 25.0, foraDaRota: 0.0, fone: "(11)99972-5212", contato: "TANIAH" }, { nome: "RECANTO CHEIO DE CHEIRO", km: 25.0, foraDaRota: 0.0, fone: "(11)99959-4186", contato: "REGIANE" }, { nome: "CASA MARIA FUMAÇA", km: 26.0, foraDaRota: 0.2, fone: "(11)991695-2087", contato: "EMILIA" }, { nome: "HOSPEDARIA SÃO BENEDITO", km: 26.6, foraDaRota: 0.4, fone: "(11)97217-9138", contato: "PADRE BIRA" }, { nome: "POUSADA CALIL", km: 26.6, foraDaRota: 0.9, fone: "(11)95311-0920", contato: "ELAINE" }, { nome: "POUSADA SAPUCAIA", km: 26.6, foraDaRota: 2.1, fone: "(11)97221-6812", contato: "DANIEL" }, { nome: "CASA DO VALE", km: 27.6, foraDaRota: 0.7, fone: "(11)97451-0454", contato: "SHEILA" }, { nome: "CENTRO DE APOIO D'AJUDA", km: 27.9, foraDaRota: 0.0, fone: "(11)97392-4192", contato: "MARIA NEVES" } ],
+  "Santa Branca": [ { nome: "ESPAÇO MANGANAGUA", km: 36.5, foraDaRota: 0.0, fone: "(11)97302-0535", contato: "JOSE" }, { nome: "CHÁCARA MIRANTE DO RIO", km: 45.5, foraDaRota: 0.0, fone: "(12)99622-4810", contato: "FÁTIMA" }, { nome: "POUSADA PEDALAMOS CICLOTURISMO", km: 46.0, foraDaRota: 0.08, fone: "(12)98162-6122", contato: "PEDRO CAMPOS" }, { nome: "POUSADA CORAÇÃO PEREGRINO", km: 46.3, foraDaRota: 0.015, fone: "(12)99792-7116", contato: "ANA CAROLINA" }, { nome: "POUSADA REMANSO ROTA DA LUZ", km: 46.3, foraDaRota: 0.02, fone: "(12)99761-9794", contato: "MARIA JOSE" }, { nome: "HOSPEDAGEM JASMO", km: 46.4, foraDaRota: 0.35, fone: "(12)99764-8346", contato: "JASMO" }, { nome: "HOSTEL GARDEN ALBUQUERQUE", km: 46.6, foraDaRota: 2.0, fone: "(12)99147-6194", contato: "RECEPÇÃO" }, { nome: "CHACARA CAMBUCI HOSPEDADGEM", km: 46.6, foraDaRota: 2.0, fone: "(12)98122-1519", contato: "GU BRAGA" }, { nome: "SITIO REMANSO DO VALE", km: 46.6, foraDaRota: 4.0, fone: "(12)99761-9794", contato: "MARIA JOSE" }, { nome: "POUSADA SANTA JULIA", km: 53.0, foraDaRota: 0.0, fone: "(12)98221-9558", contato: "MARCOS" }, { nome: "POUSADA SITIO DO VALDIR", km: 55.1, foraDaRota: 0.0, fone: "(12)99612-4564", contato: "VALDIR" } ],
+  "Paraibuna": [ { nome: "POUSADA SITIO RECANTO DAS FLORES", km: 82.7, foraDaRota: 3.7, fone: "(12)99105-4807", contato: "VERA" }, { nome: "POUSADA VILA DE LUCA", km: 83.1, foraDaRota: 0.0, fone: "(12)99657-9363", contato: "RECEPÇÃO" }, { nome: "POUSADA NATHALIA CANELLA", km: 83.1, foraDaRota: 7.0, fone: "(12)99605-6263", contato: "NATHALIA" }, { nome: "POUSADA TRES RIOS", km: 83.1, foraDaRota: 0.45, fone: "(11)99425-5286", contato: "ANA MARIA" }, { nome: "POUSADA RECANTO BOA VENTURA", km: 91.7, foraDaRota: 0.0, fone: "(12)98814-9940", contato: "PAULO/Neuza" }, { nome: "POUSADA CAXAMBU", km: 92.0, foraDaRota: 0.0, fone: "(12)98836-9937", contato: "CLEBER" }, { nome: "RANCHO NOSSA SENHORA APARECIDA", km: 93.0, foraDaRota: 0.0, fone: "(12)99735-7114", contato: "NEIDE" }, { nome: "RENAISSANCE CHALÉS", km: 96.3, foraDaRota: 0.0, fone: "(11)93008-0331", contato: "ELIZETE" } ],
+  "Redenção da Serra": [ { nome: "POUSADA DOS PEREIRAS", km: 108.0, foraDaRota: 0.0, fone: "(12)99721-8999", contato: "DANIEL" }, { nome: "POUSADA DA MARLENE", km: 111.7, foraDaRota: 0.0, fone: "(12)99709-4837", contato: "MARLENE" }, { nome: "RECANTO BELA VISTA", km: 111.7, foraDaRota: 6.2, fone: "(12)99611-8522", contato: "ANTONIO" }, { nome: "POUSADA ROTA DA FÉ", km: 113.1, foraDaRota: 0.15, fone: "(12)99143-9362", contato: "REGINA" }, { nome: "POUSADA DO JAPONES", km: 114.1, foraDaRota: 0.0, fone: "(11)99143-8855", contato: "MICHELE" }, { nome: "POUSADA DO LOUZADA", km: 111.7, foraDaRota: 3.8, fone: "(12)99749-2003", contato: "LOUZADA" }, { nome: "POUSADA DO INACIO", km: 114.0, foraDaRota: 0.0, fone: "(12)99769-5497", contato: "DANI" }, { nome: "RANCHO DOS PÁSSAROS", km: 114.4, foraDaRota: 0.0, fone: "(12)99731-1196", contato: "CARLINHOS" }, { nome: "POUSADA PRIMAVERA", km: 114.6, foraDaRota: 0.0, fone: "(12)98835-0552", contato: "RICARDO" } ],
+  "Taubaté": [ { nome: "FAZENDA BOA ESPERANÇA", km: 142.0, foraDaRota: 2.8, fone: "(12)99726-8225", contato: "ADRIANA" }, { nome: "POUSADA PARADA DA ROTA", km: 144.9, foraDaRota: 0.2, fone: "(12)99131-4248", contato: "JANDIRO" }, { nome: "HOTEL SAN MICHEL", km: 146.4, foraDaRota: 1.2, fone: "(12)99158-8718", contato: "RECEPÇÃO" }, { nome: "HOTEL SÃO NICOLAU", km: 146.8, foraDaRota: 1.1, fone: "(12)99141-0653", contato: "RECEPÇÃO" }, { nome: "POUSADA PRIMAVERA TAUBATÉ", km: 146.4, foraDaRota: 1.2, fone: "(12)3632-1313", contato: "MARILAH" }, { nome: "CARLTON PLAZA BAOBA", km: 146.8, foraDaRota: 2.1, fone: "(12)99702-5754", contato: "VIVIAN" } ],
+  "Pindamonhangaba": [ { nome: "SITIO 4 MILHAS", km: 167.5, foraDaRota: 0.0, fone: "(12)99728-7044", contato: "HELEN ROSE" }, { nome: "SAGRADO CORAÇÕES", km: 171.1, foraDaRota: 0.5, fone: "(12)99760-2310", contato: "RECEPÇÃO" }, { nome: "PIRAPOUL HOTEL", km: 171.1, foraDaRota: 1.9, fone: "(12)99794-2605", contato: "RECEPÇÃO" }, { nome: "RECANTO MONA", km: 171.1, foraDaRota: 2.0, fone: "(12)99103-6112", contato: "GLAUCIA" }, { nome: "VALE HOSTEL", km: 171.1, foraDaRota: 2.2, fone: "(12)99102-7709", contato: "MICHELI" }, { nome: "PINDA PLAZA HOTEL", km: 172.6, foraDaRota: 0.0, fone: "(12)99627-8080", contato: "RECEPÇÃO" }, { nome: "POLIS HOTEL", km: 176.0, foraDaRota: 0.2, fone: "(12)3641-2249", contato: "RECEPÇÃO" } ],
+  "Aparecida": [ { nome: "POUSADA SANTINHA", km: 188.5, foraDaRota: 0.0, fone: "(12)3646-3000", contato: "RECEPÇÃO" }, { nome: "APARECIDA HOTEL", km: 194.0, foraDaRota: 0.0, fone: "(12)3105-7015", contato: "RECEPÇÃO" }, { nome: "HOTEL BENFICA", km: 196.5, foraDaRota: 0.0, fone: "(12)3105-2794", contato: "RECEPÇÃO" }, { nome: "POUSADA JOVIMAR", km: 197.0, foraDaRota: 0.0, fone: "(12)99631-4234", contato: "THALITA" }, { nome: "POUSADA ITAGUAÇU", km: 198.5, foraDaRota: 0.0, fone: "(12)98845-5475", contato: "FELIPE" }, { nome: "HOTEL SÃO RAFAEL", km: 198.9, foraDaRota: 0.0, fone: "(12)98312-9384", contato: "EVERSON" }, { nome: "HOTEL SANTO AFONSO", km: 200.0, foraDaRota: 0.0, fone: "(12)99667-7415", contato: "RECEPÇÃO" } ]
 };
 const etapasData = [
-  { id: 1, titulo: "Etapa 1: Mogi das Cruzes a Guararema", cidadeOrigem: "Mogi das Cruzes", cidadeDestino: "Guararema", cidadesDaEtapa: [ { nome: "Mogi das Cruzes", url: "https://www.mogidascruzes.sp.gov.br/" }, { nome: "Guararema", url: "https://guararema.sp.gov.br/turismo" } ], mapaUrl: "https://www.google.com/maps/dir/Universidade+de+Mogi+das+Cruzes,+Avenida+Doutor+Cândido+Xavier+de+Almeida+e+Souza,+200,+Mogi+das+Cruzes+-+SP/Recanto+das+Acácias+Guararema+-+Nogueira,+Guararema+-+SP,+08900-000/@-23.473539,-46.166861,12z/data=!4m14m13!1m5!1m1!1s0x94ce7b54612e4d67:0x227a940e79753457!2m2!1d-46.1856893!2d-23.5358656!1m5!1m1!1s0x94cc537b989ba011:0x39a1a742f1f44d57!2m2!1d-46.0354162!2d-23.4111389!3e2?entry=ttu", altimetriaImgUrl: "/altimetria-etapa-1.jpg", distancia: "24,7 km", tempoEstimado: "5h 39min", paradaRefeicao: "90min",
+  { id: 1, titulo: "Etapa 1: Mogi das Cruzes a Guararema", cidadeOrigem: "Mogi das Cruzes", cidadeDestino: "Guararema", distancia: "28,4 km", pontoReferenciaInicio: ["Mogi das Cruzes / Estação Estudantes", "Praça do Terminal Rodoviário Geraldo Scavone"], pontoReferenciaTermino: ["Estação Ferroviária de Guararema"], cidadesDaEtapa: [ { nome: "Mogi das Cruzes", url: "https://www.mogidascruzes.sp.gov.br/" }, { nome: "Guararema", url: "https://guararema.sp.gov.br/turismo" } ], mapaUrl: "...", altimetriaImgUrl: "/altimetria-etapa-1.jpg", tempoEstimado: "5h 39min", paradaRefeicao: "90min",
     itinerario: [ "Siga na direção leste na R. Prof. Álvaro Pavan em direção a Av. Manoel Bezerra Lima Filho (200 m)", "Vire à esquerda na Av. Manoel Bezerra Lima Filho (130 m)", "Na rotatória, pegue a 2ª saída para a Av. Francisco Rodrigues Filho/Rod. General Euryale de Jesus Zerbine/Rod. Henrique Eroles (16,0 km)", "Curva suave à direita para permanecer na Rod. General Euryale de Jesus Zerbine/Rod. Henrique Eroles (88 m)", "Na rotatória, pegue a 1ª saída para a Est. Mun. Argemiro de Souza Melo (800 m)", "Vire à esquerda na Est. Mun. Romeu Tanganelli (2,1 km)", "Vire à esquerda na R. Ruth Do Prado Paula Lopes (700 m)", "Curva suave à direita para permanecer na R. Ruth Do Prado Paula Lopes (1,2 km)", "Vire à esquerda na R. José Fonseca Freire " ],
     pontosDeApoio: [ { nome: "Lanchonete na Rodoviária", km: "Início", tipo: "Lanchonete" }, { nome: "Habbib's", km: "0", tipo: "Restaurante" }, { nome: "Padaria Santo Trigo", km: "0", tipo: "Padaria" }, { nome: "Padaria 2B", km: "11,9", tipo: "Padaria" }, { nome: "Restaurante Lucia", km: "11,9", tipo: "Restaurante" }, { nome: "Bica D'agua Santo Alberto", km: "14", tipo: "Ponto de Água" }, { nome: "Estação Ferroviária Luiz Carlos (Vila Turística)", km: "17", tipo: "Comércio diverso" }, { nome: "Mercado do Gomes", km: "25,9", tipo: "Mercado" }, ],
     altimetria: "O trajeto começa em área urbana e segue para estradas de terra com ondulações suaves. A maior parte do percurso é plana, com algumas subidas e descidas leves, característico da transição da serra para o vale.",
@@ -130,7 +62,7 @@ const etapasData = [
     recomendacoes: [ "Comece cedo para evitar o sol forte.", "Use calçados confortáveis e já amaciados.", "Leve um chapéu ou boné e aplique protetor solar." ],
     oQueLevar: "Leve no mínimo 2 litros de água, frutas (banana, maçã), barras de cereal, castanhas e um sanduíche leve. Ideal para se reabastecer nos comércios em Sabaúna (km 11,9)."
   },
-  { id: 2, titulo: "Etapa 2: Guararema a Santa Branca", cidadeOrigem: "Guararema", cidadeDestino: "Santa Branca", cidadesDaEtapa: [ { nome: "Guararema", url: "https://guararema.sp.gov.br/turismo" }, { nome: "Santa Branca", url: "https://www.santabranca.sp.gov.br/turismo" } ], mapaUrl: "https://www.google.com/maps/dir/Recanto+das+Acácias+Guararema+-+Nogueira,+Guararema+-+SP,+08900-000/Sítio+do+Valdir+(Rota+da+luz)+-+Estr.+De+Santa+Branca,+Paraibuna+-+SP/@-23.3274614,-46.0401833,12z/data=!4m14m13!1m5!1m1!1s0x94cc537b989ba011:0x39a1a742f1f44d57!2m2!1d-46.0354162!2d-23.4111389!1m5!1m1!1s0x94cc4f362145e69b:0xa1d5952f9b88b209!2m2!1d-45.928163!2d-23.242761!3e2?entry=ttu", altimetriaImgUrl: "/altimetria-etapa-2.jpg", distancia: "30,4 km", tempoEstimado: "6h 58min", paradaRefeicao: "90min",
+  { id: 2, titulo: "Etapa 2: Guararema a Santa Branca", cidadeOrigem: "Guararema", cidadeDestino: "Santa Branca", distancia: "20,4 km", pontoReferenciaInicio: ["Estação Ferroviária de Guararema"], pontoReferenciaTermino: ["Praça Matriz de Santa Branca"], cidadesDaEtapa: [ { nome: "Guararema", url: "https://guararema.sp.gov.br/turismo" }, { nome: "Santa Branca", url: "https://www.santabranca.sp.gov.br/turismo" } ], mapaUrl: "...", altimetriaImgUrl: "/altimetria-etapa-2.jpg", tempoEstimado: "6h 58min", paradaRefeicao: "90min",
     itinerario: [ "Siga na direção sul em direção a R. José Fonseca Freire (210 m)", "Vire à esquerda na R. José Fonseca Freire (850 m)", "Continue para R. Dr. Armindo (1,0 km)", "Vire à direita na R. Dr. Falcão (650 m)", "Continue para Rua d'Ajuda (350 m)", "Continue para Rua da Ajuda (180 m)", "Continue para Estr. Mun. Dr. Hércules Campagnoli (13,1 km)", "Vire à direita (150 m), depois à esquerda (94m), e à esquerda novamente (1,8 km)", "Vire à esquerda na EST PART FRANCISCO DE ASSIS DOS SANTOS NOGUEIRA (750 m)", "Curva suave à direita para permanecer na mesma estrada (400 m)", "Continue para R. Lauro T de Andrade (400 m), Rod. Maria T Couto de Oliveira (170 m), R. São Sebastião (160 m), e R. Independencia (600 m)", "Vire à esquerda na R. João Pessoa (44 m)", "Vire à direita na R. Cel. Joaquim Faria / Rod. Carvalho Pinto - Fazenda Caetê (150 m)", "Vire à direita na R. Cel. Antônio Francisco de Abreu / Rod. Carvalho Pinto - Fazenda Caetê (7,4 km)", "Curva suave à direita na Estr. De Santa Branca (900 m)", "Chegada: Sítio do Valdir (Rota da luz), Estr. De Santa Branca, Paraibuna - SP" ],
     pontosDeApoio: [ { nome: "Lanchonete Santa Rita", km: "26,6", tipo: "Lanchonete" }, { nome: "Padaria Manhãs do Sol", km: "27,7", tipo: "Padaria" }, { nome: "Restaurante 2 Irmãos", km: "27,75", tipo: "Restaurante" }, { nome: "Mercadinho Campagnoli", km: "29,2", tipo: "Mercado" }, { nome: "Bar do Fábio", km: "33,3", tipo: "Bar" }, { nome: "Mercado Cafeteria Beija-Flor", km: "36,5", tipo: "Mercado/Cafeteria" }, ],
     altimetria: "Esta etapa apresenta maior variação de altitude, com subidas e descidas mais acentuadas em estradas de terra. É um trecho que exige mais fisicamente, passando por áreas de mata e fazendas.",
@@ -138,7 +70,7 @@ const etapasData = [
     recomendacoes: [ "Use bastões de caminhada para ajudar nas subidas e dar estabilidade nas descidas.", "Gerencie bem sua energia e faça pausas curtas para descanso.", "Certifique-se de que sua mochila está bem ajustada para evitar desconforto." ],
     oQueLevar: "Essencial levar mais água (cerca de 3 litros). Reforce a alimentação com carboidratos de absorção lenta (sanduíches integrais), e tenha à mão alimentos energéticos como rapadura, chocolate amargo e frutas secas."
   },
-  { id: 3, titulo: "Etapa 3: Santa Branca a Paraibuna", cidadeOrigem: "Santa Branca", cidadeDestino: "Paraibuna", cidadesDaEtapa: [ { nome: "Santa Branca", url: "https://www.santabranca.sp.gov.br/turismo" }, { nome: "Paraibuna", url: "https://www.paraibuna.sp.gov.br/turismo" } ], mapaUrl: "https://www.google.com/maps/dir/Sítio+do+Valdir+(Rota+da+luz)+-+Estr.+De+Santa+Branca,+Paraibuna+-+SP/Chororão+Combustíveis+-+Rua+Sebastião+Barreto+Silva,+13,+Paraibuna+-+SP/@-23.3134371,-45.8617513,12z/data=!4m14m13!1m5!1m1!1s0x94cc4f362145e69b:0xa1d5952f9b88b209!2m2!1d-45.928163!2d-23.242761!1m5!1m1!1s0x94cd811568205a61:0xc8f906f35a0f2b3b!2m2!1d-45.6601445!2d-23.3855325!3e2?entry=ttu", altimetriaImgUrl: "/altimetria-etapa-3.jpg", distancia: "28 km", tempoEstimado: "6h 40min", paradaRefeicao: "90min",
+  { id: 3, titulo: "Etapa 3: Santa Branca a Paraibuna", cidadeOrigem: "Santa Branca", cidadeDestino: "Paraibuna", distancia: "38,0 km", pontoReferenciaInicio: ["Praça Matriz de Santa Branca"], pontoReferenciaTermino: ["Ponte do Vigor"], cidadesDaEtapa: [ { nome: "Santa Branca", url: "https://www.santabranca.sp.gov.br/turismo" }, { nome: "Paraibuna", url: "https://www.paraibuna.sp.gov.br/turismo" } ], mapaUrl: "...", altimetriaImgUrl: "/altimetria-etapa-3.jpg", tempoEstimado: "6h 40min", paradaRefeicao: "90min",
     itinerario: [ "Siga na direção noroeste na Estr. De Santa Branca (600 m)", "Curva acentuada à direita (1,9 km), depois vire à direita (230 m)", "Vire à esquerda em direção à Rod. Carvalho Pinto - Fazenda Caetê (200 m)", "Vire à direita na Rod. Carvalho Pinto - Fazenda Caetê (6,0 km)", "Continue para Estr. Fazenda Capela - Fazenda Caetê (1,6 km)", "Curva suave à direita (1,7 km), continue na Estr. Fazenda Capela - Fazenda Caetê (5,4 km)", "Vire à esquerda na Estr. De Santa Branca (5,9 km)", "Continue para R. Santa Branca (650 m)", "Vire à direita em direção à Av. Antônio Feliciano da Silva (160 m)", "Na rotatória, pegue a 1ª saída para a Av. Antônio Feliciano da Silva (500 m)", "Continue por Av. Central Sul (74 m), Av. São José (350 m), Av. Carlos Guimarães (650 m + 500 m)", "Continue para R. Maj. Soares (29 m), Av. Benedito Nogueira Santos (400 m)", "Vire à direita (600 m), depois à esquerda (46 m)", "Chegada: Chororão Combustíveis, Rua Sebastião Barreto Silva, 13, Paraibuna - SP" ],
     pontosDeApoio: [ { nome: "Bar do Fim do Mundo", km: "42", tipo: "Bar" }, { nome: "Restaurante Fogo de Ouro", km: "43,3", tipo: "Restaurante" }, { nome: "Restaurante Vilela", km: "45", tipo: "Restaurante" }, { nome: "Padaria Sol Nascente", km: "45", tipo: "Padaria" }, { nome: "Café do Peregrino", km: "46,8", tipo: "Cafeteria" }, { nome: "Pesqueiro Agua Limpa", km: "54,1", tipo: "Pesqueiro/Restaurante" }, ],
     altimetria: "O percurso segue o contorno da represa de Paraibuna, apresentando muitas curvas e um sobe e desce constante. As paisagens são o destaque, mas a irregularidade do terreno exige atenção.",
@@ -146,7 +78,7 @@ const etapasData = [
     recomendacoes: [ "Aprecie a vista da represa, um dos pontos altos da Rota.", "Caminhe pela contramão para melhor visualização dos veículos.", "Planeje sua parada principal na cidade de Paraibuna, que tem boa estrutura." ],
     oQueLevar: "Mantenha a hidratação. É uma boa etapa para levar isotônicos para repor os sais minerais. Leve lanches práticos, pois a maior parte dos pontos de apoio se concentra no final da etapa, já em Paraibuna."
   },
-  { id: 4, titulo: "Etapa 4: Paraibuna a Redenção da Serra", cidadeOrigem:"Paraibuna", cidadeDestino: "Redenção da Serra", cidadesDaEtapa: [ { nome: "Paraibuna", url: "https://www.paraibuna.sp.gov.br/turismo" }, { nome: "Redenção da Serra", url: "https://www.redencaodaserra.sp.gov.br/turismo" } ], mapaUrl: "https://www.google.com/maps/dir/Chororão+Combustíveis+-+Rua+Sebastião+Barreto+Silva,+13,+Paraibuna+-+SP/Igreja+Matriz+de+Redenção+da+Serra+-+Centro,+Redenção+da+Serra+-+SP/@-23.3328221,-45.688827,12z/data=!4m14m13!1m5!1m1!1s0x94cd811568205a61:0xc8f906f35a0f2b3b!2m2!1d-45.6601445!2d-23.3855325!1m5!1m1!1s0x94cd632551060959:0x88981458e3381615!2m2!1d-45.4852932!2d-23.2842407!3e2?entry=ttu", altimetriaImgUrl: "/altimetria-etapa-4.jpg", distancia: "31 km", tempoEstimado: "7h 40min", paradaRefeicao: "90min",
+  { id: 4, titulo: "Etapa 4: Paraibuna a Redenção da Serra", cidadeOrigem:"Paraibuna", cidadeDestino: "Redenção da Serra", distancia: "33,1 km", pontoReferenciaInicio: ["Ponte do Vigor"], pontoReferenciaTermino: ["Estátua Monumento da Abolição"], cidadesDaEtapa: [ { nome: "Paraibuna", url: "https://www.paraibuna.sp.gov.br/turismo" }, { nome: "Redenção da Serra", url: "https://www.redencaodaserra.sp.gov.br/turismo" } ], mapaUrl: "...", altimetriaImgUrl: "/altimetria-etapa-4.jpg", tempoEstimado: "7h 40min", paradaRefeicao: "90min",
     itinerario: [ "Siga na direção noroeste e vire à direita em direção à Av. Benedito Nogueira Santos (290 m + 46 m)", "Vire à esquerda na Av. Benedito Nogueira Santos (600 m)", "Continue para R. Maj. Soares (400 m), Av. Carlos Guimarães (29 m + 500 m), Av. São José (140 m)", "Vire à direita na Pte. da Vigor (100 m) e curva suave à direita na R. Maj. Santana (170 m)", "Vire à esquerda na R. Taubaté (230 m)", "Curva suave à direita na Av. Prof. Pedro de Calazans (2,8 km)", "Continue para Estr. Do Itapeva (4,2 km) e Estr. Bairro Bragança (7,3 km)", "Curva suave à direita (71 m), vire à direita (600 m), vire à direita (2,0 km), vire à direita (6,5 km)", "Vire à direita na Estr. Mun. Paraibuna (2,9 km)", "Vire à direita para permanecer na Estr. Mun. Paraibuna (2,2 km)", "Curva suave à esquerda para permanecer na Estr. Mun. Paraíbuna (180 m)", "Continue para R. Cel. Manoel Bento (550 m)", "Vire à direita (110 m)", "Chegada: Igreja Matriz de Redenção da Serra" ],
     pontosDeApoio: [ { nome: "Mercadinho Piratininga", km: "82,9", tipo: "Mercado" }, { nome: "Restaurante Caxambú", km: "83", tipo: "Restaurante" }, { nome: "Restaurante Serra de Paraibu", km: "83", tipo: "Restaurante" }, { nome: "Empório Itapeva", km: "83,3", tipo: "Empório" }, { nome: "Mercado Municipal Paraibuna", km: "83,2", tipo: "Mercado" }, { nome: "Bar do Torresmo", km: "88", tipo: "Bar" }, { nome: "Mercadinho do Dinho", km: "91", tipo: "Mercado" }, ],
     altimetria: "Etapa longa e considerada uma das mais difíceis em termos de altimetria. Há subidas longas e íngremes, especialmente na primeira metade, seguidas por descidas que também exigem esforço. O ganho de elevação é significativo.",
@@ -154,7 +86,7 @@ const etapasData = [
     recomendacoes: [ "Esta é a etapa 'rainha'. Comece o mais cedo possível.", "Controle o ritmo desde o início para não se esgotar nas primeiras subidas.", "Aproveite a chegada à 'cidade velha' de Redenção da Serra, um local de grande valor histórico e beleza." ],
     oQueLevar: "É o dia para a mochila mais abastecida. Aumente a quantidade de água para 3-4 litros. Leve comida suficiente para duas refeições (além dos lanches), como sanduíches reforçados, macarrão de pote (se tiver como aquecer) ou comida liofilizada."
   },
-  { id: 5, titulo: "Etapa 5: Redenção da Serra a Taubaté", cidadeOrigem:"Redenção da Serra", cidadeDestino: "Taubaté", cidadesDaEtapa: [ { nome: "Redenção da Serra", url: "https://www.redencaodaserra.sp.gov.br/turismo" }, { nome: "Taubaté", url: "https://www.taubate.sp.gov.br/" } ], mapaUrl: "https://www.google.com/maps/dir/Igreja+Matriz+de+Redenção+da+Serra+-+Centro,+Redenção+da+Serra+-+SP/Comevap+-+Rod.+Oswaldo+Cruz,+KM+3+-+Cataguá,+Taubaté+-+SP/@-23.1672614,-45.568411,11z/data=!4m14m13!1m5!1m1!1s0x94cd632551060959:0x88981458e3381615!2m2!1d-45.4852932!2d-23.2842407!1m5!1m1!1s0x94cc58032746441b:0xb6398b1e94a86b3e!2m2!1d-45.5786657!2d-23.0487016!3e2?entry=ttu", altimetriaImgUrl: "/altimetria-etapa-5.jpg", distancia: "28,9 km", tempoEstimado: "6h 59min", paradaRefeicao: "90min",
+  { id: 5, titulo: "Etapa 5: Redenção da Serra a Taubaté", cidadeOrigem:"Redenção da Serra", cidadeDestino: "Taubaté", distancia: "31,4 km", pontoReferenciaInicio: ["Estátua Monumento da Abolição"], pontoReferenciaTermino: ["Igreja Nossa Senhora da Imaculada Conceição"], cidadesDaEtapa: [ { nome: "Redenção da Serra", url: "https://www.redencaodaserra.sp.gov.br/turismo" }, { nome: "Taubaté", url: "https://www.taubate.sp.gov.br/" } ], mapaUrl: "...", altimetriaImgUrl: "/altimetria-etapa-5.jpg", tempoEstimado: "6h 59min", paradaRefeicao: "90min",
     itinerario: [ "Siga na direção sul em direção a R. Cel. Manoel Bento (110 m)", "Vire à direita na R. Cel. Manoel Bento (180 m), depois à direita (500 m)", "Continue para Rodovia Major Gabriel Ortiz Monteiro (280 m)", "Vire à esquerda na Estr. Mun. Jambeiro (800 m)", "Curva suave à direita (2,5 km), depois curva suave à esquerda (1,4 km)", "Vire à direita (19 m), depois à direita novamente (2,1 km)", "Curva suave à esquerda (4,5 km)", "Continue para Estr. Bairro da Samambaia (1,3 km)", "Vire à esquerda (4,9 km)", "Continue para Estr. do morro grande (600 m)", "Vire à direita em direção à Estr. Antônio de Angelis (160 m)", "Vire à esquerda na Estr. Antônio de Angelis (8,9 km)", "Vire à direita na BR-383 (42 m)", "Na rotatória, pegue a 2ª saída para a Estr. Mun. Itapecirica (350 m)", "Chegada: Comevap, Rod. Oswaldo Cruz, KM 3 - Cataguá, Taubaté - SP" ],
     pontosDeApoio: [ { nome: "Restaurante Paraiso", km: "111,7", tipo: "Restaurante" }, { nome: "Bar do Pescador", km: "113", tipo: "Bar" }, { nome: "Armazem Na. Sra. Aparecida", km: "125,7", tipo: "Armazém" }, { nome: "Cafeteria Maetá", km: "140,5", tipo: "Cafeteria" }, ],
     altimetria: "O percurso começa a descer a serra em direção ao Vale do Paraíba. Predominam as descidas, algumas longas e contínuas, em estradas de terra. O cenário muda, tornando-se mais rural e agrícola à medida que se aproxima de Taubaté.",
@@ -162,7 +94,7 @@ const etapasData = [
     recomendacoes: [ "Use os bastões de caminhada para aliviar o impacto nas descidas.", "Faça alongamentos focados nos músculos da panturrilha e coxa.", "Atenção redobrada ao entrar em vias mais movimentadas perto do destino." ],
     oQueLevar: "A hidratação continua sendo chave. Como a etapa tem mais descidas, o desgaste é diferente. Leve alimentos leves e de fácil digestão. Aproveite os pontos de apoio no caminho, que começam a ficar mais frequentes."
   },
-  { id: 6, titulo: "Etapa 6: Taubaté a Pindamonhangaba", cidadeOrigem:"Taubaté", cidadeDestino: "Pindamonhangaba", cidadesDaEtapa: [ { nome: "Taubaté", url: "https://www.taubate.sp.gov.br/" }, { nome: "Pindamonhangaba", url: "https://www.pindamonhangaba.sp.gov.br/" } ], mapaUrl: "https://www.google.com/maps/dir/Comevap+-+Rod.+Oswaldo+Cruz,+KM+3+-+Cataguá,+Taubaté+-+SP/Pinda+Palace+Hotel+-+Av.+Amélia+Prata+Balarin,+N°26+-+Parque+das+Palmeiras,+Pindamonhangaba+-+SP/@-22.9877993,-45.5401915,12z/data=!4m14m13!1m5!1m1!1s0x94cc58032746441b:0xb6398b1e94a86b3e!2m2!1d-45.5786657!2d-23.0487016!1m5!1m1!1s0x94cc4f3e696f5b99:0x794eb8482430263!2m2!1d-45.4497645!2d-22.9261545!3e2?entry=ttu", altimetriaImgUrl: "/altimetria-etapa-6.jpg", distancia: "30,6 km", tempoEstimado: "6h 10min", paradaRefeicao: "90min",
+  { id: 6, titulo: "Etapa 6: Taubaté a Pindamonhangaba", cidadeOrigem:"Taubaté", cidadeDestino: "Pindamonhangaba", distancia: "26,3 km", pontoReferenciaInicio: ["Igreja Nossa Senhora da Imaculada Conceição"], pontoReferenciaTermino: ["Parque da Cidade"], cidadesDaEtapa: [ { nome: "Taubaté", url: "https://www.taubate.sp.gov.br/" }, { nome: "Pindamonhangaba", url: "https://www.pindamonhangaba.sp.gov.br/" } ], mapaUrl: "...", altimetriaImgUrl: "/altimetria-etapa-6.jpg", tempoEstimado: "6h 10min", paradaRefeicao: "90min",
     itinerario: [ "Siga na direção nordeste na Estr. Mun. Itapecirica (1,4 km)", "Na rotatória, pegue a 3ª saída (450 m) e continue para Av. José Belmiro dos Santos (850 m)", "Na rotatória, pegue a 1ª saída (1,0 km)", "Vire à esquerda na Estr. Amácio Mazaropi (400 m), depois à esquerda na Estr. Mun. dos Remédios (800 m)", "Siga pela zona urbana de Taubaté e depois por estradas vicinais e rurais em direção a Pindamonhangaba, conforme sinalização.", "O trajeto passa por diversas ruas e avenidas, incluindo Av. Dom Pedro I e Rod. Amador Bueno da Veiga.", "O final da etapa é na zona urbana de Pindamonhangaba.", "Chegada: Pinda Palace Hotel, Av. Amélia Prata Balarin, N°26 - Parque das Palmeiras, Pindamonhangaba - SP" ],
     pontosDeApoio: [ { nome: "Mercado Panorama", km: "146,2", tipo: "Mercado" }, { nome: "Padaria Campos Elíseos", km: "146,4", tipo: "Padaria" }, { nome: "Empório Ipiranga", km: "146,9", tipo: "Empório" }, { nome: "Padaria Paraíso Taubaté", km: "154,1", tipo: "Padaria" }, { nome: "Supermercado Regina", km: "158,2", tipo: "Supermercado" }, { nome: "Apoio Sr. Paulo/Dona Dolores", km: "161,5", tipo: "Ponto de Apoio" }, { nome: "Restaurante do Paizão", km: "162", tipo: "Restaurante" }, ],
     altimetria: "Etapa predominantemente plana, atravessando o coração do Vale do Paraíba. O percurso intercala áreas urbanas, rurais e industriais. É uma caminhada de 'ligação' entre as duas cidades, sem grandes desafios de elevação.",
@@ -170,7 +102,7 @@ const etapasData = [
     recomendacoes: [ "É uma etapa para reflexão, aproveitando a paisagem plana e a proximidade do destino final.", "Mantenha um ritmo constante.", "Aproveite a grande oferta de comércio para se reabastecer ou fazer uma refeição mais completa." ],
     oQueLevar: "A necessidade de carregar muita coisa diminui. Leve água, mas saiba que encontrará muitos pontos de venda. Lanches leves são suficientes. É um bom dia para tomar um caldo de cana ou açaí em algum comércio local."
   },
-  { id: 7, titulo: "Etapa Final: Pindamonhangaba a Aparecida", cidadeOrigem: "Pindamonhangaba", cidadeDestino: "Aparecida", cidadesDaEtapa: [ { nome: "Pindamonhangaba", url: "https://www.pindamonhangaba.sp.gov.br/" }, { nome: "Aparecida", url: "https://www.aparecida.sp.gov.br/portal/turismo/" } ], mapaUrl: "https://www.google.com/maps/dir/Pinda+Palace+Hotel+-+Av.+Amélia+Prata+Balarin,+N°26+-+Parque+das+Palmeiras,+Pindamonhangaba+-+SP/Santuário+Nacional+de+Aparecida+-+Aparecida,+SP/@-22.8885145,-45.3429393,12z/data=!4m14m13!1m5!1m1!1s0x94cc4f3e696f5b99:0x794eb8482430263!2m2!1d-45.4497645!2d-22.9261545!1m5!1m1!1s0x94cc44541334237b:0x564978853a0b3c6!2m2!1d-45.2321287!2d-22.851724!3e2?entry=ttu", altimetriaImgUrl: "/altimetria-etapa-7.jpg", distancia: "27,4 km", tempoEstimado: "5h 51min", paradaRefeicao: "90min",
+  { id: 7, titulo: "Etapa Final: Pindamonhangaba a Aparecida", cidadeOrigem: "Pindamonhangaba", cidadeDestino: "Aparecida", distancia: "25,5 km", pontoReferenciaInicio: ["Parque da Cidade"], pontoReferenciaTermino: ["Entrada Principal do Santuário de Aparecida"], cidadesDaEtapa: [ { nome: "Pindamonhangaba", url: "https://www.pindamonhangaba.sp.gov.br/" }, { nome: "Aparecida", url: "https://www.aparecida.sp.gov.br/portal/turismo/" } ], mapaUrl: "...", altimetriaImgUrl: "/altimetria-etapa-7.jpg", tempoEstimado: "5h 51min", paradaRefeicao: "90min",
     itinerario: [ "Siga na direção norte na Av. Amélia Prata Balarin em direção a Rod. Ver. Abel Fabrício Dias (26 m)", "Vire à direita na Rod. Ver. Abel Fabrício Dias (6,1 km)", "Na rotatória, continue em frente na Rod. Antiga Sp | 66 (4,0 km)", "Continue para Rod. Pres. Washington Luís (5,1 km)", "Curva suave à esquerda para permanecer na Rod. Pres. Washington Luís (5,5 km)", "Vire à esquerda na R. Itajubá (53 m)", "Continue para R. Itaguatiara (82 m)", "Vire à direita na Av. Itaú (60 m)", "Vire à esquerda na R. Itapeva (190 m)", "Vire à direita na R. Itacolomi (400 m)", "Chegada: Santuário Nacional de Aparecida (proximidades da R. Itacolomi)." ],
     pontosDeApoio: [ { nome: "Caldo de Cana do Japa", km: "186,5", tipo: "Lanchonete" }, { nome: "Pesqueiro Restaurante A Familia", km: "188", tipo: "Restaurante" }, { nome: "Pousada Jovimar", km: "197", tipo: "Pousada/Apoio" }, { nome: "Santuário de Aparecida", km: "201", tipo: "Destino Final com ampla estrutura" }, ],
     altimetria: "A última etapa é majoritariamente plana, seguindo a 'Rota dos Romeiros' paralela à Via Dutra. O caminho é bem demarcado e o terreno não oferece dificuldades. A emoção de se aproximar do Santuário é o grande motivador.",
@@ -181,7 +113,6 @@ const etapasData = [
 ];
 
 // --- COMPONENTES ---
-
 const Card = ({ icon: Icon, title, children, colorClass }) => (
   <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
     <div className={`p-4 ${colorClass} text-white flex items-center`}>
@@ -199,9 +130,7 @@ const GeminiCard = ({ title, icon: Icon, isLoading, content, onGenerate, buttonT
             <h3 className="text-lg font-bold text-indigo-800">{title}</h3>
         </div>
         <div className="p-6">
-            {!isOnline ? (
-                <div className="text-center text-gray-600"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
-            ) : (
+            {!isOnline ? ( <div className="text-center text-gray-600"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div> ) : (
                 <>
                     {isLoading && <div className="flex justify-center items-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}
                     {content && <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">{content}</div>}
@@ -221,14 +150,9 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [resposta, setResposta] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  
   const [nome, setNome] = useState('');
   const [contato, setContato] = useState('');
-
-  const suggestedTopics = [
-    "Apresentação da Rota da Luz", "Como planejar a peregrinação",
-    "Basílica de Nossa Senhora da Aparecida", "Informações contidas nesse App",
-  ];
+  const suggestedTopics = [ "Apresentação da Rota da Luz", "Como planejar a peregrinação", "Basílica de Nossa Senhora da Aparecida", "Informações contidas nesse App", ];
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
 
@@ -313,12 +237,29 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       .then(data => console.log(data.result === 'success' ? "Pergunta registrada." : "Falha ao registrar pergunta."))
       .catch(error => console.error("Erro de rede ao contatar Google Script:", error));
 
-    const prompt = `
-      Você é o 'Peregrino IA', um especialista amigável sobre a Rota da Luz em São Paulo.
-      CONTEXTO: A Rota da Luz é uma rota de peregrinação de Mogi das Cruzes a Aparecida, com 201 km, passando por 9 municípios do interior como alternativa segura à Rodovia Dutra. Não passa pela cidade de São Paulo.
+   const prompt = `
+      Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz no Estado de São Paulo.
+      Use o seguinte CONTEXTO para basear suas respostas:
+      - Apresentação da Rota da Luz: Olá peregrino me chamo Antonio e sou voluntário da Associação dos Amigos da Rota da Luz, neste site você vai conhecer esse caminho que além das belezas naturais, tem Anjos que vão te acolher e cuidar de você, se você quer apenas conhecer a Rota da Luz por curiosidade, Bem vindo, mas se você quer conhecer pensando em ser um peregrino, vou te ajudar a planejar a sua peregrinação com muitas dicas e informações. Deixa eu te contar um pouco da história desse caminho: A Rota da Luz tem 201 Km, o tempo ideal pra percorrer a pé é de 7 dias, a média de caminhada por dia é de 30 Km. Sim, que ter preparo físico e também psicológico.
+      - A Basílica de Nossa Senhora Aparecida, também conhecida como Santuário Nacional de Aparecida, é o maior santuário mariano do mundo e um importante centro de peregrinação religiosa no Brasil. Sua história está intrinsecamente ligada à descoberta da imagem de Nossa Senhora Aparecida no rio Paraíba do Sul, em 1717.
+      - A imagem de Nossa Senhora Aparecida, inicialmente encontrada no rio, foi peça central na construção da devoção e da Basílica/Santuário. Ela é um símbolo da fé católica no Brasil e foi proclamada Padroeira do Brasil em 1930.
+      - Este App oferece além da possibilidade de obter informações com o Peregrino IA, uma forma simples de planejar a sua peregrinação, trazendo informações detalhadas sobre as 7 etapas, como previsões meteorológicas sobre os dias escolhidos para a peregrinação, a distância aproximada e a altimetria entre cada etapa, dicas, recomendações e muito mais.
+      - A Rota da Luz é uma rota de peregrinação sinalizada no estado de São Paulo, Brasil.
+      - Ela começa em Mogi das Cruzes e termina no Santuário Nacional de Aparecida.
+      - A distância total é de aproximadamente 201 km, divididos em 7 etapas.
+      - Não é recomendado fazer a Rota da Luz a pé em menos de 7 dias.
+      - É recomendado que as caminhadas de peregrinação ocorram somente durante o dia.
+      - O objetivo é oferecer uma alternativa segura para peregrinos que iam pela Rodovia Presidente Dutra.
+      - A rota passa por 9 municípios: Mogi das Cruzes, Guararema, Santa Branca, Paraibuna, Redenção da Serra, Taubaté, Pindamonhangaba, Roseira e Aparecida.
+      - A rota NÃO PASSA pela cidade de São Paulo. Ela percorre áreas rurais, cidades do interior e trechos da Serra do Mar.
+      - A credencial oficial do peregrino pode ser retirada em Mogi das Cruzes.
+      - É recomendado ter um bom preparo físico, especialmente para a etapa de Redenção da Serra.
+
+      Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 3 parágrafos, usando o contexto acima.
       PERGUNTA: "${question}"
-      Responda de forma útil. Ao final, inclua o aviso em negrito: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes.**'
-    `;
+      Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.**'
+      `;
+
     try {
       const responseText = await callGeminiAPI(prompt);
       setResposta(responseText);
@@ -407,7 +348,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   );
 };
 
-const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
+const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, selecoes, onHospedagemChange }) => {
   const [dicas, setDicas] = useState('');
   const [curiosidades, setCuriosidades] = useState('');
   const [isLoadingDicas, setIsLoadingDicas] = useState(false);
@@ -483,11 +424,20 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
                 Ver Previsão em Tempo Real
             </a>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow flex flex-col">
-          <div className="flex-grow">
+        <div className="bg-white p-4 rounded-lg shadow flex flex-col text-left">
+          <div className="flex-grow text-center">
             <p className="text-3xl font-bold text-blue-500">{etapa.distancia}</p>
-            <p className="font-semibold text-gray-600">Distância da Etapa</p>
           </div>
+          <div className="text-sm text-gray-700 mt-2">
+              <p className="font-semibold">Início: <span className="font-normal text-gray-600">(Ponto de Referência)</span></p>
+              <div className="pl-4 border-l-2 border-gray-200">
+                {etapa.pontoReferenciaInicio.map(p => <p key={p} className="text-xs">{p}</p>)}
+              </div>
+              <p className="font-semibold mt-2">Término: <span className="font-normal text-gray-600">(Ponto de Referência)</span></p>
+              <div className="pl-4 border-l-2 border-gray-200">
+                {etapa.pontoReferenciaTermino.map(p => <p key={p} className="text-xs">{p}</p>)}
+              </div>
+            </div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow"><p className="text-3xl font-bold text-blue-500">{etapa.tempoEstimado}</p><p className="font-semibold text-gray-600">Tempo de Caminhada</p></div>
         <div className="bg-white p-4 rounded-lg shadow"><Clock className="mx-auto h-8 w-8 text-blue-500 mb-2" /><p className="font-bold text-gray-800">Início Sugerido</p><p className="text-lg text-gray-600">{etapa.horarioInicio}</p><p className="text-xs text-gray-500">(Para chegar às 15:30)</p><p className="text-xs text-gray-500 mt-1">(Incluído {etapa.paradaRefeicao} para alimentação)</p></div>
@@ -570,7 +520,7 @@ const ResumoRoteiro = ({ allEtapas, selecoesHospedagem, onBack }) => {
               <th scope="col" className="px-4 py-3">Origem</th>
               <th scope="col" className="px-4 py-3">Destino</th>
               <th scope="col" className="px-4 py-3">Distância</th>
-              <th scope="col" className="px-4 py-3">Clima (7h/12h/17h)</th>
+              <th scope="col" className="px-4 py-3">Clima</th>
             </tr>
           </thead>
           <tbody>
@@ -602,7 +552,7 @@ const ResumoRoteiro = ({ allEtapas, selecoesHospedagem, onBack }) => {
                     <p className="text-xs text-gray-500">{destino?.nome || 'Não selecionado'}</p>
                     <p className="text-xs text-gray-500">{destino?.fone}</p>
                   </td>
-                   <td className="px-4 py-4">
+                  <td className="px-4 py-4">
                     <p className="font-semibold">{distanciaCalculada}</p>
                     <p className="text-xs text-gray-500 italic">porta a porta</p>
                   </td>
@@ -745,6 +695,8 @@ export default function App() {
              onBack={() => setSelectedEtapa(null)} 
              isOnline={isOnline} 
              callGeminiAPI={callGeminiAPI}
+             selecoes={selecoesHospedagem[selectedEtapa.id] || {}}
+             onHospedagemChange={handleHospedagemChange}
            />;
   }
 
