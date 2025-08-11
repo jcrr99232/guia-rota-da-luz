@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2, Building, FileText, Printer } from 'lucide-react';
+import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2, Building, FileText, Printer, Footprints} from 'lucide-react';
 
 // --- FUNÇÕES AUXILIARES, DADOS DE CLIMA, HOSPEDAGENS ---
 const getWeekNumber = (date) => {
@@ -347,6 +347,31 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     </div>
   );
 };
+
+const DistanciaCalculadaDisplay = ({ etapa, selecao }) => {
+  if (!selecao || !selecao.origem || !selecao.destino) {
+    return null;
+  }
+
+  const origem = hospedagensPorCidade[etapa.cidadeOrigem]?.find(h => h.nome === selecao.origem);
+  const destino = hospedagensPorCidade[etapa.cidadeDestino]?.find(h => h.nome === selecao.destino);
+
+  if (origem && destino) {
+    const distanciaNaRota = Math.abs(destino.km - origem.km);
+    const distanciaTotal = distanciaNaRota + origem.foraDaRota + destino.foraDaRota;
+    const distanciaFormatada = distanciaTotal.toFixed(1);
+
+    return (
+      <div className="mt-2 text-center bg-blue-50 p-2 rounded-lg h-full flex flex-col justify-center">
+        <p className="text-lg font-bold text-blue-600">{distanciaFormatada} km</p>
+        <p className="text-xs font-semibold text-gray-700">porta a porta</p>
+      </div>
+    );
+  }
+
+  return null;
+};
+
 
 const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, selecoes, onHospedagemChange }) => {
   const [dicas, setDicas] = useState('');
@@ -746,10 +771,10 @@ export default function App() {
           <div className="space-y-4">
             {allEtapas.map((etapa, index) => {
               const selecaoAtual = selecoesHospedagem[etapa.id] || {};
-              const origemAnterior = index > 0 ? selecoesHospedagem[allEtapas[index-1].id]?.destino : undefined;
+              const origemAnterior = index > 0 ? selecoesHospedagem[allEtapas[index - 1].id]?.destino : undefined;
               
               return (
-                <div key={etapa.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4 first:border-t-0 first:pt-0">
+                <div key={etapa.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 border-t pt-4 first:border-t-0 first:pt-0 items-center">
                   <div className="md:col-span-1">
                     <p className="font-bold text-blue-600">ETAPA {etapa.id}</p>
                     <p className="text-sm text-gray-500">{etapa.titulo}</p>
@@ -779,11 +804,14 @@ export default function App() {
                       </select>
                     </div>
                   </div>
+                  <div className="md:col-span-1">
+                    <DistanciaCalculadaDisplay etapa={etapa} selecao={selecoesHospedagem[etapa.id]} />
+                  </div>
                 </div>
               );
             })}
           </div>
-        </div>
+        </div>  
 
         <div className="my-8 text-center">
           <button 
