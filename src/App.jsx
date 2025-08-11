@@ -276,7 +276,7 @@ Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso
       <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center">
         <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
         Pergunte ao Peregrino IA
-        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-16 ml-2" />
+        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-20 ml-6" />
       </h3>
       {!isOnline ? (
         <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
@@ -346,11 +346,12 @@ Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso
             </div>
           )}
 
-          {!resposta && !isLoading && (
+          {!isLoading && (
              <div className="text-xs text-gray-400 mt-1 text-center flex items-center justify-center">
                 <span>Para ouvir a resposta, clique </span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-                <span>que aparecerá após o envio.</span>
+                {/* Agora o final da frase muda dependendo se já há uma resposta ou não */}
+                {resposta ? <span>nos botões acima.</span> : <span>que aparecerá após o envio.</span>}
              </div>
           )}
         </div>
