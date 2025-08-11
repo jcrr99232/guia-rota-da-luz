@@ -714,6 +714,15 @@ export default function App() {
     };
   }, []);
 
+  // --- INÍCIO DO NOVO TRECHO ---
+  // Efeito para rolar para o topo quando a etapa muda
+  useEffect(() => {
+    if (selectedEtapa) {
+      window.scrollTo(0, 0);
+    }
+  }, [selectedEtapa]); // Roda sempre que 'selectedEtapa' mudar
+  // --- FIM DO NOVO TRECHO ---
+
   const isPlanningComplete = allEtapas.every(etapa => 
     selecoesHospedagem[etapa.id]?.origem && selecoesHospedagem[etapa.id]?.destino
   );
@@ -750,9 +759,11 @@ export default function App() {
       
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-start">
+           {/* Coluna 1: Logo AARL */}
           <div className="flex justify-center items-center lg:col-span-1">
-            <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL">
-              <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-32 sm:h-40 lg:h-48" />
+            <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL" className="flex flex-col items-center gap-2 text-center">
+              <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-40 sm:h-40 lg:h-48" />
+              <span className="text-xs text-gray-500 font-semibold">Link para o site da AARL</span>
             </a>
           </div>
           <div className="lg:col-span-1 h-full">
