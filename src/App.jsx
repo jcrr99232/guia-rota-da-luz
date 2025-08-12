@@ -284,11 +284,11 @@ Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso
         <div className="space-y-4 flex-grow flex flex-col">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <input 
-              type="text" placeholder="Seu nome (opcional)" value={nome} onChange={(e) => setNome(e.target.value)}
+              type="text" placeholder="Seu nome" value={nome} onChange={(e) => setNome(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg text-sm placeholder:text-gray-500 placeholder:text-xs" disabled={isLoading}
             />
             <input 
-              type="text" placeholder="Seu e-mail ou WhatsApp (opcional)" value={contato} onChange={(e) => setContato(e.target.value)}
+              type="text" placeholder="Seu e-mail ou WhatsApp" value={contato} onChange={(e) => setContato(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg text-sm placeholder:text-gray-500 placeholder:text-xs" disabled={isLoading}
             />
           </div>
@@ -773,8 +773,9 @@ export default function App() {
               <h3 className="text-lg font-bold text-gray-800 mb-2">Planejamento Personalizado</h3>
               <ol className="list-decimal list-inside text-sm text-gray-600 space-y-1 mb-4">
                   <li>Selecione a data de início da peregrinação.</li>
-                  <li>Abaixo, selecione as pousadas para cada etapa.</li>
+                  <li>Selecione as pousadas para cada etapa.</li>
                   <li>Clique no botão verde "Gerar Roteiro Personalizado".</li>
+                  <li>Abaixo, explore todas as Etapas e conheça dicas e desafios de cada trecho".</li>
               </ol>
               <label htmlFor="start-date" className="block text-sm font-bold text-gray-800 mb-2">
                   1. Selecione a data de início:
@@ -844,11 +845,11 @@ export default function App() {
             title={isPlanningComplete ? "Gerar resumo do seu roteiro" : "Selecione a origem e o destino de todas as 7 etapas para habilitar"}
           >
             <FileText className="h-5 w-5 mr-3" />
-            {isPlanningComplete ? "Gerar Roteiro Personalizado" : "Planeje todas as Etapas para Gerar"}
+            {isPlanningComplete ? "Gerar Roteiro Personalizado" : "3 - Planeje todas as Etapas para Gerar"}
           </button>
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8 text-center">Clique em uma etapa para ver os detalhes completos</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8 text-center">4 - Clique em uma etapa para ver os detalhes completos</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allEtapas.map(etapa => {
             const weekNumber = getWeekNumber(etapa.date);
