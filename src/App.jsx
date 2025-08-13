@@ -268,10 +268,10 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col">
       <div className={`transition-all duration-500 ease-in-out ${estaFalando ? 'mb-4' : 'mb-2'}`}>
-        <div className="flex justify-center mb-2 min-h-[40px]">
+        <div className="flex justify-center mb-2 min-h-[80px]"> {/* Aumentei a altura mínima para acomodar o avatar maior */}
             {estaFalando ? (
               <video 
-                src="/peregrino-falando.mp4" 
+                src="/casal-pelegrino-v1.mp4"
                 autoPlay 
                 loop 
                 muted
@@ -282,7 +282,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
               <img 
                 src="/peregrino-ia.jpg" 
                 alt="Avatar do Peregrino IA" 
-                className="transition-all duration-500 ease-in-out h-10 w-auto"
+                className="transition-all duration-500 ease-in-out h-20 w-auto"
               />
             )}
         </div>
@@ -308,7 +308,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             <textarea
               value={pergunta}
               onChange={(e) => setPergunta(e.target.value)}
-              placeholder="Digite sua pergunta sobre a Rota da Luz ou use o microfone..."
+              placeholder="Digite sua pergunta aqui ou clique no Microfone..."
               className="w-full p-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm placeholder:text-gray-500 placeholder:text-xs"
               rows="3"
               disabled={isLoading || isListening}
@@ -324,7 +324,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
           </div>
           {!resposta && !isLoading && (
             <div className="text-center text-sm text-gray-500">
-              <span>Sugestão: </span>
+              <span>Sugestão: clique para ouvir sobre os temas </span>
               <button 
                 onClick={() => handleTopicClick(suggestedTopics[currentTopicIndex])}
                 className={`font-semibold text-purple-600 hover:text-purple-800 ml-1 p-1 rounded transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}
@@ -345,7 +345,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             ) : null }
             {resposta && !isLoading && (
               <button onClick={() => handleSpeakResponse(resposta)} className="p-2 rounded-full bg-gray-200 hover:bg-blue-200" title="Ouvir resposta">
-                {/* --- LINHA CORRIGIDA --- */}
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
               </button>
             )}
@@ -354,6 +353,13 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
               <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
             </div>
+          )}
+          {!isLoading && (
+             <div className="text-xs text-gray-400 mt-1 text-center flex items-center justify-center">
+               <span>Para ouvir a resposta, clique </span>
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+               {resposta ? <span>nos botões acima.</span> : <span>que aparecerá após o envio.</span>}
+             </div>
           )}
         </div>
       ) : (
