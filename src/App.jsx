@@ -278,7 +278,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
                 loop 
                 muted
                 playsInline
-                className={"transition-all duration-500 ease-in-out rounded-full object-contain bg-gray-200 w-36 h-36"}
+                className={"transition-all duration-500 ease-in-out rounded-full object-contain bg-gray-200 w-36 h-37"}
               />
             ) : (
               <img 
@@ -352,18 +352,19 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
               </button>
             )}
           </div>
-          {resposta && (
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
-              <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
-            </div>
-          )}
-           {!isLoading && (
+          {!isLoading && (
              <div className="text-xs text-gray-400 mt-1 text-center flex items-center justify-center">
                <span>Para ouvir a resposta, clique </span>
                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                {resposta ? <span>nos botões acima.</span> : <span>que aparecerá após o envio.</span>}
              </div>
           )}
+          {resposta && (
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
+              <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
+            </div>
+          )}
+           
         </div>
       ) : (
          <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
