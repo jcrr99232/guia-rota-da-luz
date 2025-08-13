@@ -356,7 +356,7 @@ const DistanciaCalculadaDisplay = ({ etapa, selecao }) => {
 };
 
 
-const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, selecoes, onHospedagemChange }) => {
+const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
   const [dicas, setDicas] = useState('');
   const [curiosidades, setCuriosidades] = useState('');
   const [isLoadingDicas, setIsLoadingDicas] = useState(false);
