@@ -172,6 +172,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const handleClear = () => {
     setPergunta(''); setResposta(''); setNome(''); setContato('');
     window.speechSynthesis.cancel();
+    setEstaFalando(false); // Para a animação ao limpar
   };
 
   const handleVoiceInput = () => {
@@ -214,6 +215,17 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     const voices = window.speechSynthesis.getVoices();
     const brVoice = voices.find(voice => voice.lang === 'pt-BR');
     if (brVoice) { utterance.voice = brVoice; }
+    
+  
+
+    // --- LÓGICA DA ANIMAÇÃO ---
+    utterance.onstart = () => {
+      setEstaFalando(true); // Começa a animação quando a fala inicia
+    };
+    utterance.onend = () => {
+      setEstaFalando(false); // Termina a animação quando a fala acaba
+    };
+    
     window.speechSynthesis.speak(utterance);
   };
   
@@ -273,11 +285,32 @@ Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col">
-      <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center">
-        <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
-        Pergunte ao Peregrino IA
-        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-20 ml-6" />
-      </h3>
+       {/* --- CABEÇALHO COM O AVATAR QUE MUDA --- */}
+      <div className={`transition-all duration-500 ease-in-out ${estaFalando ? 'mb-4' : 'mb-2'}`}>
+        <div className="flex justify-center mb-2">
+            {/* Lógica para trocar entre o vídeo/gif e a imagem estática */}
+            {estaFalando ? (
+              <video 
+                src="/peregrino-falando.mp4" 
+                autoPlay 
+                loop 
+                muted
+                playsInline
+                className={`transition-all duration-500 ease-in-out rounded-full object-cover ${estaFalando ? 'w-32 h-32' : 'w-10 h-10'}`} 
+              />
+            ) : (
+              <img 
+                src="/peregrino-ia.jpg" 
+                alt="Avatar do Peregrino IA" 
+                className="transition-all duration-500 ease-in-out h-10 w-auto"
+              />
+            )}
+        </div>
+        <h3 className="text-lg font-bold text-gray-800 flex items-center justify-center">
+          <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
+          Pergunte ao Peregrino IA
+        </h3>
+      </div>
       {!isOnline ? (
         <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
       ) : (
