@@ -244,10 +244,10 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       .catch(error => console.error("Erro de rede ao contatar Google Script:", error));
 
     const prompt = `
-      Você é o 'Peregrino IA', um especialista amigável sobre a Rota da Luz em São Paulo.
-      CONTEXTO: A Rota da Luz é uma rota de peregrinação de Mogi das Cruzes a Aparecida, com 201 km, passando por 9 municípios do interior como alternativa segura à Rodovia Dutra. Não passa pela cidade de São Paulo.
+      Você é o 'Peregrino IA', um especialista amigável sobre a Rota da Luz em São Paulo...
+      CONTEXTO: ...
       PERGUNTA: "${question}"
-      Responda de forma útil. Ao final, inclua o aviso em negrito: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes.**'
+      ...
     `;
     try {
       const responseText = await callGeminiAPI(prompt);
@@ -267,8 +267,8 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col">
-      <div className={`transition-all duration-500 ease-in-out text-center ${estaFalando ? 'mb-4' : 'mb-2'}`}>
-        <div className="inline-block relative">
+      <div className="text-center mb-2">
+          {/* Lógica de exibição corrigida */}
           {estaFalando ? (
             <video 
               src="/peregrino-falando.mp4" 
@@ -276,16 +276,15 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
               loop 
               muted
               playsInline
-              className={"transition-all duration-500 ease-in-out rounded-full object-cover w-32 h-32"}
+              className="transition-all duration-500 ease-in-out rounded-full object-cover w-32 h-32 mx-auto"
             />
           ) : (
             <img 
               src="/peregrino-ia.jpg" 
               alt="Avatar do Peregrino IA" 
-              className="transition-all duration-500 ease-in-out h-20 w-auto"
+              className="transition-all duration-500 ease-in-out h-20 w-auto mx-auto"
             />
           )}
-        </div>
         <h3 className="text-lg font-bold text-gray-800 flex items-center justify-center mt-2">
           <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
           Pergunte ao Peregrino IA
@@ -294,6 +293,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       
       {isOnline ? (
         <div className="space-y-4 flex-grow flex flex-col">
+          {/* O resto do código (inputs, textarea, botões, resposta) permanece o mesmo */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <input 
               type="text" placeholder="Seu nome (opcional)" value={nome} onChange={(e) => setNome(e.target.value)}
