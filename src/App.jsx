@@ -278,7 +278,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
                 loop 
                 muted
                 playsInline
-                className={"transition-all duration-500 ease-in-out rounded-full object-contain bg-gray-200 w-38 h-38"}
+                className={"transition-all duration-500 ease-in-out rounded-full object-contain bg-gray-200 w-36 h-36"}
               />
             ) : (
               <img 
