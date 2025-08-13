@@ -152,9 +152,10 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [isListening, setIsListening] = useState(false);
   const [nome, setNome] = useState('');
   const [contato, setContato] = useState('');
-  const suggestedTopics = ["Apresentação da Rota da Luz", "Como planejar a peregrinação", "Basílica de Nossa Senhora da Aparecida", "Informações contidas nesse App"];
+  const suggestedTopics = [ "Apresentação da Rota da Luz", "Como planejar a peregrinação", "Basílica de Nossa Senhora da Aparecida", "Informações contidas nesse App", ];
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
+  const [estaFalando, setEstaFalando] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !resposta) {
@@ -172,7 +173,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const handleClear = () => {
     setPergunta(''); setResposta(''); setNome(''); setContato('');
     window.speechSynthesis.cancel();
-    setEstaFalando(false); // Para a animação ao limpar
+    setEstaFalando(false);
   };
 
   const handleVoiceInput = () => {
@@ -210,21 +211,18 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       return;
     }
     window.speechSynthesis.cancel();
+    
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.lang = 'pt-BR';
     const voices = window.speechSynthesis.getVoices();
     const brVoice = voices.find(voice => voice.lang === 'pt-BR');
-    if (brVoice) { utterance.voice = brVoice; }
-    
-  
+    if (brVoice) {
+      utterance.voice = brVoice;
+    }
 
-    // --- LÓGICA DA ANIMAÇÃO ---
-    utterance.onstart = () => {
-      setEstaFalando(true); // Começa a animação quando a fala inicia
-    };
-    utterance.onend = () => {
-      setEstaFalando(false); // Termina a animação quando a fala acaba
-    };
+    utterance.onstart = () => setEstaFalando(true);
+    utterance.onend = () => setEstaFalando(false);
+    utterance.onerror = () => setEstaFalando(false);
     
     window.speechSynthesis.speak(utterance);
   };
@@ -234,6 +232,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     setIsLoading(true);
     setResposta('');
     window.speechSynthesis.cancel();
+    setEstaFalando(false);
     
     const sheetData = { pergunta: question, nome: nome, contato: contato };
     fetch('https://script.google.com/macros/s/AKfycbwMJI2o7Q0q9ymZvah_qm580IzZAUu4xa1zQlp8mbxCuqK3k6ColU8SHYrN1RRl11qgEA/exec', {
@@ -245,28 +244,11 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       .catch(error => console.error("Erro de rede ao contatar Google Script:", error));
 
     const prompt = `
-Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz no Estado de São Paulo.
-Use o seguinte CONTEXTO para basear suas respostas:
-- Apresentação da Rota da Luz: Olá peregrino me chamo Antonio e sou voluntário da Associação dos Amigos da Rota da Luz, neste site você vai conhecer esse caminho que além das belezas naturais, tem Anjos que vão te acolher e cuidar de você, se você quer apenas conhecer a Rota da Luz por curiosidade, Bem vindo, mas se você quer conhecer pensando em ser um peregrino, vou te ajudar a planejar a sua peregrinação com muitas dicas e informações. Deixa eu te contar um pouco da história desse caminho: A Rota da Luz tem 201 Km, o tempo ideal pra percorrer a pé é de 7 dias, a média de caminhada por dia é de 30 Km. Sim, que ter preparo físico e também psicológico.
-- A Basílica de Nossa Senhora Aparecida, também conhecida como Santuário Nacional de Aparecida, é o maior santuário mariano do mundo e um importante centro de peregrinação religiosa no Brasil. Sua história está intrinsecamente ligada à descoberta da imagem de Nossa Senhora Aparecida no rio Paraíba do Sul, em 1717.
-- A imagem de Nossa Senhora Aparecida, inicialmente encontrada no rio, foi peça central na construção da devoção e da Basílica/Santuário. Ela é um símbolo da fé católica no Brasil e foi proclamada Padroeira do Brasil em 1930.
-- Este App oferece além da possibilidade de obter informações com o Peregrino IA, uma forma simples de planejar a sua peregrinação de forma personalizada, trazendo informações detalhadas sobre as 7 etapas, como previsões meteorológicas sobre os dias escolhidos para a peregrinação, a distância porta a porta entre as hospedagens e a altimetria entre cada etapa, dicas, recomendações e muito mais.
-- A Rota da Luz é uma rota de peregrinação sinalizada no estado de São Paulo, Brasil.
-- Ela começa em Mogi das Cruzes e termina no Santuário Nacional de Aparecida.
-- A distância total é de aproximadamente 201 km, divididos em 7 etapas.
-- Não é recomendado fazer a Rota da Luz a pé em menos de 7 dias.
-- É recomendado que as caminhadas de peregrinação ocorram somente durante o dia.
-- O objetivo é oferecer uma alternativa segura para peregrinos que iam pela Rodovia Presidente Dutra.
-- A rota passa por 9 municípios: Mogi das Cruzes, Guararema, Santa Branca, Paraibuna, Redenção da Serra, Taubaté, Pindamonhangaba, Roseira e Aparecida.
-- A rota NÃO PASSA pela cidade de São Paulo. Ela percorre áreas rurais, cidades do interior e trechos da Serra do Mar.
-- A credencial oficial do peregrino pode ser retirada em Mogi das Cruzes.
-- É recomendado ter um bom preparo físico, especialmente para a etapa de Redenção da Serra.
-
-Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 2 parágrafos, usando o contexto acima.
-PERGUNTA: "${question}"
-Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.**'
-`;
-
+      Você é o 'Peregrino IA', um especialista amigável sobre a Rota da Luz em São Paulo.
+      CONTEXTO: A Rota da Luz é uma rota de peregrinação de Mogi das Cruzes a Aparecida, com 201 km, passando por 9 municípios do interior como alternativa segura à Rodovia Dutra. Não passa pela cidade de São Paulo.
+      PERGUNTA: "${question}"
+      Responda de forma útil. Ao final, inclua o aviso em negrito: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes.**'
+    `;
     try {
       const responseText = await callGeminiAPI(prompt);
       setResposta(responseText);
@@ -285,10 +267,8 @@ Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col">
-       {/* --- CABEÇALHO COM O AVATAR QUE MUDA --- */}
       <div className={`transition-all duration-500 ease-in-out ${estaFalando ? 'mb-4' : 'mb-2'}`}>
         <div className="flex justify-center mb-2">
-            {/* Lógica para trocar entre o vídeo/gif e a imagem estática */}
             {estaFalando ? (
               <video 
                 src="/peregrino-falando.mp4" 
@@ -296,7 +276,7 @@ Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso
                 loop 
                 muted
                 playsInline
-                className={`transition-all duration-500 ease-in-out rounded-full object-cover ${estaFalando ? 'w-32 h-32' : 'w-10 h-10'}`} 
+                className={"transition-all duration-500 ease-in-out rounded-full object-cover w-32 h-32"}
               />
             ) : (
               <img 
@@ -311,30 +291,29 @@ Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso
           Pergunte ao Peregrino IA
         </h3>
       </div>
-      {!isOnline ? (
-        <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
-      ) : (
+      
+      {isOnline ? (
         <div className="space-y-4 flex-grow flex flex-col">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <input 
-              type="text" placeholder="Seu nome" value={nome} onChange={(e) => setNome(e.target.value)}
+              type="text" placeholder="Seu nome (opcional)" value={nome} onChange={(e) => setNome(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg text-sm placeholder:text-gray-500 placeholder:text-xs" disabled={isLoading}
             />
             <input 
-              type="text" placeholder="Seu e-mail ou WhatsApp" value={contato} onChange={(e) => setContato(e.target.value)}
+              type="text" placeholder="Seu e-mail ou WhatsApp (opcional)" value={contato} onChange={(e) => setContato(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg text-sm placeholder:text-gray-500 placeholder:text-xs" disabled={isLoading}
             />
           </div>
-          <div className="relative flex-grow">
+          <div className="relative">
             <textarea
               value={pergunta}
               onChange={(e) => setPergunta(e.target.value)}
-              placeholder="Digite sua pergunta aqui ou clique no Microfone..."
-              className="w-full h-full p-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm placeholder:text-gray-500 placeholder:text-xs"
+              placeholder="Digite sua pergunta sobre a Rota da Luz ou use o microfone..."
+              className="w-full p-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm placeholder:text-gray-500 placeholder:text-xs"
               rows="3"
-              disabled={isLoading}
+              disabled={isLoading || isListening}
             />
-            <button 
+             <button 
               onClick={handleVoiceInput} 
               disabled={isLoading}
               className={`absolute right-2 top-2 p-1 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'text-gray-400 hover:text-purple-600 hover:bg-gray-100'}`}
@@ -343,10 +322,9 @@ Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso
               <Mic className="h-5 w-5" />
             </button>
           </div>
-          
           {!resposta && !isLoading && (
             <div className="text-center text-sm text-gray-500">
-              <span>Sugestão: clique para ouvir sobre os temas </span>
+              <span>Sugestão: </span>
               <button 
                 onClick={() => handleTopicClick(suggestedTopics[currentTopicIndex])}
                 className={`font-semibold text-purple-600 hover:text-purple-800 ml-1 p-1 rounded transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}
@@ -356,38 +334,29 @@ Ao final da sua resposta, inclua sempre, em uma nova linha e em negrito, o aviso
               </button>
             </div>
           )}
-          
           <div className="flex items-center gap-2">
-            <button onClick={() => handlePerguntar(pergunta)} disabled={isLoading || !pergunta.trim() || isListening} className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400 transition-all">
+            <button onClick={() => handlePerguntar(pergunta)} disabled={isLoading || !pergunta.trim() || isListening || pergunta === 'Ouvindo...'} className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400 transition-all">
               {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar</>}
             </button>
-            {(pergunta || resposta) && !isLoading && (
-              <button onClick={handleClear} className="p-2 rounded-full bg-gray-200 hover:bg-red-200" title="Apagar pergunta e resposta">
-                <Trash2 className="h-5 w-5 text-gray-600 hover:text-red-600" />
+            {(pergunta && pergunta !== 'Ouvindo...') || resposta ? (
+              <button onClick={handleClear} disabled={isLoading} className="p-2 rounded-full bg-gray-200 hover:bg-red-200 disabled:bg-gray-100" title="Apagar pergunta e resposta">
+                <Trash2 className={`h-5 w-5 ${isLoading ? 'text-gray-300' : 'text-gray-600 hover:text-red-600'}`} />
               </button>
-            )}
+            ) : null }
             {resposta && !isLoading && (
               <button onClick={() => handleSpeakResponse(resposta)} className="p-2 rounded-full bg-gray-200 hover:bg-blue-200" title="Ouvir resposta">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
               </button>
             )}
           </div>
-          
           {resposta && (
             <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
-                <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
+              <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
             </div>
           )}
-
-          {!isLoading && (
-             <div className="text-xs text-gray-400 mt-1 text-center flex items-center justify-center">
-                <span>Para ouvir a resposta, clique </span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-                {/* Agora o final da frase muda dependendo se já há uma resposta ou não */}
-                {resposta ? <span>nos botões acima.</span> : <span>que aparecerá após o envio.</span>}
-             </div>
-          )}
         </div>
+      ) : (
+         <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
       )}
     </div>
   );
