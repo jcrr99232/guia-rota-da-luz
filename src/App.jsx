@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2, Building, FileText, Printer, Footprints, Mic } from 'lucide-react';
 
-// --- FUNÇÕES AUXILIARES, DADOS DE CLIMA, HOSPEDAGENS ---
+// --- FUNÇÕES AUXILIARES, DADOS DE CLIMA, HOSPEDAGENS E ETAPAS ---
 const getWeekNumber = (date) => {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -113,7 +113,6 @@ const etapasData = [
 ];
 
 // --- COMPONENTES ---
-
 const Card = ({ icon: Icon, title, children, colorClass }) => (
   <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
     <div className={`p-4 ${colorClass} text-white flex items-center`}>
@@ -131,9 +130,7 @@ const GeminiCard = ({ title, icon: Icon, isLoading, content, onGenerate, buttonT
             <h3 className="text-lg font-bold text-indigo-800">{title}</h3>
         </div>
         <div className="p-6">
-            {!isOnline ? (
-                <div className="text-center text-gray-600"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
-            ) : (
+            {!isOnline ? ( <div className="text-center text-gray-600"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div> ) : (
                 <>
                     {isLoading && <div className="flex justify-center items-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}
                     {content && <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">{content}</div>}
@@ -158,7 +155,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const suggestedTopics = [ "Apresentação da Rota da Luz", "Como planejar a peregrinação", "Basílica de Nossa Senhora da Aparecida", "Informações contidas nesse App", ];
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
-  const [estaFalando, setEstaFalando] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !resposta) {
@@ -176,7 +172,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const handleClear = () => {
     setPergunta(''); setResposta(''); setNome(''); setContato('');
     window.speechSynthesis.cancel();
-    setEstaFalando(false);
   };
 
   const handleVoiceInput = () => {
@@ -214,19 +209,11 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       return;
     }
     window.speechSynthesis.cancel();
-    
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.lang = 'pt-BR';
     const voices = window.speechSynthesis.getVoices();
     const brVoice = voices.find(voice => voice.lang === 'pt-BR');
-    if (brVoice) {
-      utterance.voice = brVoice;
-    }
-
-    utterance.onstart = () => setEstaFalando(true);
-    utterance.onend = () => setEstaFalando(false);
-    utterance.onerror = () => setEstaFalando(false);
-    
+    if (brVoice) { utterance.voice = brVoice; }
     window.speechSynthesis.speak(utterance);
   };
   
@@ -235,7 +222,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     setIsLoading(true);
     setResposta('');
     window.speechSynthesis.cancel();
-    setEstaFalando(false);
     
     const sheetData = { pergunta: question, nome: nome, contato: contato };
     fetch('https://script.google.com/macros/s/AKfycbwMJI2o7Q0q9ymZvah_qm580IzZAUu4xa1zQlp8mbxCuqK3k6ColU8SHYrN1RRl11qgEA/exec', {
@@ -270,31 +256,11 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col">
-      <div className={`transition-all duration-500 ease-in-out ${estaFalando ? 'mb-4' : 'mb-2'}`}>
-        <div className="flex justify-center mb-2">
-            {estaFalando ? (
-              <video 
-                src="/peregrino-falando.mp4" 
-                autoPlay 
-                loop 
-                muted
-                playsInline
-                className={"transition-all duration-500 ease-in-out rounded-full object-cover w-32 h-32"}
-              />
-            ) : (
-              <img 
-                src="/peregrino-ia.jpg" 
-                alt="Avatar do Peregrino IA" 
-                className="transition-all duration-500 ease-in-out h-10 w-auto"
-              />
-            )}
-        </div>
-        <h3 className="text-lg font-bold text-gray-800 flex items-center justify-center">
-          <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
-          Pergunte ao Peregrino IA
-        </h3>
-      </div>
-      
+      <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center">
+        <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
+        Pergunte ao Peregrino IA
+        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-8 ml-2" />
+      </h3>
       {!isOnline ? (
         <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
       ) : (
@@ -364,6 +330,31 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     </div>
   );
 };
+
+const DistanciaCalculadaDisplay = ({ etapa, selecao }) => {
+  if (!selecao || !selecao.origem || !selecao.destino) {
+    return null;
+  }
+
+  const origem = hospedagensPorCidade[etapa.cidadeOrigem]?.find(h => h.nome === selecao.origem);
+  const destino = hospedagensPorCidade[etapa.cidadeDestino]?.find(h => h.nome === selecao.destino);
+
+  if (origem && destino) {
+    const distanciaNaRota = Math.abs(destino.km - origem.km);
+    const distanciaTotal = distanciaNaRota + origem.foraDaRota + destino.foraDaRota;
+    const distanciaFormatada = distanciaTotal.toFixed(1);
+
+    return (
+      <div className="mt-2 text-center bg-blue-50 p-2 rounded-lg h-full flex flex-col justify-center">
+        <p className="text-lg font-bold text-blue-600">{distanciaFormatada} km</p>
+        <p className="text-xs font-semibold text-gray-700">porta a porta</p>
+      </div>
+    );
+  }
+
+  return null;
+};
+
 
 const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
   const [dicas, setDicas] = useState('');
@@ -694,6 +685,12 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (selectedEtapa) {
+      window.scrollTo(0, 0);
+    }
+  }, [selectedEtapa]);
+
   const isPlanningComplete = allEtapas.every(etapa => 
     selecoesHospedagem[etapa.id]?.origem && selecoesHospedagem[etapa.id]?.destino
   );
@@ -712,6 +709,8 @@ export default function App() {
              onBack={() => setSelectedEtapa(null)} 
              isOnline={isOnline} 
              callGeminiAPI={callGeminiAPI}
+             selecoes={selecoesHospedagem[selectedEtapa.id] || {}}
+             onHospedagemChange={handleHospedagemChange}
            />;
   }
 
@@ -729,8 +728,9 @@ export default function App() {
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-start">
           <div className="flex justify-center items-center lg:col-span-1">
-            <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL">
-              <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-32 sm:h-40 lg:h-48" />
+            <a href="https://www.amigosdarotadaluz.org/" target="_blank" rel="noopener noreferrer" title="Visitar site da AARL" className="flex flex-col items-center gap-2 text-center">
+              <img src="/favicon-aarl.jpeg" alt="Logotipo AARL Ampliado" className="h-40 sm:h-40 lg:h-48" />
+              <span className="text-xs text-gray-500 font-semibold">Link para o site da AARL</span>
             </a>
           </div>
           <div className="lg:col-span-1 h-full">
@@ -742,6 +742,7 @@ export default function App() {
                   <li>Selecione a data de início da peregrinação.</li>
                   <li>Abaixo, selecione as pousadas para cada etapa.</li>
                   <li>Clique no botão verde "Gerar Roteiro Personalizado".</li>
+                  <li>Abaixo, explore todas as Etapas e conheça dicas e desafios de cada trecho".</li>
               </ol>
               <label htmlFor="start-date" className="block text-sm font-bold text-gray-800 mb-2">
                   1. Selecione a data de início:
@@ -757,11 +758,14 @@ export default function App() {
         </div>
         
         <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">2. Selecione suas Hospedagens</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+            <Footprints className="h-6 w-6 mr-3 text-blue-600"/>
+            2. Selecione suas Hospedagens
+          </h2>
           <div className="space-y-4">
             {allEtapas.map((etapa, index) => {
               const selecaoAtual = selecoesHospedagem[etapa.id] || {};
-              const origemAnterior = index > 0 ? selecoesHospedagem[allEtapas[index-1].id]?.destino : undefined;
+              const origemAnterior = index > 0 ? selecoesHospedagem[allEtapas[index - 1].id]?.destino : undefined;
               
               return (
                 <div key={etapa.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 border-t pt-4 first:border-t-0 first:pt-0 items-center">
@@ -811,11 +815,11 @@ export default function App() {
             title={isPlanningComplete ? "Gerar resumo do seu roteiro" : "Selecione a origem e o destino de todas as 7 etapas para habilitar"}
           >
             <FileText className="h-5 w-5 mr-3" />
-            {isPlanningComplete ? "Gerar Roteiro Personalizado" : "Planeje todas as Etapas para Gerar"}
+            {isPlanningComplete ? "Gerar Roteiro Personalizado" : "3 - Planeje todas as Etapas para Gerar"}
           </button>
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8 text-center">Clique em uma etapa para ver os detalhes completos</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8 text-center">4 - Clique em uma etapa para ver os detalhes completos</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allEtapas.map(etapa => {
             const weekNumber = getWeekNumber(etapa.date);
@@ -862,4 +866,3 @@ export default function App() {
     </div>
   );
 }
-
