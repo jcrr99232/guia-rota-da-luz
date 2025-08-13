@@ -155,6 +155,9 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const suggestedTopics = [ "Apresentação da Rota da Luz", "Como planejar a peregrinação", "Basílica de Nossa Senhora da Aparecida", "Informações contidas nesse App", ];
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
+  
+  // Novo estado para controlar a animação
+  const [estaFalando, setEstaFalando] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !resposta) {
@@ -172,6 +175,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const handleClear = () => {
     setPergunta(''); setResposta(''); setNome(''); setContato('');
     window.speechSynthesis.cancel();
+    setEstaFalando(false); // Garante que a animação pare ao limpar
   };
 
   const handleVoiceInput = () => {
@@ -209,11 +213,20 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       return;
     }
     window.speechSynthesis.cancel();
+    
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.lang = 'pt-BR';
     const voices = window.speechSynthesis.getVoices();
     const brVoice = voices.find(voice => voice.lang === 'pt-BR');
-    if (brVoice) { utterance.voice = brVoice; }
+    if (brVoice) {
+      utterance.voice = brVoice;
+    }
+
+    // Lógica da animação
+    utterance.onstart = () => setEstaFalando(true);
+    utterance.onend = () => setEstaFalando(false);
+    utterance.onerror = () => setEstaFalando(false); // Garante que a animação pare em caso de erro
+    
     window.speechSynthesis.speak(utterance);
   };
   
@@ -222,6 +235,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     setIsLoading(true);
     setResposta('');
     window.speechSynthesis.cancel();
+    setEstaFalando(false);
     
     const sheetData = { pergunta: question, nome: nome, contato: contato };
     fetch('https://script.google.com/macros/s/AKfycbwMJI2o7Q0q9ymZvah_qm580IzZAUu4xa1zQlp8mbxCuqK3k6ColU8SHYrN1RRl11qgEA/exec', {
@@ -256,14 +270,32 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col">
-      <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center">
-        <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
-        Pergunte ao Peregrino IA
-        <img src="/peregrino-ia.png" alt="Peregrino IA" className="h-8 ml-2" />
-      </h3>
-      {!isOnline ? (
-        <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
-      ) : (
+      <div className={`transition-all duration-500 ease-in-out ${estaFalando ? 'mb-4' : 'mb-2'}`}>
+        <div className="flex justify-center mb-2">
+            {estaFalando ? (
+              <video 
+                src="/peregrino-falando.mp4" 
+                autoPlay 
+                loop 
+                muted
+                playsInline
+                className={"transition-all duration-500 ease-in-out rounded-full object-cover w-32 h-32"}
+              />
+            ) : (
+              <img 
+                src="/peregrino-ia.jpg" 
+                alt="Avatar do Peregrino IA" 
+                className="transition-all duration-500 ease-in-out h-10 w-auto"
+              />
+            )}
+        </div>
+        <h3 className="text-lg font-bold text-gray-800 flex items-center justify-center">
+          <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
+          Pergunte ao Peregrino IA
+        </h3>
+      </div>
+      
+      {isOnline ? (
         <div className="space-y-4 flex-grow flex flex-col">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <input 
@@ -326,7 +358,9 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             </div>
           )}
         </div>
-      ) }
+      ) : (
+         <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
+      )}
     </div>
   );
 };
