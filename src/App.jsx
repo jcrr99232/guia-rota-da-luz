@@ -44,7 +44,7 @@ const generateWeatherData = () => {
 };
 const weeklyCityHistoricalWeather = generateWeatherData();
 const hospedagensPorCidade = {
-  "Mogi das Cruzes": [ { nome: "IBIS HOTEL)", km: 0.0, foraDaRota: 0.4, fone: "(11)2813-3800", contato: "WHATSAPP" }, { nome: "POUSADA WG CARVALHO", km: 0.0, foraDaRota: 0.7, fone: "(11)4791-3216", contato: "WILSON" }, { nome: "POUSADA TOKIO PLAZA", km: 0.0, foraDaRota: 1.2, fone: "(11)94203-1000", contato: "RECEPÇÃO" }, { nome: "HOTEL MALBOR", km: 0.0, foraDaRota: 2.2, fone: "(11)4735-7300", contato: "RECEPÇÃO" } ],
+  "Mogi das Cruzes": [ { nome: "IBIS HOTEL", km: 0.0, foraDaRota: 0.4, fone: "(11)2813-3800", contato: "WHATSAPP" }, { nome: "POUSADA WG CARVALHO", km: 0.0, foraDaRota: 0.7, fone: "(11)4791-3216", contato: "WILSON" }, { nome: "POUSADA TOKIO PLAZA", km: 0.0, foraDaRota: 1.2, fone: "(11)94203-1000", contato: "RECEPÇÃO" }, { nome: "HOTEL MALBOR", km: 0.0, foraDaRota: 2.2, fone: "(11)4735-7300", contato: "RECEPÇÃO" } ],
   "Guararema": [ { nome: "RECANTO DAS ACACIAS", km: 25.0, foraDaRota: 0.0, fone: "(11)99972-5212", contato: "TANIAH" }, { nome: "RECANTO CHEIO DE CHEIRO", km: 25.0, foraDaRota: 0.0, fone: "(11)99959-4186", contato: "REGIANE" }, { nome: "CASA MARIA FUMAÇA", km: 26.0, foraDaRota: 0.2, fone: "(11)991695-2087", contato: "EMILIA" }, { nome: "HOSPEDARIA SÃO BENEDITO", km: 26.6, foraDaRota: 0.4, fone: "(11)97217-9138", contato: "PADRE BIRA" }, { nome: "POUSADA CALIL", km: 26.6, foraDaRota: 0.9, fone: "(11)95311-0920", contato: "ELAINE" }, { nome: "POUSADA SAPUCAIA", km: 26.6, foraDaRota: 2.1, fone: "(11)97221-6812", contato: "DANIEL" }, { nome: "CASA DO VALE", km: 27.6, foraDaRota: 0.7, fone: "(11)97451-0454", contato: "SHEILA" }, { nome: "CENTRO DE APOIO D'AJUDA", km: 27.9, foraDaRota: 0.0, fone: "(11)97392-4192", contato: "MARIA NEVES" } ],
   "Santa Branca": [ { nome: "ESPAÇO MANGANAGUA", km: 36.5, foraDaRota: 0.0, fone: "(11)97302-0535", contato: "JOSE" }, { nome: "CHÁCARA MIRANTE DO RIO", km: 45.5, foraDaRota: 0.0, fone: "(12)99622-4810", contato: "FÁTIMA" }, { nome: "POUSADA PEDALAMOS CICLOTURISMO", km: 46.0, foraDaRota: 0.08, fone: "(12)98162-6122", contato: "PEDRO CAMPOS" }, { nome: "POUSADA CORAÇÃO PEREGRINO", km: 46.3, foraDaRota: 0.015, fone: "(12)99792-7116", contato: "ANA CAROLINA" }, { nome: "POUSADA REMANSO ROTA DA LUZ", km: 46.3, foraDaRota: 0.02, fone: "(12)99761-9794", contato: "MARIA JOSE" }, { nome: "HOSPEDAGEM JASMO", km: 46.4, foraDaRota: 0.35, fone: "(12)99764-8346", contato: "JASMO" }, { nome: "HOSTEL GARDEN ALBUQUERQUE", km: 46.6, foraDaRota: 2.0, fone: "(12)99147-6194", contato: "RECEPÇÃO" }, { nome: "CHACARA CAMBUCI HOSPEDADGEM", km: 46.6, foraDaRota: 2.0, fone: "(12)98122-1519", contato: "GU BRAGA" }, { nome: "SITIO REMANSO DO VALE", km: 46.6, foraDaRota: 4.0, fone: "(12)99761-9794", contato: "MARIA JOSE" }, { nome: "POUSADA SANTA JULIA", km: 53.0, foraDaRota: 0.0, fone: "(12)98221-9558", contato: "MARCOS" }, { nome: "POUSADA SITIO DO VALDIR", km: 55.1, foraDaRota: 0.0, fone: "(12)99612-4564", contato: "VALDIR" } ],
   "Paraibuna": [ { nome: "POUSADA SITIO RECANTO DAS FLORES", km: 82.7, foraDaRota: 3.7, fone: "(12)99105-4807", contato: "VERA" }, { nome: "POUSADA VILA DE LUCA", km: 83.1, foraDaRota: 0.0, fone: "(12)99657-9363", contato: "RECEPÇÃO" }, { nome: "POUSADA NATHALIA CANELLA", km: 83.1, foraDaRota: 7.0, fone: "(12)99605-6263", contato: "NATHALIA" }, { nome: "POUSADA TRES RIOS", km: 83.1, foraDaRota: 0.45, fone: "(11)99425-5286", contato: "ANA MARIA" }, { nome: "POUSADA RECANTO BOA VENTURA", km: 91.7, foraDaRota: 0.0, fone: "(12)98814-9940", contato: "PAULO/Neuza" }, { nome: "POUSADA CAXAMBU", km: 92.0, foraDaRota: 0.0, fone: "(12)98836-9937", contato: "CLEBER" }, { nome: "RANCHO NOSSA SENHORA APARECIDA", km: 93.0, foraDaRota: 0.0, fone: "(12)99735-7114", contato: "NEIDE" }, { nome: "RENAISSANCE CHALÉS", km: 96.3, foraDaRota: 0.0, fone: "(11)93008-0331", contato: "ELIZETE" } ],
@@ -303,7 +303,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
                 loop 
                 muted
                 playsInline
-                className={"transition-all duration-500 ease-in-out rounded-full object-contain bg-gray-200 w-38 h-42"}
+                className={"transition-all duration-500 ease-in-out rounded-full object-contain bg-gray-200 w-38 h-40"}
               />
             ) : (
               <img 
@@ -324,11 +324,11 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
         <div className="space-y-4 flex-grow flex flex-col">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <input 
-              type="text" placeholder="Seu nome (opcional)" value={nome} onChange={(e) => setNome(e.target.value)}
+              type="text" placeholder="Seu nome" value={nome} onChange={(e) => setNome(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg text-sm placeholder:text-gray-500 placeholder:text-xs" disabled={isLoading}
             />
             <input 
-              type="text" placeholder="Seu e-mail ou WhatsApp (opcional)" value={contato} onChange={(e) => setContato(e.target.value)}
+              type="text" placeholder="Seu e-mail ou WhatsApp" value={contato} onChange={(e) => setContato(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg text-sm placeholder:text-gray-500 placeholder:text-xs" disabled={isLoading}
             />
           </div>
