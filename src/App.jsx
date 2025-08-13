@@ -156,8 +156,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const suggestedTopics = [ "Apresentação da Rota da Luz", "Como planejar a peregrinação", "Basílica de Nossa Senhora da Aparecida", "Informações contidas nesse App", ];
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
-  
-  // Novo estado para controlar a animação
   const [estaFalando, setEstaFalando] = useState(false);
 
   useEffect(() => {
@@ -176,7 +174,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const handleClear = () => {
     setPergunta(''); setResposta(''); setNome(''); setContato('');
     window.speechSynthesis.cancel();
-    setEstaFalando(false); // Garante que a animação pare ao limpar
+    setEstaFalando(false);
   };
 
   const handleVoiceInput = () => {
@@ -223,10 +221,9 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       utterance.voice = brVoice;
     }
 
-    // Lógica da animação
     utterance.onstart = () => setEstaFalando(true);
     utterance.onend = () => setEstaFalando(false);
-    utterance.onerror = () => setEstaFalando(false); // Garante que a animação pare em caso de erro
+    utterance.onerror = () => setEstaFalando(false);
     
     window.speechSynthesis.speak(utterance);
   };
@@ -248,10 +245,10 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       .catch(error => console.error("Erro de rede ao contatar Google Script:", error));
 
     const prompt = `
-      Você é o 'Peregrino IA', um especialista amigável sobre a Rota da Luz em São Paulo.
-      CONTEXTO: A Rota da Luz é uma rota de peregrinação de Mogi das Cruzes a Aparecida, com 201 km, passando por 9 municípios do interior como alternativa segura à Rodovia Dutra. Não passa pela cidade de São Paulo.
+      Você é o 'Peregrino IA', um especialista amigável sobre a Rota da Luz em São Paulo...
+      CONTEXTO: ...
       PERGUNTA: "${question}"
-      Responda de forma útil. Ao final, inclua o aviso em negrito: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes.**'
+      ...
     `;
     try {
       const responseText = await callGeminiAPI(prompt);
@@ -271,24 +268,26 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col">
-      <div className={`transition-all duration-500 ease-in-out text-center ${estaFalando ? 'mb-4' : 'mb-2'}`}>
-        <div className="inline-block relative">
-          {estaFalando ? (
-            <video 
-              src="/peregrino-falando.mp4" 
-              autoPlay 
-              loop 
-              muted
-              playsInline
-              className={"transition-all duration-500 ease-in-out rounded-full object-cover w-32 h-32"}
-            />
-          ) : (
-            <img 
-              src="/peregrino-ia.jpg" 
-              alt="Avatar do Peregrino IA" 
-              className="transition-all duration-500 ease-in-out h-20 w-auto"
-            />
-          )}
+      <div className="text-center mb-2">
+        <div className="w-full h-32 flex justify-center items-center">
+            {estaFalando ? (
+              <video 
+                key="video"
+                src="/peregrino-falando.mp4" 
+                autoPlay 
+                loop 
+                muted
+                playsInline
+                className="transition-all duration-500 ease-in-out rounded-full object-cover w-32 h-32"
+              />
+            ) : (
+              <img 
+                key="image"
+                src="/peregrino-ia.jpg" 
+                alt="Avatar do Peregrino IA" 
+                className="transition-all duration-500 ease-in-out h-20 w-auto"
+              />
+            )}
         </div>
         <h3 className="text-lg font-bold text-gray-800 flex items-center justify-center mt-2">
           <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
