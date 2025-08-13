@@ -91,7 +91,7 @@ const etapasData = [
     pontosDeApoio: [ { nome: "Restaurante Paraiso", km: "111,7", tipo: "Restaurante" }, { nome: "Bar do Pescador", km: "113", tipo: "Bar" }, { nome: "Armazem Na. Sra. Aparecida", km: "125,7", tipo: "Armazém" }, { nome: "Cafeteria Maetá", km: "140,5", tipo: "Cafeteria" }, ],
     altimetria: "O percurso começa a descer a serra em direção ao Vale do Paraíba. Predominam as descidas, algumas longas e contínuas, em estradas de terra. O cenário muda, tornando-se mais rural e agrícola à medida que se aproxima de Taubaté.",
     dificuldades: [ "Descidas longas podem sobrecarregar os joelhos e a parte da frente dos pés.", "A transição para a área mais urbanizada de Taubaté pode ter tráfego de veículos.", "O calor tende a ser mais intenso no vale." ],
-    recomendacoes: [ "Use os bastões de caminhada para aliviar o impacto nas descidas.", "Faça alongamentos focados nos músculos da panturrilha e coxa.", "Atenção redobrada ao entrar em vias mais movimentadas perto do destino." ],
+    recomendacoes: [ "Use bastões de caminhada para aliviar o impacto nas descidas.", "Faça alongamentos focados nos músculos da panturrilha e coxa.", "Atenção redobrada ao entrar em vias mais movimentadas perto do destino." ],
     oQueLevar: "A hidratação continua sendo chave. Como a etapa tem mais descidas, o desgaste é diferente. Leve alimentos leves e de fácil digestão. Aproveite os pontos de apoio no caminho, que começam a ficar mais frequentes."
   },
   { id: 6, titulo: "Etapa 6: Taubaté a Pindamonhangaba", cidadeOrigem:"Taubaté", cidadeDestino: "Pindamonhangaba", distancia: "26,3 km", pontoReferenciaInicio: ["Igreja Nossa Senhora da Imaculada Conceição"], pontoReferenciaTermino: ["Parque da Cidade"], cidadesDaEtapa: [ { nome: "Taubaté", url: "https://www.taubate.sp.gov.br/" }, { nome: "Pindamonhangaba", url: "https://www.pindamonhangaba.sp.gov.br/" } ], mapaUrl: "...", altimetriaImgUrl: "/altimetria-etapa-6.jpg", tempoEstimado: "6h 10min", paradaRefeicao: "90min",
@@ -155,8 +155,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const suggestedTopics = [ "Apresentação da Rota da Luz", "Como planejar a peregrinação", "Basílica de Nossa Senhora da Aparecida", "Informações contidas nesse App", ];
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
-  
-  // Novo estado para controlar a animação
   const [estaFalando, setEstaFalando] = useState(false);
 
   useEffect(() => {
@@ -175,7 +173,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const handleClear = () => {
     setPergunta(''); setResposta(''); setNome(''); setContato('');
     window.speechSynthesis.cancel();
-    setEstaFalando(false); // Garante que a animação pare ao limpar
+    setEstaFalando(false);
   };
 
   const handleVoiceInput = () => {
@@ -222,10 +220,9 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       utterance.voice = brVoice;
     }
 
-    // Lógica da animação
     utterance.onstart = () => setEstaFalando(true);
     utterance.onend = () => setEstaFalando(false);
-    utterance.onerror = () => setEstaFalando(false); // Garante que a animação pare em caso de erro
+    utterance.onerror = () => setEstaFalando(false);
     
     window.speechSynthesis.speak(utterance);
   };
@@ -534,7 +531,7 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
 };
 
 // --- NOVO COMPONENTE: ResumoRoteiro ---
-const ResumoRoteiro = ({ allEtapas, selecoesHospedagem, onBack }) => {
+const ResumoRoteiro = ({ allEtapas, selecoesHospedagem, onBack, hospedagensPorCidade, weeklyCityHistoricalWeather }) => {
   return (
     <div className="p-4 sm:p-6 lg:p-8 animate-fade-in">
       <div className="flex justify-between items-center mb-6 print:hidden">
@@ -735,6 +732,8 @@ export default function App() {
              allEtapas={allEtapas}
              selecoesHospedagem={selecoesHospedagem}
              onBack={() => setModoResumo(false)}
+             hospedagensPorCidade={hospedagensPorCidade} // Correção: Passando a prop
+             weeklyCityHistoricalWeather={weeklyCityHistoricalWeather} // Correção: Passando a prop
            />;
   }
 
@@ -744,6 +743,8 @@ export default function App() {
              onBack={() => setSelectedEtapa(null)} 
              isOnline={isOnline} 
              callGeminiAPI={callGeminiAPI}
+             selecoes={selecoesHospedagem[selectedEtapa.id] || {}}
+             onHospedagemChange={handleHospedagemChange}
            />;
   }
 
