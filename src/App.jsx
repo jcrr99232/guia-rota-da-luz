@@ -294,7 +294,7 @@ Ao final da sua resposta, inclua sempre, em uma nova linha, o aviso: 'Lembre-se:
                 loop 
                 muted
                 playsInline
-                className={"transition-all duration-500 ease-in-out rounded-full object-contain bg-gray-200 w-36 h-38"}
+                className={"transition-all duration-500 ease-in-out rounded-full object-contain bg-gray-200 w-36 h-40"}
               />
             ) : (
               <img 
