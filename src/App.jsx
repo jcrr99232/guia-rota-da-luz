@@ -267,26 +267,26 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col">
-      <div className={`transition-all duration-500 ease-in-out ${estaFalando ? 'mb-4' : 'mb-2'}`}>
-        <div className="flex justify-center mb-2 min-h-[80px]"> {/* Aumentei a altura mínima para acomodar o avatar maior */}
-            {estaFalando ? (
-              <video 
-                src="/casal-pelegrino-v1.mp4"
-                autoPlay 
-                loop 
-                muted
-                playsInline
-                className={"transition-all duration-500 ease-in-out rounded-full object-cover w-32 h-32"}
-              />
-            ) : (
-              <img 
-                src="/peregrino-ia.jpg" 
-                alt="Avatar do Peregrino IA" 
-                className="transition-all duration-500 ease-in-out h-20 w-auto"
-              />
-            )}
+      <div className={`transition-all duration-500 ease-in-out text-center ${estaFalando ? 'mb-4' : 'mb-2'}`}>
+        <div className="inline-block relative">
+          {estaFalando ? (
+            <video 
+              src="/peregrino-falando.mp4" 
+              autoPlay 
+              loop 
+              muted
+              playsInline
+              className={"transition-all duration-500 ease-in-out rounded-full object-cover w-32 h-32"}
+            />
+          ) : (
+            <img 
+              src="/peregrino-ia.jpg" 
+              alt="Avatar do Peregrino IA" 
+              className="transition-all duration-500 ease-in-out h-20 w-auto"
+            />
+          )}
         </div>
-        <h3 className="text-lg font-bold text-gray-800 flex items-center justify-center">
+        <h3 className="text-lg font-bold text-gray-800 flex items-center justify-center mt-2">
           <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
           Pergunte ao Peregrino IA
         </h3>
@@ -354,7 +354,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
               <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
             </div>
           )}
-          {!isLoading && (
+           {!isLoading && (
              <div className="text-xs text-gray-400 mt-1 text-center flex items-center justify-center">
                <span>Para ouvir a resposta, clique </span>
                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
