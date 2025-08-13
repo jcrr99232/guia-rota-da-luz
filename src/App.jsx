@@ -155,8 +155,6 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const suggestedTopics = [ "Apresentação da Rota da Luz", "Como planejar a peregrinação", "Basílica de Nossa Senhora da Aparecida", "Informações contidas nesse App", ];
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
-  
-  // Novo estado para controlar a animação
   const [estaFalando, setEstaFalando] = useState(false);
 
   useEffect(() => {
@@ -175,7 +173,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const handleClear = () => {
     setPergunta(''); setResposta(''); setNome(''); setContato('');
     window.speechSynthesis.cancel();
-    setEstaFalando(false); // Garante que a animação pare ao limpar
+    setEstaFalando(false);
   };
 
   const handleVoiceInput = () => {
@@ -222,10 +220,9 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       utterance.voice = brVoice;
     }
 
-    // Lógica da animação
     utterance.onstart = () => setEstaFalando(true);
     utterance.onend = () => setEstaFalando(false);
-    utterance.onerror = () => setEstaFalando(false); // Garante que a animação pare em caso de erro
+    utterance.onerror = () => setEstaFalando(false);
     
     window.speechSynthesis.speak(utterance);
   };
@@ -295,7 +292,9 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
         </h3>
       </div>
       
-      {isOnline ? (
+      {!isOnline ? (
+        <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
+      ) : (
         <div className="space-y-4 flex-grow flex flex-col">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <input 
@@ -358,9 +357,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             </div>
           )}
         </div>
-      ) : (
-         <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
-      )}
+      ) }
     </div>
   );
 };
@@ -743,8 +740,6 @@ export default function App() {
              onBack={() => setSelectedEtapa(null)} 
              isOnline={isOnline} 
              callGeminiAPI={callGeminiAPI}
-             selecoes={selecoesHospedagem[selectedEtapa.id] || {}}
-             onHospedagemChange={handleHospedagemChange}
            />;
   }
 
