@@ -213,6 +213,9 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     }
     window.speechSynthesis.cancel();
     
+    // Inicia a animação imediatamente ao clicar
+    setEstaFalando(true);
+
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.lang = 'pt-BR';
     const voices = window.speechSynthesis.getVoices();
@@ -221,7 +224,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       utterance.voice = brVoice;
     }
 
-    utterance.onstart = () => setEstaFalando(true);
+    // O onstart não é mais necessário aqui
     utterance.onend = () => setEstaFalando(false);
     utterance.onerror = () => setEstaFalando(false);
     
