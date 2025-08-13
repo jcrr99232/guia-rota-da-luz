@@ -336,7 +336,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             <textarea
               value={pergunta}
               onChange={(e) => setPergunta(e.target.value)}
-              placeholder="Digite sua pergunta aqui ou clique no Microfone ->   Para ouvir a resposta clique no altofalante"
+              placeholder="Digite sua pergunta aqui ou clique no Microfone    Para ouvir a resposta clique no altofalante"
               className="w-full p-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm placeholder:text-gray-500 placeholder:text-xs"
               rows="2"
               disabled={isLoading || isListening}
@@ -377,11 +377,11 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
               </button>
             )}
           </div>
-          {!isLoading && (
-             <div className="text-xs text-gray-400 mt-1 text-center flex items-center justify-center">
-               <span className="font-bold">Para ouvir a resposta, clique </span>
+          {resposta && !isLoading && (
+             <div className="text-xs text-gray-400 mt-2 text-center flex items-center justify-center">
+               <span className="font-bold">Para ouvir a resposta, clique no ícone </span>
                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-               {resposta ? <span className="font-bold">nos botões acima.</span> : <span className="font-bold">que aparecerá após o envio.</span>}
+               <span className="font-bold"> nos botões acima.</span>
              </div>
           )}
           {resposta && (
