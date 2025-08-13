@@ -364,27 +364,28 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
 };
 
 const DistanciaCalculadaDisplay = ({ etapa, selecao }) => {
+  // A lógica do 'if' agora acontece ANTES do return, que é o correto
   if (!selecao || !selecao.origem || !selecao.destino) {
-    return null;
+    return null; // Não mostra nada se a seleção não estiver completa
   }
 
   const origem = hospedagensPorCidade[etapa.cidadeOrigem]?.find(h => h.nome === selecao.origem);
   const destino = hospedagensPorCidade[etapa.cidadeDestino]?.find(h => h.nome === selecao.destino);
 
-  if (origem && destino) {
-    const distanciaNaRota = Math.abs(destino.km - origem.km);
-    const distanciaTotal = distanciaNaRota + origem.foraDaRota + destino.foraDaRota;
-    const distanciaFormatada = distanciaTotal.toFixed(1);
-
-    return (
-      <div className="mt-2 text-center bg-blue-50 p-2 rounded-lg h-full flex flex-col justify-center">
-        <p className="text-lg font-bold text-blue-600">{distanciaFormatada} km</p>
-        <p className="text-xs font-semibold text-gray-700">porta a porta</p>
-      </div>
-    );
+  if (!origem || !destino) {
+    return null; // Não mostra nada se não encontrar as hospedagens
   }
 
-  return null;
+  const distanciaNaRota = Math.abs(destino.km - origem.km);
+  const distanciaTotal = distanciaNaRota + origem.foraDaRota + destino.foraDaRota;
+  const distanciaFormatada = distanciaTotal.toFixed(1);
+
+  return (
+    <div className="mt-2 text-center bg-blue-50 p-2 rounded-lg h-full flex flex-col justify-center">
+      <p className="text-lg font-bold text-blue-600">{distanciaFormatada} km</p>
+      <p className="text-xs font-semibold text-gray-700">porta a porta</p>
+    </div>
+  );
 };
 
 
