@@ -145,7 +145,7 @@ const GeminiCard = ({ title, icon: Icon, isLoading, content, onGenerate, buttonT
     </div>
 );
 
-// --- VERSÃO DE TESTE DO PeregrinoIA ---
+
 const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [pergunta, setPergunta] = useState('');
   const [resposta, setResposta] = useState('');
@@ -156,8 +156,9 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const suggestedTopics = [ "Apresentação da Rota da Luz", "Como planejar a peregrinação", "Basílica de Nossa Senhora da Aparecida", "Informações contidas nesse App", ];
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
-
-  // NOTA: A variável 'estaFalando' foi removida temporariamente para o teste.
+  
+  // Novo estado para controlar a animação
+  const [estaFalando, setEstaFalando] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !resposta) {
@@ -175,18 +176,92 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const handleClear = () => {
     setPergunta(''); setResposta(''); setNome(''); setContato('');
     window.speechSynthesis.cancel();
+    setEstaFalando(false); // Garante que a animação pare ao limpar
   };
 
   const handleVoiceInput = () => {
-    // ...código de voz...
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Desculpe, seu navegador não suporta a entrada por voz.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    setIsListening(true);
+    setPergunta('Ouvindo...');
+    recognition.onresult = (event) => {
+      const speechToText = event.results[0][0].transcript;
+      setPergunta(speechToText);
+      setIsListening(false);
+      recognition.stop();
+    };
+    recognition.onspeechend = () => {
+      if(isListening) { setIsListening(false); recognition.stop(); }
+    };
+    recognition.onerror = (event) => {
+      console.error("Erro no reconhecimento de voz:", event.error);
+      if (event.error !== 'no-speech') { setPergunta(''); }
+      setIsListening(false);
+    };
+    recognition.start();
   };
 
   const handleSpeakResponse = (textToSpeak) => {
-    // ...código de fala...
+    if (!('speechSynthesis' in window)) {
+      alert("Desculpe, seu navegador não suporta a resposta por voz.");
+      return;
+    }
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.lang = 'pt-BR';
+    const voices = window.speechSynthesis.getVoices();
+    const brVoice = voices.find(voice => voice.lang === 'pt-BR');
+    if (brVoice) {
+      utterance.voice = brVoice;
+    }
+
+    // Lógica da animação
+    utterance.onstart = () => setEstaFalando(true);
+    utterance.onend = () => setEstaFalando(false);
+    utterance.onerror = () => setEstaFalando(false); // Garante que a animação pare em caso de erro
+    
+    window.speechSynthesis.speak(utterance);
   };
   
   const handlePerguntar = async (question) => {
-    // ...código da IA e Planilha...
+    if (!question.trim()) return;
+    setIsLoading(true);
+    setResposta('');
+    window.speechSynthesis.cancel();
+    setEstaFalando(false);
+    
+    const sheetData = { pergunta: question, nome: nome, contato: contato };
+    fetch('https://script.google.com/macros/s/AKfycbwMJI2o7Q0q9ymZvah_qm580IzZAUu4xa1zQlp8mbxCuqK3k6ColU8SHYrN1RRl11qgEA/exec', {
+        method: 'POST',
+        body: JSON.stringify(sheetData),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+    }).then(response => response.json())
+      .then(data => console.log(data.result === 'success' ? "Pergunta registrada." : "Falha ao registrar pergunta."))
+      .catch(error => console.error("Erro de rede ao contatar Google Script:", error));
+
+    const prompt = `
+      Você é o 'Peregrino IA', um especialista amigável sobre a Rota da Luz em São Paulo.
+      CONTEXTO: A Rota da Luz é uma rota de peregrinação de Mogi das Cruzes a Aparecida, com 201 km, passando por 9 municípios do interior como alternativa segura à Rodovia Dutra. Não passa pela cidade de São Paulo.
+      PERGUNTA: "${question}"
+      Responda de forma útil. Ao final, inclua o aviso em negrito: '**Lembre-se: Sou uma IA. Sempre confirme informações importantes.**'
+    `;
+    try {
+      const responseText = await callGeminiAPI(prompt);
+      setResposta(responseText);
+    } catch (error) {
+      setResposta("Desculpe, não foi possível obter uma resposta no momento.");
+      console.error("Error fetching Peregrino IA response:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleTopicClick = (topic) => {
@@ -196,23 +271,100 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col">
-      {/* --- CABEÇALHO SIMPLIFICADO APENAS COM A IMAGEM ESTÁTICA --- */}
-      <div className="text-center mb-2">
-        <img 
-          src="/peregrino-ia.jpg" 
-          alt="Avatar do Peregrino IA" 
-          className="h-20 w-auto mx-auto"
-        />
+      <div className={`transition-all duration-500 ease-in-out text-center ${estaFalando ? 'mb-4' : 'mb-2'}`}>
+        <div className="inline-block relative">
+          {estaFalando ? (
+            <video 
+              src="/peregrino-falando.mp4" 
+              autoPlay 
+              loop 
+              muted
+              playsInline
+              className={"transition-all duration-500 ease-in-out rounded-full object-cover w-32 h-32"}
+            />
+          ) : (
+            <img 
+              src="/peregrino-ia.jpg" 
+              alt="Avatar do Peregrino IA" 
+              className="transition-all duration-500 ease-in-out h-20 w-auto"
+            />
+          )}
+        </div>
         <h3 className="text-lg font-bold text-gray-800 flex items-center justify-center mt-2">
           <MessageSquare className="inline-block h-6 w-6 mr-2 text-purple-600" />
           Pergunte ao Peregrino IA
         </h3>
       </div>
       
-      {/* O resto do componente continua igual */}
       {isOnline ? (
         <div className="space-y-4 flex-grow flex flex-col">
-          {/* ... todo o resto do seu JSX (inputs, textarea, botões, etc.) ... */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input 
+              type="text" placeholder="Seu nome (opcional)" value={nome} onChange={(e) => setNome(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg text-sm placeholder:text-gray-500 placeholder:text-xs" disabled={isLoading}
+            />
+            <input 
+              type="text" placeholder="Seu e-mail ou WhatsApp (opcional)" value={contato} onChange={(e) => setContato(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg text-sm placeholder:text-gray-500 placeholder:text-xs" disabled={isLoading}
+            />
+          </div>
+          <div className="relative">
+            <textarea
+              value={pergunta}
+              onChange={(e) => setPergunta(e.target.value)}
+              placeholder="Digite sua pergunta aqui ou clique no Microfone..."
+              className="w-full p-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm placeholder:text-gray-500 placeholder:text-xs"
+              rows="3"
+              disabled={isLoading || isListening}
+            />
+             <button 
+              onClick={handleVoiceInput} 
+              disabled={isLoading}
+              className={`absolute right-2 top-2 p-1 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'text-gray-400 hover:text-purple-600 hover:bg-gray-100'}`}
+              title="Perguntar por voz"
+            >
+              <Mic className="h-5 w-5" />
+            </button>
+          </div>
+          {!resposta && !isLoading && (
+            <div className="text-center text-sm text-gray-500">
+              <span>Sugestão: clique para ouvir sobre os temas </span>
+              <button 
+                onClick={() => handleTopicClick(suggestedTopics[currentTopicIndex])}
+                className={`font-semibold text-purple-600 hover:text-purple-800 ml-1 p-1 rounded transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}
+                title="Clique para perguntar sobre este tema"
+              >
+                "{suggestedTopics[currentTopicIndex]}"
+              </button>
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <button onClick={() => handlePerguntar(pergunta)} disabled={isLoading || !pergunta.trim() || isListening || pergunta === 'Ouvindo...'} className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400 transition-all">
+              {isLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="h-5 w-5 mr-2" /> Enviar</>}
+            </button>
+            {(pergunta && pergunta !== 'Ouvindo...') || resposta ? (
+              <button onClick={handleClear} disabled={isLoading} className="p-2 rounded-full bg-gray-200 hover:bg-red-200 disabled:bg-gray-100" title="Apagar pergunta e resposta">
+                <Trash2 className={`h-5 w-5 ${isLoading ? 'text-gray-300' : 'text-gray-600 hover:text-red-600'}`} />
+              </button>
+            ) : null }
+            {resposta && !isLoading && (
+              <button onClick={() => handleSpeakResponse(resposta)} className="p-2 rounded-full bg-gray-200 hover:bg-blue-200" title="Ouvir resposta">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              </button>
+            )}
+          </div>
+          {resposta && (
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-sm max-h-48 overflow-y-auto">
+              <p className="text-gray-800 whitespace-pre-wrap">{resposta}</p>
+            </div>
+          )}
+           {!isLoading && (
+             <div className="text-xs text-gray-400 mt-1 text-center flex items-center justify-center">
+               <span>Para ouvir a resposta, clique </span>
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+               {resposta ? <span>nos botões acima.</span> : <span>que aparecerá após o envio.</span>}
+             </div>
+          )}
         </div>
       ) : (
          <div className="text-center text-gray-600 pt-4"><WifiOff className="mx-auto h-8 w-8 mb-2" /><p>Funcionalidade indisponível offline.</p></div>
