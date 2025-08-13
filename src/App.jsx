@@ -294,7 +294,7 @@ Ao final da sua resposta, inclua sempre, em uma nova linha, o aviso: 'Lembre-se:
                 loop 
                 muted
                 playsInline
-                className={"transition-all duration-500 ease-in-out rounded-full object-contain bg-gray-200 w-36 h-37"}
+                className={"transition-all duration-500 ease-in-out rounded-full object-contain bg-gray-200 w-36 h-38"}
               />
             ) : (
               <img 
@@ -370,9 +370,9 @@ Ao final da sua resposta, inclua sempre, em uma nova linha, o aviso: 'Lembre-se:
           </div>
           {!isLoading && (
              <div className="text-xs text-gray-400 mt-1 text-center flex items-center justify-center">
-               <span>Para ouvir a resposta, clique </span>
+               <span className="font-bold">Para ouvir a resposta, clique </span>
                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-               {resposta ? <span>nos botões acima.</span> : <span>que aparecerá após o envio.</span>}
+               {resposta ? <span className="font-bold">nos botões acima.</span> : <span className="font-bold">que aparecerá após o envio.</span>}
              </div>
           )}
           {resposta && (
