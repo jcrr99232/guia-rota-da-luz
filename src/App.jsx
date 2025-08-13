@@ -356,7 +356,7 @@ const DistanciaCalculadaDisplay = ({ etapa, selecao }) => {
 };
 
 
-const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
+const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, selecoes, onHospedagemChange }) => {
   const [dicas, setDicas] = useState('');
   const [curiosidades, setCuriosidades] = useState('');
   const [isLoadingDicas, setIsLoadingDicas] = useState(false);
@@ -709,8 +709,6 @@ export default function App() {
              onBack={() => setSelectedEtapa(null)} 
              isOnline={isOnline} 
              callGeminiAPI={callGeminiAPI}
-             selecoes={selecoesHospedagem[selectedEtapa.id] || {}}
-             onHospedagemChange={handleHospedagemChange}
            />;
   }
 
