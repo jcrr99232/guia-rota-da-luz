@@ -234,41 +234,50 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     setResposta('');
     window.speechSynthesis.cancel();
     setEstaFalando(false);
-    
-    const sheetData = { pergunta: question, nome: nome, contato: contato };
-    fetch('https://script.google.com/macros/s/AKfycbwMJI2o7Q0q9ymZvah_qm580IzZAUu4xa1zQlp8mbxCuqK3k6ColU8SHYrN1RRl11qgEA/exec', {
-        method: 'POST',
-        body: JSON.stringify(sheetData),
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-    }).then(response => response.json())
-      .then(data => console.log(data.result === 'success' ? "Pergunta registrada." : "Falha ao registrar pergunta."))
-      .catch(error => console.error("Erro de rede ao contatar Google Script:", error));
-
+        
     const prompt = `
-Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz no Estado de São Paulo.
-Use o seguinte CONTEXTO para basear suas respostas:
-- Apresentação da Rota da Luz: Olá peregrino me chamo Antonio e sou voluntário da Associação dos Amigos da Rota da Luz, neste site você vai conhecer esse caminho que além das belezas naturais, tem Anjos que vão te acolher e cuidar de você, se você quer apenas conhecer a Rota da Luz por curiosidade, Bem vindo, mas se você quer conhecer pensando em ser um peregrino, vou te ajudar a planejar a sua peregrinação com muitas dicas e informações. Deixa eu te contar um pouco da história desse caminho: A Rota da Luz tem 201 Km, o tempo ideal pra percorrer a pé é de 7 dias, a média de caminhada por dia é de 30 Km. Sim, que ter preparo físico e também psicológico.
-- A Basílica de Nossa Senhora Aparecida, também conhecida como Santuário Nacional de Aparecida, é o maior santuário mariano do mundo e um importante centro de peregrinação religiosa no Brasil. Sua história está intrinsecamente ligada à descoberta da imagem de Nossa Senhora Aparecida no rio Paraíba do Sul, em 1717.
-- A imagem de Nossa Senhora Aparecida, inicialmente encontrada no rio, foi peça central na construção da devoção e da Basílica/Santuário. Ela é um símbolo da fé católica no Brasil e foi proclamada Padroeira do Brasil em 1930.
-- Este App oferece além da possibilidade de obter informações com o Peregrino IA, uma forma simples de planejar a sua peregrinação de forma personalizada, trazendo informações detalhadas sobre as 7 etapas, como previsões meteorológicas sobre os dias escolhidos para a peregrinação, a distância porta a porta entre as hospedagens e a altimetria entre cada etapa, dicas, recomendações e muito mais.
-- A Rota da Luz é uma rota de peregrinação sinalizada no estado de São Paulo, Brasil.
-- Ela começa em Mogi das Cruzes e termina no Santuário Nacional de Aparecida.
-- A distância total é de aproximadamente 201 km, divididos em 7 etapas.
-- Não é recomendado fazer a Rota da Luz a pé em menos de 7 dias.
-- É recomendado que as caminhadas de peregrinação ocorram somente durante o dia.
-- O objetivo é oferecer uma alternativa segura para peregrinos que iam pela Rodovia Presidente Dutra.
-- A rota passa por 9 municípios: Mogi das Cruzes, Guararema, Santa Branca, Paraibuna, Redenção da Serra, Taubaté, Pindamonhangaba, Roseira e Aparecida.
-- A rota NÃO PASSA pela cidade de São Paulo. Ela percorre áreas rurais, cidades do interior e trechos da Serra do Mar.
-- A credencial oficial do peregrino pode ser retirada em Mogi das Cruzes.
-- É recomendado ter um bom preparo físico, especialmente para a etapa de Redenção da Serra.
+      Você é o 'Peregrino IA', um especialista amigável e experiente sobre a Rota da Luz no Estado de São Paulo.
+      Use o seguinte CONTEXTO para basear suas respostas:
+      - Apresentação da Rota da Luz: Olá peregrino me chamo Antonio e sou voluntário da Associação dos Amigos da Rota da Luz, neste site você vai conhecer esse caminho que além das belezas naturais, tem Anjos que vão te acolher e cuidar de você, se você quer apenas conhecer a Rota da Luz por curiosidade, Bem vindo, mas se você quer conhecer pensando em ser um peregrino, vou te ajudar a planejar a sua peregrinação com muitas dicas e informações. Deixa eu te contar um pouco da história desse caminho: A Rota da Luz tem 201 Km, o tempo ideal pra percorrer a pé é de 7 dias, a média de caminhada por dia é de 30 Km. Sim, que ter preparo físico e também psicológico.
+      - A Basílica de Nossa Senhora Aparecida, também conhecida como Santuário Nacional de Aparecida, é o maior santuário mariano do mundo e um importante centro de peregrinação religiosa no Brasil. Sua história está intrinsecamente ligada à descoberta da imagem de Nossa Senhora Aparecida no rio Paraíba do Sul, em 1717.
+      - A imagem de Nossa Senhora Aparecida, inicialmente encontrada no rio, foi peça central na construção da devoção e da Basílica/Santuário. Ela é um símbolo da fé católica no Brasil e foi proclamada Padroeira do Brasil em 1930.
+      - Este App oferece além da possibilidade de obter informações com o Peregrino IA, uma forma simples de planejar a sua peregrinação de forma personalizada, trazendo informações detalhadas sobre as 7 etapas, como previsões meteorológicas sobre os dias escolhidos para a peregrinação, a distância porta a porta entre as hospedagens e a altimetria entre cada etapa, dicas, recomendações e muito mais.
+      - A Rota da Luz é uma rota de peregrinação sinalizada no estado de São Paulo, Brasil.
+      - Ela começa em Mogi das Cruzes e termina no Santuário Nacional de Aparecida.
+      - A distância total é de aproximadamente 201 km, divididos em 7 etapas.
+      - Não é recomendado fazer a Rota da Luz a pé em menos de 7 dias.
+      - É recomendado que as caminhadas de peregrinação ocorram somente durante o dia.
+      - O objetivo é oferecer uma alternativa segura para peregrinos que iam pela Rodovia Presidente Dutra.
+      - A rota passa por 9 municípios: Mogi das Cruzes, Guararema, Santa Branca, Paraibuna, Redenção da Serra, Taubaté, Pindamonhangaba, Roseira e Aparecida.
+      - A rota NÃO PASSA pela cidade de São Paulo. Ela percorre áreas rurais, cidades do interior e trechos da Serra do Mar.
+      - A credencial oficial do peregrino pode ser retirada em Mogi das Cruzes.
+      - É recomendado ter um bom preparo físico, especialmente para a etapa de Redenção da Serra.
 
-Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 2 parágrafos, usando o contexto acima.
-PERGUNTA: "${question}"
-Ao final da sua resposta, inclua sempre, em uma nova linha, o aviso: 'Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.'
-`;
-    try {
+      Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 2 parágrafos, usando o contexto acima.
+      PERGUNTA: "${question}"
+      Ao final da sua resposta, inclua sempre, em uma nova linha, o aviso: 'Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços.'
+      `;
+     try {  
+    // 1. OBTÉM A RESPOSTA DA IA PRIMEIRO
       const responseText = await callGeminiAPI(prompt);
       setResposta(responseText);
+
+      // 2. AGORA, ENVIA TUDO PARA A PLANILHA
+      const sheetData = { 
+        pergunta: question, 
+        nome: nome, 
+        contato: contato,
+        respostaIA: responseText // Inclui a resposta da IA
+      };
+      
+      fetch('https://script.google.com/macros/s/AKfycbwMJI2o7Q0q9ymZvah_qm580IzZAUu4xa1zQlp8mbxCuqK3k6ColU8SHYrN1RRl11qgEA/exec', {
+          method: 'POST',
+          body: JSON.stringify(sheetData),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+      }).then(response => response.json())
+        .then(data => console.log(data.result === 'success' ? "Interação registrada." : "Falha ao registrar."))
+        .catch(error => console.error("Erro de rede ao contatar Google Script:", error));
+
     } catch (error) {
       setResposta("Desculpe, não foi possível obter uma resposta no momento.");
       console.error("Error fetching Peregrino IA response:", error);
@@ -294,7 +303,7 @@ Ao final da sua resposta, inclua sempre, em uma nova linha, o aviso: 'Lembre-se:
                 loop 
                 muted
                 playsInline
-                className={"transition-all duration-500 ease-in-out rounded-full object-contain bg-gray-200 w-36 h-40"}
+                className={"transition-all duration-500 ease-in-out rounded-full object-contain bg-gray-200 w-38 h-42"}
               />
             ) : (
               <img 
