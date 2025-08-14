@@ -26,7 +26,7 @@ export default async function handler(request, response) {
     // 4. Define as especificações do áudio (voz masculina, português)
     const audioRequest = {
       input: { text: text },
-      voice: { languageCode: 'pt-BR', name: 'pt-BR-Chirp3-HD-Zubenelgenubi' }, // Voz masculina de alta qualidade
+      voice: { languageCode: 'pt-BR', name: 'pt-BR-Wavenet-D' }, // Voz masculina de alta qualidade - pt-BR-Chirp3-HD-Zubenelgenubi
       audioConfig: { audioEncoding: 'MP3' },
     };
 
