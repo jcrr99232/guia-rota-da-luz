@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2, Building, FileText, Printer, Footprints, Mic } from 'lucide-react';
+import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2, Building, FileText, Printer, Footprints, Mic, Loader2 } from 'lucide-react';
 
 // --- FUNÇÕES AUXILIARES, DADOS DE CLIMA, HOSPEDAGENS E ETAPAS ---
 const getWeekNumber = (date) => {
@@ -157,7 +157,8 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
   const [estaFalando, setEstaFalando] = useState(false);
-  const [audio, setAudio] = useState(null); // <-- NOVA LINHA
+  const [audio, setAudio] = useState(null); 
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !resposta) {
@@ -209,17 +210,15 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   };
 
   const handleSpeakResponse = async (textToSpeak) => {
-    // Se já estiver falando, o clique agora funciona como um botão de "parar"
     if (estaFalando && audio) {
       audio.pause();
       setEstaFalando(false);
       return;
     }
-
-    //setEstaFalando(true); // Inicia a animação imediatamente
+    
+    setIsLoadingAudio(true); // Ativa o spinner imediatamente
     
     try {
-      // Chama nosso novo backend para gerar o áudio
       const response = await fetch('/api/generate-audio', {
         method: 'POST',
         body: JSON.stringify({ text: textToSpeak })
@@ -229,18 +228,21 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
         throw new Error('Falha ao gerar o áudio no backend.');
       }
 
-      // Recebe o áudio, cria um player e toca
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       const newAudio = new Audio(audioUrl);
-      setAudio(newAudio); // Guarda o player de áudio na memória
+      setAudio(newAudio);
       
-      // Controla o fim da animação
-       newAudio.onplay = () => setEstaFalando(true);
+      // Sincroniza a animação com o áudio
+      newAudio.onplay = () => {
+        setEstaFalando(true);
+        setIsLoadingAudio(false); // Desativa o spinner quando a fala começa
+      };
       newAudio.onended = () => setEstaFalando(false);
       newAudio.onerror = () => {
         console.error("Erro ao tocar o áudio.");
         setEstaFalando(false);
+        setIsLoadingAudio(false); // Garante que o spinner pare em caso de erro
       };
       
       newAudio.play();
@@ -249,6 +251,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       console.error("Erro na função handleSpeakResponse:", error);
       alert("Desculpe, ocorreu um erro ao tentar gerar a voz.");
       setEstaFalando(false);
+      setIsLoadingAudio(false); // Garante que o spinner pare em caso de erro
     }
   };
   
@@ -397,8 +400,12 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
               </button>
             ) : null }
             {resposta && !isLoading && (
-              <button onClick={() => handleSpeakResponse(resposta)} className="p-2 rounded-full bg-gray-200 hover:bg-blue-200" title="Ouvir resposta">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              <button onClick={() => handleSpeakResponse(resposta)} disabled={isLoadingAudio} className="p-2 rounded-full bg-gray-200 hover:bg-blue-200 disabled:bg-gray-200" title="Ouvir resposta">
+                {isLoadingAudio ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                )}
               </button>
             )}
           </div>
