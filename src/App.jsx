@@ -216,7 +216,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       return;
     }
 
-    setEstaFalando(true); // Inicia a animação imediatamente
+    //setEstaFalando(true); // Inicia a animação imediatamente
     
     try {
       // Chama nosso novo backend para gerar o áudio
@@ -236,6 +236,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       setAudio(newAudio); // Guarda o player de áudio na memória
       
       // Controla o fim da animação
+       newAudio.onplay = () => setEstaFalando(true);
       newAudio.onended = () => setEstaFalando(false);
       newAudio.onerror = () => {
         console.error("Erro ao tocar o áudio.");
