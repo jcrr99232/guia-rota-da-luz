@@ -157,6 +157,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
   const [estaFalando, setEstaFalando] = useState(false);
+  const [audio, setAudio] = useState(null); // <-- NOVA LINHA
 
   useEffect(() => {
     if (!isLoading && !resposta) {
@@ -173,6 +174,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
 
   const handleClear = () => {
     setPergunta(''); setResposta(''); setNome(''); setContato('');
+    if (audio) audio.pause(); // Adicionado para parar o áudio
     window.speechSynthesis.cancel();
     setEstaFalando(false);
   };
@@ -206,35 +208,54 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     recognition.start();
   };
 
-  const handleSpeakResponse = (textToSpeak) => {
-    if (!('speechSynthesis' in window)) {
-      alert("Desculpe, seu navegador não suporta a resposta por voz.");
+  const handleSpeakResponse = async (textToSpeak) => {
+    // Se já estiver falando, o clique agora funciona como um botão de "parar"
+    if (estaFalando && audio) {
+      audio.pause();
+      setEstaFalando(false);
       return;
     }
-    window.speechSynthesis.cancel();
-    
-    // Inicia a animação imediatamente ao clicar
-    setEstaFalando(true);
 
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    utterance.lang = 'pt-BR';
-    const voices = window.speechSynthesis.getVoices();
-    const brVoice = voices.find(voice => voice.lang === 'pt-BR');
-    if (brVoice) {
-      utterance.voice = brVoice;
+    setEstaFalando(true); // Inicia a animação imediatamente
+    
+    try {
+      // Chama nosso novo backend para gerar o áudio
+      const response = await fetch('/api/generate-audio', {
+        method: 'POST',
+        body: JSON.stringify({ text: textToSpeak })
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao gerar o áudio no backend.');
+      }
+
+      // Recebe o áudio, cria um player e toca
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const newAudio = new Audio(audioUrl);
+      setAudio(newAudio); // Guarda o player de áudio na memória
+      
+      // Controla o fim da animação
+      newAudio.onended = () => setEstaFalando(false);
+      newAudio.onerror = () => {
+        console.error("Erro ao tocar o áudio.");
+        setEstaFalando(false);
+      };
+      
+      newAudio.play();
+
+    } catch (error) {
+      console.error("Erro na função handleSpeakResponse:", error);
+      alert("Desculpe, ocorreu um erro ao tentar gerar a voz.");
+      setEstaFalando(false);
     }
-
-    // O onstart não é mais necessário aqui
-    utterance.onend = () => setEstaFalando(false);
-    utterance.onerror = () => setEstaFalando(false);
-    
-    window.speechSynthesis.speak(utterance);
   };
   
   const handlePerguntar = async (question) => {
     if (!question.trim()) return;
     setIsLoading(true);
     setResposta('');
+    if (audio) audio.pause();
     window.speechSynthesis.cancel();
     setEstaFalando(false);
         
