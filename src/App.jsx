@@ -450,7 +450,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             )}
           </div>
           {resposta && !isLoading && (
-             <div className="text-xs text-gray-400 mt-2 text-center flex items-center justify-center">
+             <div className="text-xs text-black-400 mt-2 text-center flex items-center justify-center">
                <span className="font-bold">Para ouvir a resposta, clique no ícone </span>
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                <span className="font-bold"> nos botões acima.</span>
