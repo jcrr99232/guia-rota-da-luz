@@ -456,31 +456,11 @@ const DistanciaCalculadaDisplay = ({ etapa, selecao }) => {
 };
 
 
-const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
+const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, distanciaPersonalizada }) => {
   const [dicas, setDicas] = useState('');
   const [curiosidades, setCuriosidades] = useState('');
   const [isLoadingDicas, setIsLoadingDicas] = useState(false);
   const [isLoadingCuriosidades, setIsLoadingCuriosidades] = useState(false);
-
-   // --- LÓGICA DA CALCULADORA ---
-  const listaHospedagensOrigem = hospedagensPorCidade[etapa.cidadeOrigem] || [];
-  const listaHospedagensDestino = hospedagensPorCidade[etapa.cidadeDestino] || [];
-
-  const origemSelecionada = selecoes.origem;
-  const destinoSelecionado = selecoes.destino;
-  let distanciaCalculada = null;
-
-  if (origemSelecionada && destinoSelecionado) {
-    const origem = listaHospedagensOrigem.find(h => h.nome === origemSelecionada);
-    const destino = listaHospedagensDestino.find(h => h.nome === destinoSelecionado);
-
-    if (origem && destino) {
-      const distanciaNaRota = Math.abs(destino.km - origem.km);
-      const distanciaTotal = distanciaNaRota + origem.foraDaRota + destino.foraDaRota;
-      distanciaCalculada = distanciaTotal.toFixed(1);
-    }
-  }
-  // --- FIM DA LÓGICA DA CALCULADORA ---
   
   const handleGerarDicas = async () => {
     setIsLoadingDicas(true);
@@ -552,8 +532,7 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
                 Ver Previsão em Tempo Real
             </a>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow flex flex-col justify-between text-center">
-          {/* Parte Superior: Distância entre Cidades e Referências */}
+         <div className="bg-white p-4 rounded-lg shadow flex flex-col justify-between text-center">
           <div>
             <p className="text-3xl font-bold text-blue-500">{etapa.distancia}</p>
             <p className="font-semibold text-gray-600">Distância entre as cidades</p>
@@ -562,16 +541,15 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
               <p>Término: {etapa.pontoReferenciaTermino.join(' / ')}</p>
             </div>
           </div>
-
-          {/* Parte Inferior: Distância entre Pousadas */}
           <div className="mt-4 pt-4 border-t">
             <p className="text-3xl font-bold text-blue-500">
-              {distanciaCalculada !== null ? `${distanciaCalculada} km` : '- -'}
+              {distanciaPersonalizada ? `${distanciaPersonalizada} km` : '- -'}
             </p>
             <p className="font-semibold text-gray-600">Distância entre as pousadas</p>
-            <p className="text-xs text-gray-500 italic">(se escolhidas na tela inicial)</p>
+            <p className="text-xs text-gray-500 italic">(se escolhidas na pág. inicial)</p>
           </div>
         </div>
+        
         <div className="bg-white p-4 rounded-lg shadow"><p className="text-3xl font-bold text-blue-500">{etapa.tempoEstimado}</p><p className="font-semibold text-gray-600">Tempo de Caminhada</p></div>
         <div className="bg-white p-4 rounded-lg shadow"><Clock className="mx-auto h-8 w-8 text-blue-500 mb-2" /><p className="font-bold text-gray-800">Início Sugerido</p><p className="text-lg text-gray-600">{etapa.horarioInicio}</p><p className="text-xs text-gray-500">(Para chegar às 15:30)</p><p className="text-xs text-gray-500 mt-1">(Incluído {etapa.paradaRefeicao} para alimentação)</p></div>
       </div>
@@ -831,13 +809,24 @@ export default function App() {
   }
 
   if (selectedEtapa) {
+    const selecao = selecoesHospedagem[selectedEtapa.id] || {};
+    let distanciaPersonalizada = null;
+    
+    if (selecao.origem && selecao.destino) {
+      const origem = hospedagensPorCidade[selectedEtapa.cidadeOrigem]?.find(h => h.nome === selecao.origem);
+      const destino = hospedagensPorCidade[selectedEtapa.cidadeDestino]?.find(h => h.nome === selecao.destino);
+      if (origem && destino) {
+        const dist = Math.abs(destino.km - origem.km) + origem.foraDaRota + destino.foraDaRota;
+        distanciaPersonalizada = dist.toFixed(1);
+      }
+    }
+
     return <EtapaDetalhes 
              etapa={selectedEtapa} 
              onBack={() => setSelectedEtapa(null)} 
              isOnline={isOnline} 
              callGeminiAPI={callGeminiAPI}
-             selecoes={selecoesHospedagem[selectedEtapa.id] || {}}
-             onHospedagemChange={handleHospedagemChange}
+             distanciaPersonalizada={distanciaPersonalizada} // Passa o resultado já calculado
            />;
   }
 
