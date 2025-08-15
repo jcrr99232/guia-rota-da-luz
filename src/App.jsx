@@ -461,6 +461,26 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
   const [curiosidades, setCuriosidades] = useState('');
   const [isLoadingDicas, setIsLoadingDicas] = useState(false);
   const [isLoadingCuriosidades, setIsLoadingCuriosidades] = useState(false);
+
+   // --- LÓGICA DA CALCULADORA ---
+  const listaHospedagensOrigem = hospedagensPorCidade[etapa.cidadeOrigem] || [];
+  const listaHospedagensDestino = hospedagensPorCidade[etapa.cidadeDestino] || [];
+
+  const origemSelecionada = selecoes.origem;
+  const destinoSelecionado = selecoes.destino;
+  let distanciaCalculada = null;
+
+  if (origemSelecionada && destinoSelecionado) {
+    const origem = listaHospedagensOrigem.find(h => h.nome === origemSelecionada);
+    const destino = listaHospedagensDestino.find(h => h.nome === destinoSelecionado);
+
+    if (origem && destino) {
+      const distanciaNaRota = Math.abs(destino.km - origem.km);
+      const distanciaTotal = distanciaNaRota + origem.foraDaRota + destino.foraDaRota;
+      distanciaCalculada = distanciaTotal.toFixed(1);
+    }
+  }
+  // --- FIM DA LÓGICA DA CALCULADORA ---
   
   const handleGerarDicas = async () => {
     setIsLoadingDicas(true);
@@ -533,7 +553,7 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
             </a>
         </div>
         <div className="bg-white p-4 rounded-lg shadow flex flex-col justify-between text-center">
-          {/* Parte Superior: Distância entre Cidades */}
+          {/* Parte Superior: Distância entre Cidades e Referências */}
           <div>
             <p className="text-3xl font-bold text-blue-500">{etapa.distancia}</p>
             <p className="font-semibold text-gray-600">Distância entre as cidades</p>
@@ -543,13 +563,13 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
             </div>
           </div>
 
-          {/* Parte Inferior: Distância Personalizada */}
+          {/* Parte Inferior: Distância entre Pousadas */}
           <div className="mt-4 pt-4 border-t">
             <p className="text-3xl font-bold text-blue-500">
               {distanciaCalculada !== null ? `${distanciaCalculada} km` : '- -'}
             </p>
             <p className="font-semibold text-gray-600">Distância entre as pousadas</p>
-            <p className="text-xs text-gray-500 italic">(se escolhidas)</p>
+            <p className="text-xs text-gray-500 italic">(se escolhidas na tela inicial)</p>
           </div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow"><p className="text-3xl font-bold text-blue-500">{etapa.tempoEstimado}</p><p className="font-semibold text-gray-600">Tempo de Caminhada</p></div>
