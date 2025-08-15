@@ -532,21 +532,25 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
                 Ver Previsão em Tempo Real
             </a>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow flex flex-col text-left">
-          <div className="flex-grow text-center">
+        <div className="bg-white p-4 rounded-lg shadow flex flex-col justify-between text-center">
+          {/* Parte Superior: Distância entre Cidades */}
+          <div>
             <p className="text-3xl font-bold text-blue-500">{etapa.distancia}</p>
             <p className="font-semibold text-gray-600">Distância entre as cidades</p>
-          </div>
-           <div className="text-sm text-gray-700 mt-2 text-center">
-              <p className="font-semibold">Início: <span className="font-normal text-gray-600">(Ponto de Referência)</span></p>
-              <div className="pl-4 border-l-2 border-gray-200">
-                {etapa.pontoReferenciaInicio.map(p => <p key={p} className="text-xs">{p}</p>)}
-              </div>
-              <p className="font-semibold mt-2 text-center">Término: <span className="font-normal text-gray-600">(Ponto de Referência)</span></p>
-              <div className="pl-4 border-l-2 border-gray-200">
-                {etapa.pontoReferenciaTermino.map(p => <p key={p} className="text-xs">{p}</p>)}
-              </div>
+            <div className="text-xs text-gray-500 mt-1">
+              <p>Início: {etapa.pontoReferenciaInicio.join(' / ')}</p>
+              <p>Término: {etapa.pontoReferenciaTermino.join(' / ')}</p>
             </div>
+          </div>
+
+          {/* Parte Inferior: Distância Personalizada */}
+          <div className="mt-4 pt-4 border-t">
+            <p className="text-3xl font-bold text-blue-500">
+              {distanciaCalculada !== null ? `${distanciaCalculada} km` : '- -'}
+            </p>
+            <p className="font-semibold text-gray-600">Distância entre as pousadas</p>
+            <p className="text-xs text-gray-500 italic">(se escolhidas)</p>
+          </div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow"><p className="text-3xl font-bold text-blue-500">{etapa.tempoEstimado}</p><p className="font-semibold text-gray-600">Tempo de Caminhada</p></div>
         <div className="bg-white p-4 rounded-lg shadow"><Clock className="mx-auto h-8 w-8 text-blue-500 mb-2" /><p className="font-bold text-gray-800">Início Sugerido</p><p className="text-lg text-gray-600">{etapa.horarioInicio}</p><p className="text-xs text-gray-500">(Para chegar às 15:30)</p><p className="text-xs text-gray-500 mt-1">(Incluído {etapa.paradaRefeicao} para alimentação)</p></div>
