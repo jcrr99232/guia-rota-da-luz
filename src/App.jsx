@@ -537,12 +537,12 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI }) => {
             <p className="text-3xl font-bold text-blue-500">{etapa.distancia}</p>
             <p className="font-semibold text-gray-600">Distância entre as cidades</p>
           </div>
-           <div className="text-sm text-gray-700 mt-2">
+           <div className="text-sm text-gray-700 mt-2 text-center">
               <p className="font-semibold">Início: <span className="font-normal text-gray-600">(Ponto de Referência)</span></p>
               <div className="pl-4 border-l-2 border-gray-200">
                 {etapa.pontoReferenciaInicio.map(p => <p key={p} className="text-xs">{p}</p>)}
               </div>
-              <p className="font-semibold mt-2">Término: <span className="font-normal text-gray-600">(Ponto de Referência)</span></p>
+              <p className="font-semibold mt-2 text-center">Término: <span className="font-normal text-gray-600">(Ponto de Referência)</span></p>
               <div className="pl-4 border-l-2 border-gray-200">
                 {etapa.pontoReferenciaTermino.map(p => <p key={p} className="text-xs">{p}</p>)}
               </div>
@@ -842,13 +842,13 @@ export default function App() {
           <div className="bg-white p-6 rounded-xl shadow-lg lg:col-span-1">
               <h3 className="text-lg font-bold text-gray-800 mb-2">Planejamento Personalizado</h3>
               <ol className="list-decimal list-inside text-sm text-gray-600 space-y-1 mb-4">
-                  <li>Selecione a data de início da peregrinação.</li>
-                  <li>Abaixo, selecione as pousadas para cada etapa.</li>
-                  <li>Clique no botão verde "Gerar Roteiro Personalizado".</li>
-                  <li>Abaixo, explore todas as Etapas e conheça dicas e desafios de cada trecho".</li>
+                  <li>Escolha a data de início da peregrinação.</li>
+                  <li>Selecione as pousadas para cada etapa.</li>
+                  <li>Clique no botão verde para "Gerar Roteiro Personalizado".</li>
+                  <li>Abaixo, explore todas as Etapas, conheça as cidades, dicas e desafios de cada trecho".</li>
               </ol>
               <label htmlFor="start-date" className="block text-sm font-bold text-gray-800 mb-2">
-                  1. Selecione a data de início:
+                  1. Escolha a data de início:
               </label>
               <input
                   type="date"
