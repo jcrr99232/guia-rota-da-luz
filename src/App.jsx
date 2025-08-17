@@ -235,15 +235,16 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   };
 
   const handleSpeakResponse = async (textToSpeak) => {
-    // Se já estiver falando, o clique agora funciona como um botão de "parar"
-    if (estaFalando && audio) {
+    if ((estaFalando || isLoadingAudio) && audio) {
       audio.pause();
       setEstaFalando(false);
+      setIsLoadingAudio(false);
       return;
     }
     
+    setIsLoadingAudio(true); // Ativa o spinner imediatamente
+    
     try {
-      // Chama nosso novo backend para gerar o áudio
       const response = await fetch('/api/generate-audio', {
         method: 'POST',
         body: JSON.stringify({ text: textToSpeak })
@@ -253,28 +254,30 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
         throw new Error('Falha ao gerar o áudio no backend.');
       }
 
-      // Recebe o áudio, cria um player e toca
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       const newAudio = new Audio(audioUrl);
-      setAudio(newAudio); // Guarda o player de áudio na memória
+      setAudio(newAudio);
       
-      // --- LÓGICA DE SINCRONIZAÇÃO CORRIGIDA ---
-      // 1. Muda o estado para mostrar o vídeo
-      setEstaFalando(true); 
-      // 2. Toca o áudio imediatamente depois, sincronizando a animação com o som
-      newAudio.play();      
+      // Espera o áudio estar pronto para tocar
+      newAudio.oncanplaythrough = () => {
+        setIsLoadingAudio(false); // Desativa o spinner
+        setEstaFalando(true);     // Ativa a animação
+        newAudio.play();           // Toca o áudio em sincronia
+      };
       
       newAudio.onended = () => setEstaFalando(false);
       newAudio.onerror = () => {
         console.error("Erro ao tocar o áudio.");
         setEstaFalando(false);
+        setIsLoadingAudio(false);
       };
 
     } catch (error) {
       console.error("Erro na função handleSpeakResponse:", error);
       alert("Desculpe, ocorreu um erro ao tentar gerar a voz.");
       setEstaFalando(false);
+      setIsLoadingAudio(false);
     }
   };
   
@@ -437,10 +440,10 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
                 <Trash2 className={`h-5 w-5 ${isLoading ? 'text-gray-300' : 'text-gray-600 hover:text-red-600'}`} />
               </button>
             ) : null }
-            {resposta && !isLoading && (
-              <button onClick={() => handleSpeakResponse(resposta)} disabled={isLoadingAudio} className="p-2 rounded-full bg-gray-200 hover:bg-blue-200 disabled:bg-gray-200" title="Ouvir resposta">
+           {resposta && !isLoading && (
+              <button onClick={() => handleSpeakResponse(resposta)} disabled={isLoading} className="p-2 rounded-full bg-gray-200 hover:bg-blue-200 disabled:bg-gray-200" title="Ouvir resposta">
                 {isLoadingAudio ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin text-purple-600" />
                 ) : (
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                 )}
