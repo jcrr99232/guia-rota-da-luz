@@ -263,7 +263,9 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       newAudio.oncanplaythrough = () => {
         setIsLoadingAudio(false); // Desativa o spinner
         setEstaFalando(true);     // Ativa a animação
-        newAudio.play();           // Toca o áudio em sincronia
+        setTimeout(() => {
+          newAudio.play();
+        }, 150); // Atraso de 150 milissegundos
       };
       
       newAudio.onended = () => setEstaFalando(false);
