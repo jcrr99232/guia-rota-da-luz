@@ -235,15 +235,15 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   };
 
   const handleSpeakResponse = async (textToSpeak) => {
+    // Se já estiver falando, o clique agora funciona como um botão de "parar"
     if (estaFalando && audio) {
       audio.pause();
       setEstaFalando(false);
       return;
     }
     
-    setIsLoadingAudio(true); // Ativa o spinner imediatamente
-    
     try {
+      // Chama nosso novo backend para gerar o áudio
       const response = await fetch('/api/generate-audio', {
         method: 'POST',
         body: JSON.stringify({ text: textToSpeak })
@@ -253,30 +253,28 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
         throw new Error('Falha ao gerar o áudio no backend.');
       }
 
+      // Recebe o áudio, cria um player e toca
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       const newAudio = new Audio(audioUrl);
-      setAudio(newAudio);
+      setAudio(newAudio); // Guarda o player de áudio na memória
       
-      // Sincroniza a animação com o áudio
-      newAudio.onplay = () => {
-        setEstaFalando(true);
-        setIsLoadingAudio(false); // Desativa o spinner quando a fala começa
-      };
+      // --- LÓGICA DE SINCRONIZAÇÃO CORRIGIDA ---
+      // 1. Muda o estado para mostrar o vídeo
+      setEstaFalando(true); 
+      // 2. Toca o áudio imediatamente depois, sincronizando a animação com o som
+      newAudio.play();      
+      
       newAudio.onended = () => setEstaFalando(false);
       newAudio.onerror = () => {
         console.error("Erro ao tocar o áudio.");
         setEstaFalando(false);
-        setIsLoadingAudio(false); // Garante que o spinner pare em caso de erro
       };
-      
-      newAudio.play();
 
     } catch (error) {
       console.error("Erro na função handleSpeakResponse:", error);
       alert("Desculpe, ocorreu um erro ao tentar gerar a voz.");
       setEstaFalando(false);
-      setIsLoadingAudio(false); // Garante que o spinner pare em caso de erro
     }
   };
   
