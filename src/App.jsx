@@ -407,7 +407,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             <textarea
               value={pergunta}
               onChange={(e) => setPergunta(e.target.value)}
-              placeholder="1.Preencha seus dados acima; 2.Utilize o Microfone ou digite sua pergunta; 3.Enviar; 4.Clique no Altofalante p/ ouvir a resposta."
+              placeholder="1.Preencha os dados acima; 2.Utilize o Microfone ou digite sua pergunta aqui; 3.Enviar; 4.Clique no Altofalante p/ ouvir a resposta."
               className="w-full p-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm placeholder:text-gray-500 placeholder:text-xs"
               rows="2"
               disabled={isLoading || isListening}
