@@ -205,12 +205,11 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     setEstaFalando(false);
   };
 
+  const isSpeechRecognitionSupported = 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window;
+
   const handleVoiceInput = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Desculpe, seu navegador não suporta a entrada por voz.");
-      return;
-    }
+   
     const recognition = new SpeechRecognition();
     recognition.lang = 'pt-BR';
     recognition.interimResults = false;
@@ -412,6 +411,8 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
               rows="2"
               disabled={isLoading || isListening}
             />
+             {/* O botão só é renderizado se a variável for verdadeira */}
+            {isSpeechRecognitionSupported && (
              <button 
               onClick={handleVoiceInput} 
               disabled={isLoading}
@@ -420,6 +421,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             >
               <Mic className="h-5 w-5" />
             </button>
+             )}
           </div>
           {!resposta && !isLoading && (
             <div className="text-center text-sm text-gray-500">
