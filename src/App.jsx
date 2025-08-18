@@ -205,22 +205,20 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
     setEstaFalando(false);
   };
 
-  const isSpeechRecognitionSupported = 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window;
-
   const handleVoiceInput = () => {
      // Adiciona uma verificação específica para o Firefox
     if (navigator.userAgent.toLowerCase().includes('firefox')) {
       alert("O recurso de voz não é ativado por padrão no Firefox. Para a melhor experiência, por favor, utilize o Google Chrome ou Safari.");
       return;
     }
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     // A verificação original para outros navegadores sem suporte continua útil
     if (!SpeechRecognition) {
       alert("Desculpe, seu navegador não suporta a entrada por voz.");
       return;
     }
    
-    const recognition = new SpeechRecognition();
+  const recognition = new SpeechRecognition();
     recognition.lang = 'pt-BR';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
@@ -421,9 +419,8 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
               rows="2"
               disabled={isLoading || isListening}
             />
-             {/* O botão só é renderizado se a variável for verdadeira */}
-            {isSpeechRecognitionSupported && (
-             <button 
+             
+            <button 
               onClick={handleVoiceInput} 
               disabled={isLoading}
               className={`absolute right-2 top-2 p-1 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'text-gray-400 hover:text-purple-600 hover:bg-gray-100'}`}
@@ -431,7 +428,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
             >
               <Mic className="h-5 w-5" />
             </button>
-             )}
+             
           </div>
           {!resposta && !isLoading && (
             <div className="text-center text-sm text-gray-500">
