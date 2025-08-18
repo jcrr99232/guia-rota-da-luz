@@ -208,7 +208,17 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   const isSpeechRecognitionSupported = 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window;
 
   const handleVoiceInput = () => {
+     // Adiciona uma verificação específica para o Firefox
+    if (navigator.userAgent.toLowerCase().includes('firefox')) {
+      alert("O recurso de voz não é ativado por padrão no Firefox. Para a melhor experiência, por favor, utilize o Google Chrome ou Safari.");
+      return;
+    }
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    // A verificação original para outros navegadores sem suporte continua útil
+    if (!SpeechRecognition) {
+      alert("Desculpe, seu navegador não suporta a entrada por voz.");
+      return;
+    }
    
     const recognition = new SpeechRecognition();
     recognition.lang = 'pt-BR';
