@@ -324,7 +324,7 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
       - Etapa 6: Taubaté a Pindamonhangaba", cidadeOrigem:"Taubaté", cidadeDestino: "Pindamonhangaba", distancia: "21.2 km", pontoReferenciaInicio: ["Igreja Nossa Senhora da Imaculada Conceição"], pontoReferenciaTermino: ["Parque da Cidade"]
       - Etapa 7 Final: Pindamonhangaba a Aparecida", cidadeOrigem: "Pindamonhangaba", cidadeDestino: "Aparecida", distancia: "28.7 km", pontoReferenciaInicio: ["Parque da Cidade"], pontoReferenciaTermino: ["Entrada Principal do Santuário de Aparecida"]
 
-      Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 2 parágrafos, usando o contexto acima.
+      Responda à seguinte pergunta de um peregrino de forma clara e útil, em no máximo 1 parágrafo, usando o contexto acima.
       PERGUNTA: "${question}"
       Ao final da sua resposta, inclua sempre, em uma nova linha, o aviso: 'Lembre-se: Sou uma IA. Sempre confirme informações importantes como horários e endereços. Boa caminhada a todos!'
       `;
@@ -974,7 +974,7 @@ export default function App() {
             title={isPlanningComplete ? "Gerar resumo do seu roteiro" : "Selecione a origem e o destino de todas as 7 etapas para habilitar"}
           >
             <FileText className="h-5 w-5 mr-3" />
-            {isPlanningComplete ? "Gerar Roteiro Personalizado" : "3 - Planeje todas as Etapas para Gerar"}
+            {isPlanningComplete ? "3 - Gerar Roteiro Personalizado" : "3 - Planeje todas as Etapas para Gerar"}
           </button>
         </div>
 
