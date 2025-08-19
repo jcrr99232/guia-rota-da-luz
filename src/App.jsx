@@ -206,9 +206,10 @@ const PeregrinoIA = ({ isOnline, callGeminiAPI }) => {
   };
 
   const handleVoiceInput = () => {
-     // Adiciona uma verificação específica para o Firefox
-    if (navigator.userAgent.toLowerCase().includes('firefox')) {
-      alert("O recurso de voz não é ativado por padrão no Firefox. Para a melhor experiência, por favor, utilize o Google Chrome ou Safari.");
+      // Adiciona uma verificação para Firefox (desktop) e FxiOS (iOS)
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes('firefox') || userAgent.includes('fxios')) {
+      alert("O recurso de voz não é totalmente compatível com o Firefox. Para a melhor experiência, por favor, utilize o Google Chrome ou Safari. A pergunta ao Peregrino IA pode ser digitada.");
       return;
     }
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
