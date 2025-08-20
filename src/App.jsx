@@ -942,27 +942,31 @@ export default function App() {
           </div>
           <div className="bg-white p-6 rounded-xl shadow-lg lg:col-span-1">
               <h3 className="text-lg font-bold text-gray-800 mb-2">Planejamento Personalizado</h3>
-              <ol className="list-decimal list-inside text-sm text-gray-600 space-y-1 mb-4">
-                  <li>Escolha a data de início da peregrinação.</li>
-                  <li>Selecione as pousadas para cada etapa.</li>
+              <ol className="list-decimal list-inside text-sm text-gray-600 space-y-1">
+                  <li><a href="#secao-data" className="text-blue-600 hover:underline">Escolha a data de início da peregrinação.</a></li>
+                  <li><a href="#secao-hospedagens" className="text-blue-600 hover:underline">Selecione as pousadas para cada etapa.</a></li>
                   <li>Clique no botão verde para "Gerar Roteiro Personalizado".</li>
-                  <li>Abaixo, explore todas as Etapas, conheça as cidades, dicas e desafios de cada trecho".</li>
+                  <li><a href="#secao-etapas" className="text-blue-600 hover:underline">Abaixo, explore todas as Etapas, conheça as cidades, dicas e desafios de cada trecho.</a></li>
               </ol>
-              <label htmlFor="start-date" className="block text-sm font-bold text-gray-800 mb-2">
-                  1. Escolha a data de início:
-              </label>
-              <input
-                  type="date"
-                  id="start-date"
-                  value={startDate.toISOString().split('T')[0]}
-                  onChange={handleDateChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+
+              {/* Linha de separação e nova seção para a data */}
+              <div className="mt-4 pt-4 border-t">
+                <label htmlFor="start-date" id="secao-data" className="block text-sm font-bold text-gray-800 mb-2">
+                    1. Escolha a data de início:
+                </label>
+                <input
+                    type="date"
+                    id="start-date"
+                    value={startDate.toISOString().split('T')[0]}
+                    onChange={handleDateChange}
+                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
           </div>
         </div>
         
         <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+          <h2 id="secao-hospedagens" className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
             <Footprints className="h-6 w-6 mr-3 text-blue-600"/>
             2. Selecione suas Hospedagens
           </h2>
@@ -1023,7 +1027,7 @@ export default function App() {
           </button>
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8 text-center">4 - Clique em uma etapa para ver os detalhes completos</h2>
+        <h2 id="secao-etapas" className="text-2xl font-bold text-gray-800 mb-4 mt-8 text-center">4 - Clique em uma etapa para ver os detalhes completos</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allEtapas.map(etapa => {
             const weekNumber = getWeekNumber(etapa.date);
