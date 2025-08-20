@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2, Building, FileText, Printer, Footprints, Mic, Loader2 } from 'lucide-react';
+import { MapPin, UtensilsCrossed, Mountain, AlertTriangle, Star, Clock, ArrowLeft, Thermometer, Sparkles, Bot, WifiOff, Map, Sunrise, Sun, Sunset, Droplets, CloudRain, Calendar, ExternalLink, Send, MessageSquare, Trash2, Building, FileText, Printer, Footprints, Mic, Loader2, ArrowRight } from 'lucide-react';
 
 // --- FUNÇÕES AUXILIARES, DADOS DE CLIMA, HOSPEDAGENS E ETAPAS ---
 const getWeekNumber = (date) => {
@@ -509,7 +509,7 @@ const DistanciaCalculadaDisplay = ({ etapa, selecao }) => {
 };
 
 
-const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, distanciaPersonalizada }) => {
+const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, distanciaPersonalizada, onNavigate, totalEtapas }) => {
   const [dicas, setDicas] = useState('');
   const [curiosidades, setCuriosidades] = useState('');
   const [isLoadingDicas, setIsLoadingDicas] = useState(false);
@@ -551,16 +551,35 @@ const EtapaDetalhes = ({ etapa, onBack, isOnline, callGeminiAPI, distanciaPerson
   return (
     <div className="p-4 sm:p-6 lg:p-8 animate-fade-in">
        <div className="flex flex-wrap justify-between items-center gap-y-4 mb-8 border-b pb-4 border-gray-200">
-        <div className="flex-shrink-0">
+        {/* Container dos botões à esquerda */}
+        <div className="flex gap-2">
           <button onClick={onBack} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
               <ArrowLeft className="h-5 w-5 mr-2" />
-              Voltar
+              Página Inicial
           </button>
+
+          {/* Botão Etapa Anterior (condicional) */}
+          {etapa.id > 1 && (
+            <button onClick={() => onNavigate('anterior')} className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Etapa {etapa.id - 1}
+            </button>
+          )}
+
+          {/* Botão Próxima Etapa (condicional) */}
+          {etapa.id < totalEtapas && (
+            <button onClick={() => onNavigate('proxima')} className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50">
+              Etapa {etapa.id + 1}
+              <ArrowRight className="h-5 w-5 ml-2" />
+            </button>
+          )}
         </div>
+        
         <div className="flex-grow text-center">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800">{etapa.titulo}</h2>
           <p className="text-lg sm:text-xl text-blue-700 font-semibold mt-1">{formatDate(etapa.date)}</p>
         </div>
+        
         <div className="flex-shrink-0">
           <img src="/logo-rota.jpeg" alt="Logotipo Rota da Luz" className="h-12 sm:h-16" />
         </div>
@@ -764,6 +783,20 @@ export default function App() {
       return newState;
     });
   };
+  const handleNavigateEtapa = (direcao) => {
+    const etapaAtualIndex = allEtapas.findIndex(e => e.id === selectedEtapa.id);
+    let proximaEtapaIndex;
+
+    if (direcao === 'proxima') {
+      proximaEtapaIndex = etapaAtualIndex + 1;
+    } else {
+      proximaEtapaIndex = etapaAtualIndex - 1;
+    }
+
+    if (proximaEtapaIndex >= 0 && proximaEtapaIndex < allEtapas.length) {
+      setSelectedEtapa(allEtapas[proximaEtapaIndex]);
+    }
+  };
 
   const callGeminiAPI = async (prompt) => {
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -880,6 +913,8 @@ export default function App() {
              isOnline={isOnline} 
              callGeminiAPI={callGeminiAPI}
              distanciaPersonalizada={distanciaPersonalizada} // Passa o resultado já calculado
+             onNavigate={handleNavigateEtapa} // <-- NOVA PROPRIEDADE
+             totalEtapas={allEtapas.length}    // <-- NOVA PROPRIEDADE
            />;
   }
 
