@@ -762,7 +762,11 @@ export default function App() {
   const [selectedEtapa, setSelectedEtapa] = useState(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showOfflineToast, setShowOfflineToast] = useState(false);
-  const [startDate, setStartDate] = useState(new Date(2025, 7, 22));
+  const [startDate, setStartDate] = useState(() => {
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 30);
+    return futureDate;
+  });
   const [selecoesHospedagem, setSelecoesHospedagem] = useState({});
   const [modoResumo, setModoResumo] = useState(false);
 
@@ -952,7 +956,7 @@ export default function App() {
               {/* Linha de separação e nova seção para a data */}
               <div className="mt-4 pt-4 border-t">
                 <label htmlFor="start-date" id="secao-data" className="block text-sm font-bold text-gray-800 mb-2">
-                    1. Escolha a data de início:
+                    1 - Escolha a data de início:
                 </label>
                 <input
                     type="date"
@@ -968,7 +972,7 @@ export default function App() {
         <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
           <h2 id="secao-hospedagens" className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
             <Footprints className="h-6 w-6 mr-3 text-blue-600"/>
-            2. Selecione suas Hospedagens
+            2 - Selecione suas Hospedagens
           </h2>
           <div className="space-y-4">
             {allEtapas.map((etapa, index) => {
@@ -1023,7 +1027,7 @@ export default function App() {
             title={isPlanningComplete ? "Gerar resumo do seu roteiro" : "Selecione a origem e o destino de todas as 7 etapas para habilitar"}
           >
             <FileText className="h-5 w-5 mr-3" />
-            {isPlanningComplete ? "3 - Gerar Roteiro Personalizado" : "3 - Planeje todas as Etapas para Gerar"}
+            {isPlanningComplete ? "3 - Gerar Roteiro Personalizado" : "3 - Selecione as hospedagens para Gerar o Roteiro Personalizado"}
           </button>
         </div>
 
