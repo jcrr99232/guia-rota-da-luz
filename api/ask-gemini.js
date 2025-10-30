@@ -3,40 +3,44 @@ export const config = {
 };
 
 export default async function handler(req) {
-  // 1. Recebe a pergunta do seu aplicativo React
   const { prompt } = await req.json();
 
-  // 2. Lê a chave de API secreta do ambiente da Vercel
+  // Lendo as DUAS chaves secretas
   const apiKey = process.env.GEMINI_API_KEY;
+  const projectID = process.env.GOOGLE_PROJECT_ID; // O ID do seu projeto
 
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'Chave de API não configurada' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
+  if (!apiKey || !projectID) {
+    return new Response(JSON.stringify({ error: 'API Key ou Project ID não configurados' }), {
+      status: 500, headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  // 3. Define o endpoint que estava dando 404
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+  // --- NOVO ENDPOINT E PAYLOAD DA VERTEX AI ---
+  // Note que o endereço do servidor e o modelo são diferentes
+  const vertexApiUrl = `https://us-central1-aiplatform.googleapis.com/v1/projects/${projectID}/locations/us-central1/publishers/google/models/gemini-1.5-flash-latest:generateContent`;
 
-  // 4. Prepara a chamada para o Google
   const payload = {
     contents: [{ role: "user", parts: [{ text: prompt }] }],
     generationConfig: { temperature: 0.7, topK: 40, topP: 0.95 }
   };
+  // --- FIM DA MUDANÇA ---
 
   try {
-    // 5. O servidor Vercel chama o Google
-    const response = await fetch(apiUrl, {
+    const response = await fetch(vertexApiUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}` // Vertex AI usa 'Bearer Token' em vez de 'key='
+      },
       body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
       const errorBody = await response.json();
-      console.error("Google API Error:", errorBody);
-      throw new Error(`Google API falhou com status: ${response.status}`);
+      console.error("Google Vertex AI Error:", errorBody);
+      // Tenta extrair a mensagem de erro específica
+      const errorMessage = errorBody.error?.message || `Google API falhou com status: ${response.status}`;
+      throw new Error(errorMessage);
     }
 
     const result = await response.json();
@@ -46,17 +50,14 @@ export default async function handler(req) {
       throw new Error("Resposta da API do Google em formato inválido.");
     }
 
-    // 6. Envia a resposta de volta para o seu aplicativo React
     return new Response(JSON.stringify({ response: responseText }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      status: 200, headers: { 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
     console.error(error);
     return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      status: 500, headers: { 'Content-Type': 'application/json' },
     });
   }
 }
