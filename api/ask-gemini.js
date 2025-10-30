@@ -1,8 +1,5 @@
 import { GoogleAuth } from 'google-auth-library'; // Importa a nova biblioteca
 
-export const config = {
-  runtime: 'edge',
-};
 
 export default async function handler(req) {
   const { prompt } = await req.json();
