@@ -17,7 +17,7 @@ export default async function handler(req) {
   }
 
   // 3. Define o endpoint que estava dando 404
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
 
   // 4. Prepara a chamada para o Google
   const payload = {
