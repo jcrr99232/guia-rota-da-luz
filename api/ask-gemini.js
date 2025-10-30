@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     return;
   }
   
-  const vertexApiUrl = `https://us-central1-aiplatform.googleapis.com/v1/projects/${projectID}/locations/us-central1/publishers/google/models/gemini-1.5-flash-latest:generateContent`;
+  const vertexApiUrl = `https://us-central1-aiplatform.googleapis.com/v1/projects/${projectID}/locations/us-central1/publishers/google/models/gemini-1.0-pro:generateContent`;
   
   try {
     const auth = new GoogleAuth({
