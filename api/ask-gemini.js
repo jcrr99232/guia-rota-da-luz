@@ -1,37 +1,62 @@
-import { GoogleAuth } from 'google-auth-library'; // Importa a nova biblioteca
+import { GoogleAuth } from 'google-auth-library';
 
+// Helper function to parse the body from a Node.js request
+async function getBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    req.on('end', () => {
+      try {
+        resolve(JSON.parse(body));
+      } catch (error) {
+        reject(error);
+      }
+    });
+    req.on('error', (error) => {
+      reject(error);
+    });
+  });
+}
 
-export default async function handler(req) {
-  const { prompt } = await req.json();
+export default async function handler(req, res) {
+  // Responde apenas a requisições POST
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method Not Allowed' });
+    return;
+  }
 
-  // Lê as novas credenciais
+  let prompt;
+  try {
+    // Usa o novo helper para ler a pergunta
+    const body = await getBody(req);
+    prompt = body.prompt;
+  } catch (error) {
+    res.status(400).json({ error: 'Invalid JSON body' });
+    return;
+  }
+
   const projectID = process.env.GOOGLE_PROJECT_ID;
   const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
-  // Corrige o formato da chave privada que a Vercel armazena
   const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
   if (!projectID || !clientEmail || !privateKey) {
-    return new Response(JSON.stringify({ error: 'Credenciais do Google não configuradas corretamente' }), {
-      status: 500, headers: { 'Content-Type': 'application/json' },
-    });
+    res.status(500).json({ error: 'Credenciais do Google não configuradas corretamente' });
+    return;
   }
   
   const vertexApiUrl = `https://us-central1-aiplatform.googleapis.com/v1/projects/${projectID}/locations/us-central1/publishers/google/models/gemini-1.5-flash-latest:generateContent`;
   
   try {
-    // --- NOVA LÓGICA DE AUTENTICAÇÃO ---
-    // Faz login como a "Conta de Serviço" (o robô)
     const auth = new GoogleAuth({
       credentials: {
         client_email: clientEmail,
         private_key: privateKey,
       },
-      scopes: 'https://www.googleapis.com/auth/cloud-platform', // A permissão que precisamos
+      scopes: 'https://www.googleapis.com/auth/cloud-platform',
     });
-
-    // Pega o "passe de segurança" temporário (o Token OAuth 2)
     const authToken = await auth.getAccessToken();
-    // --- FIM DA NOVA LÓGICA ---
 
     const payload = {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -42,7 +67,7 @@ export default async function handler(req) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}` // Usa o novo token de segurança
+        'Authorization': `Bearer ${authToken}`
       },
       body: JSON.stringify(payload)
     });
@@ -61,14 +86,12 @@ export default async function handler(req) {
       throw new Error("Resposta da API do Google em formato inválido.");
     }
 
-    return new Response(JSON.stringify({ response: responseText }), {
-      status: 200, headers: { 'Content-Type': 'application/json' },
-    });
+    // Usa res.status(200).json() para enviar a resposta
+    res.status(200).json({ response: responseText });
 
   } catch (error) {
     console.error(error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500, headers: { 'Content-Type': 'application/json' },
-    });
+    // Usa res.status(500).json() para enviar o erro
+    res.status(500).json({ error: error.message });
   }
 }
