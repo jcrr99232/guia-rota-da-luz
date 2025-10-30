@@ -804,7 +804,7 @@ export default function App() {
 
   const callGeminiAPI = async (prompt) => {
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) return "ERRO: A chave de API do Gemini não foi configurada.";
+    if (!apiKey) return "ERRO: A chave de API do Gemini não foi configurada corretamente.";
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
     const payload = {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
