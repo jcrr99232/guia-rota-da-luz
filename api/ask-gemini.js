@@ -1,3 +1,5 @@
+import { GoogleAuth } from 'google-auth-library'; // Importa a nova biblioteca
+
 export const config = {
   runtime: 'edge',
 };
@@ -5,32 +7,45 @@ export const config = {
 export default async function handler(req) {
   const { prompt } = await req.json();
 
-  // Lendo as DUAS chaves secretas
-  const apiKey = process.env.GEMINI_API_KEY;
-  const projectID = process.env.GOOGLE_PROJECT_ID; // O ID do seu projeto
+  // Lê as novas credenciais
+  const projectID = process.env.GOOGLE_PROJECT_ID;
+  const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
+  // Corrige o formato da chave privada que a Vercel armazena
+  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
-  if (!apiKey || !projectID) {
-    return new Response(JSON.stringify({ error: 'API Key ou Project ID não configurados' }), {
+  if (!projectID || !clientEmail || !privateKey) {
+    return new Response(JSON.stringify({ error: 'Credenciais do Google não configuradas corretamente' }), {
       status: 500, headers: { 'Content-Type': 'application/json' },
     });
   }
-
-  // --- NOVO ENDPOINT E PAYLOAD DA VERTEX AI ---
-  // Note que o endereço do servidor e o modelo são diferentes
+  
   const vertexApiUrl = `https://us-central1-aiplatform.googleapis.com/v1/projects/${projectID}/locations/us-central1/publishers/google/models/gemini-1.5-flash-latest:generateContent`;
-
-  const payload = {
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
-    generationConfig: { temperature: 0.7, topK: 40, topP: 0.95 }
-  };
-  // --- FIM DA MUDANÇA ---
-
+  
   try {
+    // --- NOVA LÓGICA DE AUTENTICAÇÃO ---
+    // Faz login como a "Conta de Serviço" (o robô)
+    const auth = new GoogleAuth({
+      credentials: {
+        client_email: clientEmail,
+        private_key: privateKey,
+      },
+      scopes: 'https://www.googleapis.com/auth/cloud-platform', // A permissão que precisamos
+    });
+
+    // Pega o "passe de segurança" temporário (o Token OAuth 2)
+    const authToken = await auth.getAccessToken();
+    // --- FIM DA NOVA LÓGICA ---
+
+    const payload = {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.7 }
+    };
+
     const response = await fetch(vertexApiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}` // Vertex AI usa 'Bearer Token' em vez de 'key='
+        'Authorization': `Bearer ${authToken}` // Usa o novo token de segurança
       },
       body: JSON.stringify(payload)
     });
@@ -38,7 +53,6 @@ export default async function handler(req) {
     if (!response.ok) {
       const errorBody = await response.json();
       console.error("Google Vertex AI Error:", errorBody);
-      // Tenta extrair a mensagem de erro específica
       const errorMessage = errorBody.error?.message || `Google API falhou com status: ${response.status}`;
       throw new Error(errorMessage);
     }
