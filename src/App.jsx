@@ -803,26 +803,21 @@ export default function App() {
   };
 
   const callGeminiAPI = async (prompt) => {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) return "ERRO: A chave de API do Gemini não foi configurada corretamente.";
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-    const payload = {
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, topK: 40, topP: 0.95 }
-    };
-    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    // Agora, o aplicativo chama o seu próprio backend
+    const response = await fetch('/api/ask-gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: prompt })
+    });
+
     if (!response.ok) {
-      const errorBody = await response.json();
-      console.error("API call failed:", errorBody);
-      throw new Error(`API call failed with status: ${response.status}`);
+      const errorData = await response.json();
+      console.error("Erro do nosso backend:", errorData.error);
+      throw new Error(`Falha na API: ${errorData.error}`);
     }
-    const result = await response.json();
-    if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
-      return result.candidates[0].content.parts[0].text;
-    } else {
-      console.error("Invalid response structure from API:", result);
-      throw new Error("Estrutura de resposta inválida da API.");
-    }
+
+    const data = await response.json();
+    return data.response; // Retorna o texto da IA
   };
 
   const handleDateChange = (e) => {
